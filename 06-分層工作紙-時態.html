@@ -338,7 +338,7 @@ var VOICE=(function(){
   }
   return {speak:speak,stop:stop,has:function(t){return !!lookup(t);}};
 })();
-function speak(text){VOICE.speak(text);}
+function speak(text){VOICE.speak(String(text).replace(/\s*\([^)]*\)/g,"").replace(/\s+/g," ").trim());}
 
 /* ---------- 插圖 ---------- */
 function svgStory(){

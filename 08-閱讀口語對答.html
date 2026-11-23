@@ -247,7 +247,7 @@ var voices=[];
 var SR=null; try{ SR=window.SpeechRecognition||window.webkitSpeechRecognition||null; }catch(e){ SR=null; }
 var isFile=false; try{ isFile=(location.protocol==='file:'); }catch(e){}
 var voiceOK=!!SR && !isFile;
-var recLang='yue-Hant-HK';
+var recLang='zh-HK';
 var rec=null, listening=false, micText='', micErr=false;
 
 /* ---------- 簡→繁（少量）---------- */
@@ -424,7 +424,7 @@ function updateDots(){
 
 /* ---------- 流程 ---------- */
 function voiceReason(){
-  if(isFile) return '📌 呢個檔案係直接打開（file://），瀏覽器通常唔畀用咪高峰，所以已經轉做「打字作答」模式，一樣可以練習！想用講嘅，請用 Chrome 並經網址（https 或 localhost）打開。';
+  if(isFile) return '📌 呢個檔案係直接打開（file://），瀏覽器通常唔畀用咪高峰，所以已經轉做「打字作答」模式，一樣可以練習！想用講嘅，請用 Chrome 打開網上版：<b>https://jinnamcyber.github.io/ai-comm-workshop/08-閱讀口語對答.html</b>';
   if(!SR) return '📌 呢個瀏覽器冇語音辨識功能（建議用 Chrome），已經轉做「打字作答」模式，一樣可以練習！';
   return '';
 }
@@ -540,13 +540,13 @@ function startMic(){
     var er=e&&e.error; micErr=true;
     if(er==='no-speech'){ notice('📌 冇聽到聲音，再按一次 🎤 試吓，或者直接打字。'); }
     else if(er==='aborted'){ micErr=false; }
-    else if(er==='not-allowed'||er==='service-not-allowed'){ disableVoice('未允許使用咪高峰（或者呢個環境唔支援語音）。'); }
+    else if(er==='not-allowed'||er==='service-not-allowed'){ notice('📌 未允許使用咪高峰。請撳網址列左邊嘅鎖頭／咪高峰圖示，揀「允許」，然後再撳 🎤；Mac 仲要喺「系統設定 → 私隱 → 咪高峰」打開 Chrome。或者先用打字作答。'); }
     else if(er==='network'){ disableVoice('語音辨識要連接網絡，而家連唔到。'); }
     else if(er==='audio-capture'){ disableVoice('搵唔到咪高峰。'); }
     else if(er==='language-not-supported'){
       if(recLang!=='zh-HK'){ recLang='zh-HK'; notice('📌 轉用另一種語言設定，請再按一次 🎤。'); }
       else disableVoice('呢個瀏覽器唔支援廣東話辨識。');
-    } else { notice('📌 語音出咗啲問題，再試一次或者用打字。'); }
+    } else { notice('📌 語音出咗啲問題（'+er+'），再試一次或者用打字。'); }
   };
   rec.onend=function(){
     listening=false; setMicUI();

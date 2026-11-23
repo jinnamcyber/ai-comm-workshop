@@ -275,7 +275,7 @@ footer{text-align:right;font-size:14px;color:var(--ink-2);padding-right:6px}
 (function(){
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
-var LOCAL = 'http:' + '//localhost';
+var LOCAL = 'https://jinnamcyber.github.io/ai-comm-workshop/02-朗讀即時回饋.html';
 
 /* ===== 題目 ===== */
 var LEVELS = [
@@ -326,10 +326,10 @@ function lcsMarks(T, H){
 
 /* ===== 狀態 ===== */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-var LANGS = ['yue-Hant-HK','zh-HK','zh-TW'];
+var LANGS = ['zh-HK','yue-Hant-HK','zh-TW'];
 var S = {
   level:0, idx:0, mode: SR ? 'mic' : 'teacher',
-  lang:'yue-Hant-HK', rate:0.85,
+  lang:'zh-HK', rate:0.85,
   tokens:[], flags:{}, result:null, recording:false, finished:false,
   scores:[{},{},{}]
 };
