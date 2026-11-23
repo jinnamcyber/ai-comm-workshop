@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>閱讀口語對答 · 外婆的菜園</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:clamp(24px,1.35vw,28px);line-height:1.6;
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh;overflow:hidden}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;flex-wrap:wrap}
+.title{display:flex;align-items:center;gap:14px;font-weight:800;font-size:clamp(26px,1.7vw,34px)}
+.chip{background:var(--primary);color:#fff;border-radius:999px;padding:4px 18px;font-size:.72em;font-weight:700}
+.tools{display:flex;gap:12px}
+.btn{min-height:64px;border-radius:18px;padding:0 24px;font-weight:700;background:var(--card);
+  box-shadow:0 5px 0 rgba(31,42,68,.14);border:2px solid var(--line);transition:transform .08s, box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(31,42,68,.14)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 5px 0 #1B4DB3}
+.btn.primary:active{box-shadow:0 1px 0 #1B4DB3}
+.btn.good{background:var(--good);color:#fff;border-color:var(--good);box-shadow:0 5px 0 #136E49}
+.btn.good:active{box-shadow:0 1px 0 #136E49}
+.btn.mic{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 5px 0 #B13E66}
+.btn.mic:active{box-shadow:0 1px 0 #B13E66}
+.btn.mic.rec{animation:pulse 1s infinite}
+.btn.mic.off{background:#B9BFCB;border-color:#B9BFCB;box-shadow:0 5px 0 #8C93A3;color:#fff}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+main{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 24px 8px;min-height:0}
+.panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--line);min-height:0;display:flex;flex-direction:column}
+#storyPanel{display:block;overflow:auto;padding:20px 28px 26px}
+.storyHead{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+.storyHead h1{margin:0;font-size:1.3em}
+.garden{float:right;width:clamp(180px,17vw,320px);height:auto;border:4px solid var(--ink);border-radius:20px;margin:0 0 10px 18px;background:#CDEBFF}
+.para{margin:.55em 0;padding:6px 10px 6px 14px;border-radius:14px;border-left:6px solid transparent;transition:background .2s,border-color .2s;font-size:clamp(24px,1.4vw,29px);line-height:1.85}
+.pno{display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-size:.75em;font-weight:800;margin-right:8px;vertical-align:.1em}
+.sen{border-radius:8px;transition:background .15s;padding:2px 0}
+.sen.hl{background:#FFE08A;box-shadow:0 0 0 3px #FFE08A}
+.para.focus{background:var(--hint-soft);border-left-color:var(--hint)}
+#chatPanel{overflow:hidden}
+.chatTop{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.owl{width:clamp(86px,8vw,130px);height:auto;flex:none}
+.owl .jaw{transform-box:fill-box;transform-origin:50% 0}
+.owl.talking .jaw{animation:talk .28s infinite alternate}
+.owl .pupils{transform-box:fill-box;transform-origin:center;animation:blink 4.5s infinite}
+@keyframes talk{from{transform:translateY(0)}to{transform:translateY(6px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.who{font-weight:800}
+.who small{display:block;font-weight:500;color:var(--ink-2);font-size:.7em;line-height:1.3}
+.dots{display:flex;gap:10px;margin-left:auto;align-items:center}
+.dot{width:32px;height:32px;border-radius:50%;background:#EDE6D6;border:3px solid #EDE6D6;display:grid;place-items:center;font-size:16px;font-weight:800;color:var(--ink-2)}
+.dot.cur{border-color:var(--primary);background:#fff;color:var(--primary)}
+.dot.ok{background:var(--good);border-color:var(--good);color:#fff}
+.dot.miss{background:var(--hint);border-color:var(--hint);color:#fff}
+#log{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.msg{max-width:92%;padding:12px 18px;border-radius:20px;animation:pop .25s ease-out;line-height:1.6}
+@keyframes pop{from{transform:translateY(8px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.msg.owl{align-self:flex-start;background:var(--primary-soft);border-bottom-left-radius:6px}
+.msg.me{align-self:flex-end;background:var(--accent-soft);border-bottom-right-radius:6px}
+.msg.good{align-self:flex-start;background:var(--good-soft);border:2px solid var(--good);border-bottom-left-radius:6px}
+.msg.hint{align-self:flex-start;background:var(--hint-soft);border:2px solid var(--hint);border-bottom-left-radius:6px}
+.msg .tag{display:inline-block;font-size:.65em;font-weight:800;background:var(--primary);color:#fff;border-radius:999px;padding:0 12px;margin-bottom:4px}
+.msg.good .star{display:inline-block;animation:bounce .6s}
+@keyframes bounce{0%{transform:scale(.3)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.sumCard h3{margin:0 0 4px;font-size:1.1em}
+.big{font-size:1.5em;font-weight:800;color:var(--good)}
+.rev{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.rev .btn{font-size:.85em;padding:0 16px;background:var(--hint-soft);border-color:var(--hint);box-shadow:0 5px 0 #C4801E}
+.acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+#notice{display:none;margin:0 20px 8px;padding:10px 16px;border-radius:16px;background:var(--hint-soft);border:2px solid var(--hint);font-size:.85em;line-height:1.5}
+#notice.show{display:block}
+.zone{padding:12px 20px 16px;border-top:2px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+#ans{flex:1;min-width:200px;min-height:64px;border:3px solid var(--line);border-radius:18px;padding:0 18px;font-family:inherit;font-size:inherit;color:var(--ink);background:#fff}
+#ans:focus{outline:none;border-color:var(--primary)}
+#ans::placeholder{color:#9AA2B3}
+.hide{display:none!important}
+footer{padding:4px 24px 8px;text-align:right;color:var(--ink-2);font-size:14px}
+@media (max-width:980px){
+  body{display:block;height:auto;overflow:auto}
+  main{display:flex;flex-direction:column}
+  #storyPanel{overflow:visible}
+  #chatPanel{height:80vh;min-height:560px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="title"><span class="chip">中文 · 閱讀</span><span>閱讀口語對答</span></div>
+  <div class="tools">
+    <button class="btn" id="fsBtn" type="button">⛶ 全螢幕</button>
+    <button class="btn" id="resetBtn" type="button">↺ 重新開始</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="storyPanel" aria-label="文章">
+    <svg class="garden" viewBox="0 0 320 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="外婆在菜園澆水的插圖">
+      <rect width="320" height="250" fill="#CDEBFF"/>
+      <g stroke="#1F2A44" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <g stroke="#F5B73A"><line x1="265" y1="8" x2="265" y2="16"/><line x1="298" y1="42" x2="306" y2="42"/><line x1="224" y1="42" x2="232" y2="42"/><line x1="288" y1="18" x2="294" y2="12"/><line x1="242" y1="18" x2="236" y2="12"/></g>
+        <circle cx="265" cy="42" r="21" fill="#FFD35C"/>
+        <g fill="#fff" stroke-width="3"><ellipse cx="150" cy="34" rx="30" ry="12"/><ellipse cx="172" cy="28" rx="20" ry="11"/></g>
+        <path d="M0 152 Q70 112 150 148 T320 140 L320 250 L0 250Z" fill="#8FD18A"/>
+        <rect x="14" y="98" width="88" height="68" fill="#FFE2B8"/>
+        <polygon points="6,100 58,60 110,100" fill="#E8618C"/>
+        <rect x="46" y="126" width="24" height="40" rx="4" fill="#B5754A"/>
+        <rect x="76" y="114" width="18" height="18" fill="#CDEBFF"/><rect x="22" y="114" width="18" height="18" fill="#CDEBFF"/>
+        <rect x="0" y="166" width="320" height="84" fill="#A8714B"/>
+        <g stroke="#7C4E2C" fill="none"><path d="M10 188 Q80 178 150 188"/><path d="M6 214 Q80 204 160 214"/><path d="M2 238 Q80 230 160 238"/></g>
+        <g><path d="M34 190 V160" stroke="#2E8B4F"/><path d="M34 172 q-14 -6 -18 -16 M34 168 q14 -6 18 -16" stroke="#2E8B4F" fill="none"/>
+        <circle cx="30" cy="188" r="9" fill="#EF4D3C"/><circle cx="46" cy="178" r="8" fill="#EF4D3C"/><circle cx="24" cy="172" r="7" fill="#EF4D3C"/></g>
+        <g><path d="M84 216 V186" stroke="#2E8B4F"/><path d="M84 198 q-14 -6 -18 -16 M84 194 q14 -6 18 -16" stroke="#2E8B4F" fill="none"/>
+        <circle cx="80" cy="214" r="9" fill="#EF4D3C"/><circle cx="96" cy="204" r="8" fill="#EF4D3C"/></g>
+        <g><path d="M118 192 q10 -24 24 -26" stroke="#2E8B4F" fill="none"/><ellipse cx="128" cy="196" rx="6" ry="14" fill="#4FBF6B" transform="rotate(-18 128 196)"/><ellipse cx="142" cy="190" rx="5" ry="12" fill="#4FBF6B" transform="rotate(14 142 190)"/></g>
+        <g fill="#BFE8A0"><circle cx="128" cy="232" r="16"/><circle cx="160" cy="226" r="14"/></g>
+        <g fill="none" stroke-width="3"><path d="M118 232 q10 -10 20 0 M154 226 q6 -8 14 0"/></g>
+        <path d="M232 212 v18 M250 212 v18"/>
+        <rect x="224" y="152" width="36" height="62" rx="14" fill="#E8618C"/>
+        <path d="M230 170 h24 v40 h-24z" fill="#fff" stroke-width="3"/>
+        <circle cx="242" cy="134" r="16" fill="#FFD9B8"/>
+        <path d="M226 132 q2 -20 16 -20 q16 0 16 20 q-6 -10 -16 -10 q-10 0 -16 10Z" fill="#D8D8E0" stroke-width="3"/>
+        <circle cx="242" cy="108" r="8" fill="#D8D8E0" stroke-width="3"/>
+        <circle cx="236" cy="136" r="1.6" fill="#1F2A44"/><circle cx="249" cy="136" r="1.6" fill="#1F2A44"/>
+        <path d="M237 143 q5 4 10 0" fill="none" stroke-width="3"/>
+        <path d="M226 168 L206 186" fill="none" stroke="#FFD9B8" stroke-width="9"/>
+        <g transform="translate(184,176) rotate(-12)"><rect x="0" y="0" width="30" height="22" rx="5" fill="#4FA8E8"/><path d="M0 8 L-16 -2" fill="none"/><path d="M30 6 q12 -8 8 -18" fill="none"/></g>
+        <g fill="#4FA8E8" stroke-width="2"><circle cx="164" cy="190" r="3"/><circle cx="170" cy="200" r="3"/><circle cx="162" cy="204" r="3"/></g>
+      </g>
+    </svg>
+    <div class="storyHead">
+      <h1>《外婆的菜園》</h1>
+      <button class="btn primary" id="readBtn" type="button">🔊 朗讀全文</button>
+    </div>
+    <div id="story"></div>
+  </section>
+
+  <section class="panel" id="chatPanel" aria-label="對答練習">
+    <div class="chatTop">
+      <svg class="owl" id="owl" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="貓頭鷹老師">
+        <g stroke="#1F2A44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="78" cy="208" rx="16" ry="7" fill="#F5A623"/><ellipse cx="122" cy="208" rx="16" ry="7" fill="#F5A623"/>
+          <ellipse cx="100" cy="135" rx="64" ry="72" fill="#9B6B4A"/>
+          <ellipse cx="100" cy="155" rx="40" ry="48" fill="#FCE8C8" stroke-width="4"/>
+          <path d="M80 140 q8 8 16 0 M104 140 q8 8 16 0 M88 166 q8 8 16 0 M80 186 q8 8 16 0 M104 186 q8 8 16 0" fill="none" stroke-width="3" stroke="#C99A6B"/>
+          <ellipse cx="36" cy="140" rx="14" ry="38" fill="#7E5238" transform="rotate(8 36 140)"/>
+          <ellipse cx="164" cy="140" rx="14" ry="38" fill="#7E5238" transform="rotate(-8 164 140)"/>
+          <circle cx="100" cy="88" r="56" fill="#9B6B4A"/>
+          <circle cx="76" cy="90" r="23" fill="#fff"/><circle cx="124" cy="90" r="23" fill="#fff"/>
+          <g class="pupils" stroke="none"><circle cx="78" cy="92" r="11" fill="#1F2A44"/><circle cx="122" cy="92" r="11" fill="#1F2A44"/><circle cx="82" cy="87" r="3.5" fill="#fff"/><circle cx="126" cy="87" r="3.5" fill="#fff"/></g>
+          <circle cx="76" cy="90" r="25" fill="none" stroke-width="4"/><circle cx="124" cy="90" r="25" fill="none" stroke-width="4"/>
+          <polygon points="90,104 110,104 100,120" fill="#F5A623" stroke-width="4"/>
+          <polygon class="jaw" points="93,120 107,120 100,130" fill="#E58E10" stroke-width="3"/>
+          <polygon points="46,40 100,20 154,40 100,60" fill="#2B3A67"/>
+          <path d="M72 50 v14 q28 14 56 0 v-14" fill="#2B3A67"/>
+          <path d="M154 40 L160 66" fill="none" stroke="#F5B73A"/><circle cx="160" cy="68" r="5" fill="#F5B73A" stroke-width="3"/>
+        </g>
+      </svg>
+      <div class="who">貓頭鷹老師<small>我會問你 6 條問題，用口講或打字都得</small></div>
+      <div class="dots" id="dots" aria-label="進度"></div>
+    </div>
+    <div id="log" aria-live="polite"></div>
+    <div id="notice" role="status"></div>
+    <div class="zone">
+      <div class="row" id="startRow"><button class="btn primary" id="startBtn" type="button" style="flex:1">▶ 開始對答</button></div>
+      <div class="row hide" id="ansRow">
+        <input id="ans" type="text" placeholder="講出答案，或者喺度打字…" autocomplete="off" enterkeyhint="send">
+        <button class="btn mic" id="micBtn" type="button">🎤 講答案</button>
+        <button class="btn primary" id="sendBtn" type="button">送出 ➤</button>
+      </div>
+      <div class="row hide" id="ansRow2">
+        <button class="btn" id="replayBtn" type="button">🔊 再聽題目</button>
+        <button class="btn" id="idkBtn" type="button">🤔 我唔識</button>
+      </div>
+      <div class="row hide" id="nextRow"><button class="btn good" id="nextBtn" type="button" style="flex:1">下一題 ➜</button></div>
+    </div>
+  </section>
+</main>
+<footer>AI 輔助備課工作坊 · 示範教具</footer>
+
+<script src="audio/08/voice.js"></script>
+<script>
+(function(){
+'use strict';
+function $(id){return document.getElementById(id);}
+
+/* ---------- 文章 ---------- */
+var STORY=[
+  ["外婆家的後面，有一個小小的菜園。","園子裏有蝴蝶飛來飛去，空氣中滿是泥土的香味。","每個週末，我都會跟媽媽回去探望外婆。"],
+  ["菜園裏種了番茄、青瓜和白菜。","外婆說，番茄要曬足太陽，才會又紅又甜。"],
+  ["有一次，我幫外婆澆水，不小心把水灑到鞋子上。","我低著頭，心裏有點害怕。","外婆笑著說：「沒關係，菜也在喝水呢！」"],
+  ["我們一起摘了幾個紅紅的番茄，洗乾淨後放在桌上。","我咬了一口，哇，真甜！","外婆看著我，笑得眼睛都彎了。","我覺得，外婆的菜園就像一個充滿愛的小天地。"]
+];
+var SENS=[];
+var PNAMES=['第一段','第二段','第三段','第四段'];
+
+/* ---------- 題目 ---------- */
+var QS=[
+ {type:'事實題',p:0,open:false,
+  q:'外婆屋企後面有啲乜嘢呀？',
+  kw:[['菜園','菜地','菜田','種菜','小菜園']],
+  ans:'外婆屋企後面有一個細細個嘅菜園。',
+  hint:'試睇返第一段，第一句就講咗。外婆屋企後面有一個細細個嘅……？'},
+ {type:'事實題',p:1,open:false,
+  q:'菜園裏種咗啲乜嘢菜呀？講一樣都得。',
+  kw:[['番茄','蕃茄','西紅柿','青瓜','黃瓜','白菜','大白菜','小白菜','tomato']],
+  ans:'菜園裏種咗番茄、青瓜同白菜。',
+  hint:'試睇返第二段，菜園裏有三種菜，其中一種係紅色嘅。'},
+ {type:'事實題',p:1,open:false,
+  q:'外婆話，番茄要點樣先會又紅又甜呀？',
+  kw:[['太陽','日頭','陽光','曬','日光']],
+  ans:'番茄要曬足太陽，先會又紅又甜。',
+  hint:'同樣睇第二段，外婆話番茄要有足夠嘅乜嘢先會變甜？提示：天上面黃黃地、好光嘅嘢。'},
+ {type:'推論題',p:2,open:false,
+  q:'文章裏面嘅「我」整濕咗鞋，外婆點解仲笑住話「沒關係」呀？',
+  kw:[['溫柔','疼','慈祥','安慰','鼓勵','寬容','體諒','幽默','有趣','好人','唔介意','不介意','不怪','唔怪','不罵','唔罵','冇罵','沒有罵','冇鬧','唔鬧','不生氣','唔嬲','唔生氣','不用怕','不要怕','唔使驚','唔好驚','別怕','喝水','飲水','愛護']],
+  ans:'因為外婆好疼我，唔想我驚，所以用有趣嘅講法安慰我。',
+  hint:'試睇返第三段：「我」低住頭，心裏有啲害怕。外婆係想鬧我，定係想安慰我呢？'},
+ {type:'推論題',p:3,open:false,
+  q:'點解「我」覺得外婆嘅菜園好似一個充滿愛嘅小天地呀？',
+  kw:[['照顧','用心','一起','分享','疼','關心','溫暖','溫馨','幸福','陪','澆水','摘','笑','開心','好味','甜']],
+  ans:'因為外婆用心照顧菜園，又好疼我，我哋一齊澆水、摘番茄，覺得好溫暖。',
+  hint:'試睇返最後一段：我哋一齊做咗啲乜？外婆對我點樣？'},
+ {type:'感受題',p:3,open:true,min:8,
+  q:'呢題冇對錯喔。如果你係文章裏面嘅「我」，你想同外婆一齊做乜？或者你同家人一齊做過乜開心嘅事呀？',
+  kw:[],
+  ans:'我想同外婆一齊種小花，仲想幫佢澆水，因為同家人一齊做嘢好開心。',
+  hint:'試用一句完整嘅說話答：「我想……，因為……」，多講少少都得。'}
+];
+var OBJ_COUNT=5;
+
+/* ---------- 狀態 ---------- */
+var cur=-1, attempts=0, phase='idle', results=[];
+var reading=false, speakTok=0, guard=null;
+var synth=null; try{ synth=window.speechSynthesis||null; }catch(e){ synth=null; }
+var voices=[];
+var SR=null; try{ SR=window.SpeechRecognition||window.webkitSpeechRecognition||null; }catch(e){ SR=null; }
+var isFile=false; try{ isFile=(location.protocol==='file:'); }catch(e){}
+var voiceOK=!!SR && !isFile;
+var recLang='yue-Hant-HK';
+var rec=null, listening=false, micText='', micErr=false;
+
+/* ---------- 簡→繁（少量）---------- */
+var S2T={'园':'園','种':'種','阳':'陽','晒':'曬','红':'紅','爱':'愛','浇':'澆','帮':'幫','关':'關','顾':'顧','没':'沒','们':'們','开':'開','这':'這','让':'讓','为':'為','对':'對','温':'溫','乐':'樂','说':'說','话':'話','妈':'媽','时':'時','会':'會','还':'還','样':'樣','觉':'覺','边':'邊','里':'裏','裡':'裏','点':'點','惊':'驚','骂':'罵','气':'氣','别':'別','鲜':'鮮','宽':'寬','谅':'諒','体':'體','护':'護','励':'勵'};
+function norm(s){
+  s=String(s||'').toLowerCase(); var o='';
+  for(var i=0;i<s.length;i++){ var c=s.charAt(i); o+=(S2T[c]||c); }
+  return o.replace(/[\s　，。！？、,.!?;；：:「」『』"'“”‘’（）()\-—…~～]/g,'');
+}
+function hit(q,text){
+  var a=norm(text), n=0;
+  for(var i=0;i<q.kw.length;i++){
+    var g=q.kw[i];
+    for(var j=0;j<g.length;j++){ if(a.indexOf(norm(g[j]))>=0){ n++; break; } }
+  }
+  return n>=(q.need||1);
+}
+
+/* ---------- 聲音 ---------- */
+var actx=null;
+function ding(kind){
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!actx) actx=new AC();
+    if(actx.state==='suspended'&&actx.resume) actx.resume();
+    var notes=kind==='good'?[880,1320]:[440];
+    notes.forEach(function(f,i){
+      var o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+i*0.12;
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.18,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.4);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+0.45);
+    });
+  }catch(e){}
+}
+function loadVoices(){ try{ voices=synth?(synth.getVoices()||[]):[]; }catch(e){ voices=[]; } }
+function lc(v){ return String(v.lang||'').replace('_','-').toLowerCase(); }
+function pickVoice(){
+  var i,v;
+  for(i=0;i<voices.length;i++){ v=voices[i]; if(lc(v)==='zh-hk') return v; }
+  for(i=0;i<voices.length;i++){ v=voices[i]; if(lc(v).indexOf('zh-hk')===0||lc(v).indexOf('yue')===0) return v; }
+  for(i=0;i<voices.length;i++){ v=voices[i]; if(lc(v).indexOf('zh')===0) return v; }
+  return null;
+}
+var owlEl=null;
+function setTalking(on){ if(owlEl){ if(on) owlEl.classList.add('talking'); else owlEl.classList.remove('talking'); } }
+var curAudio=null;
+function lookupVoice(t){ try{ return (window.VOICE_LINES||{})[String(t).replace(/\s+/g,'')]||null; }catch(e){ return null; } }
+function cancelSpeech(){
+  speakTok++; if(guard){ clearTimeout(guard); guard=null; }
+  if(curAudio){ try{ curAudio.onended=null; curAudio.onerror=null; curAudio.pause(); }catch(e){} curAudio=null; }
+  try{ if(synth) synth.cancel(); }catch(e){}
+  setTalking(false);
+}
+/* 單句：有預錄 mp3 就播 mp3，否則用電腦 TTS；next 一定會被呼叫 */
+function playOne(text,tok,next){
+  var src=lookupVoice(text), called=false;
+  function go(){ if(called) return; called=true; if(tok===speakTok) next(); }
+  function tts(){
+    if(called||tok!==speakTok) return;
+    if(!synth||typeof SpeechSynthesisUtterance==='undefined'){ guard=setTimeout(go,Math.min(7000,text.length*200+500)); return; }
+    try{
+      var u=new SpeechSynthesisUtterance(text); u.lang='zh-HK';
+      var v=pickVoice(); if(v){ u.voice=v; u.lang=v.lang; }
+      u.rate=0.9; u.onend=go; u.onerror=go;
+      guard=setTimeout(go,text.length*500+4000);
+      synth.speak(u);
+    }catch(e){ go(); }
+  }
+  if(src){
+    try{
+      var au=new Audio(src); curAudio=au;
+      au.onended=function(){ if(curAudio===au) curAudio=null; go(); };
+      au.onerror=function(){ if(curAudio===au) curAudio=null; tts(); };
+      var pr=au.play();
+      if(pr&&pr.catch) pr.catch(function(){ if(curAudio===au) curAudio=null; tts(); });
+      return;
+    }catch(e){ curAudio=null; }
+  }
+  tts();
+}
+/* text 可以係字串或者字串陣列（順序播放）*/
+function say(text,onDone,owl){
+  cancelSpeech(); var tok=speakTok, done=false;
+  var parts=Array.isArray(text)?text:[text];
+  function fin(){
+    if(done||tok!==speakTok) return; done=true;
+    if(guard){ clearTimeout(guard); guard=null; }
+    if(owl) setTalking(false);
+    if(onDone) onDone();
+  }
+  if(owl) setTalking(true);
+  var i=0;
+  function step(){
+    if(tok!==speakTok) return;
+    if(i>=parts.length){ fin(); return; }
+    playOne(parts[i++],tok,step);
+  }
+  step();
+}
+
+/* ---------- 文章顯示 / 朗讀 ---------- */
+function buildStory(){
+  var box=$('story'); if(!box) return; box.innerHTML=''; SENS=[];
+  STORY.forEach(function(para,pi){
+    var p=document.createElement('p'); p.className='para'; p.setAttribute('data-p',pi);
+    var no=document.createElement('span'); no.className='pno'; no.textContent=pi+1; p.appendChild(no);
+    para.forEach(function(s){
+      var sp=document.createElement('span'); sp.className='sen'; sp.textContent=s; p.appendChild(sp);
+      SENS.push({p:pi,text:s,el:sp});
+    });
+    box.appendChild(p);
+  });
+}
+function clearHl(){ for(var i=0;i<SENS.length;i++) SENS[i].el.classList.remove('hl'); }
+function focusPara(pi){
+  var ps=document.querySelectorAll('.para');
+  for(var i=0;i<ps.length;i++){ if(pi===i) ps[i].classList.add('focus'); else ps[i].classList.remove('focus'); }
+  if(pi>=0&&ps[pi]){ try{ ps[pi].scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){} }
+}
+function setReadBtn(){ var b=$('readBtn'); if(b) b.textContent=reading?'⏹ 停止朗讀':'🔊 朗讀全文'; }
+function stopRead(){ reading=false; cancelSpeech(); clearHl(); setReadBtn(); }
+function readFrom(i,end){
+  if(!reading) return;
+  if(i>=end||i>=SENS.length){ stopRead(); return; }
+  clearHl(); SENS[i].el.classList.add('hl');
+  try{ SENS[i].el.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){}
+  say(SENS[i].text,function(){ readFrom(i+1,end); },false);
+}
+function startRead(from,end){
+  if(listening) stopMic();
+  reading=true; setReadBtn(); focusPara(-1); readFrom(from,end);
+}
+function readAll(){ if(reading){ stopRead(); return; } startRead(0,SENS.length); }
+function readPara(pi){
+  var a=-1,b=0;
+  for(var i=0;i<SENS.length;i++){ if(SENS[i].p===pi){ if(a<0) a=i; b=i+1; } }
+  if(a>=0){ if(reading) stopRead(); startRead(a,b); }
+}
+
+/* ---------- 對話 UI ---------- */
+function addMsg(cls,html){
+  var log=$('log'); if(!log) return null;
+  var d=document.createElement('div'); d.className='msg '+cls; d.innerHTML=html; log.appendChild(d);
+  try{ log.scrollTop=log.scrollHeight; }catch(e){}
+  return d;
+}
+function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+function showRows(which){
+  var ids={start:'startRow',ans:'ansRow',ans2:'ansRow2',next:'nextRow'};
+  for(var k in ids){
+    var el=$(ids[k]); if(!el) continue;
+    if(which.indexOf(k)>=0) el.classList.remove('hide'); else el.classList.add('hide');
+  }
+}
+function notice(t){
+  var n=$('notice'); if(!n) return;
+  if(t){ n.textContent=t; n.classList.add('show'); } else { n.textContent=''; n.classList.remove('show'); }
+}
+function buildDots(){
+  var d=$('dots'); if(!d) return; d.innerHTML='';
+  for(var i=0;i<QS.length;i++){
+    var s=document.createElement('span'); s.className='dot'; s.textContent=i+1; d.appendChild(s);
+  }
+}
+function updateDots(){
+  var ds=document.querySelectorAll('#dots .dot');
+  for(var i=0;i<ds.length;i++){
+    var c='dot';
+    if(results[i]) c+=results[i].ok?' ok':' miss';
+    else if(i===cur) c+=' cur';
+    ds[i].className=c;
+  }
+}
+
+/* ---------- 流程 ---------- */
+function voiceReason(){
+  if(isFile) return '📌 呢個檔案係直接打開（file://），瀏覽器通常唔畀用咪高峰，所以已經轉做「打字作答」模式，一樣可以練習！想用講嘅，請用 Chrome 並經網址（https 或 localhost）打開。';
+  if(!SR) return '📌 呢個瀏覽器冇語音辨識功能（建議用 Chrome），已經轉做「打字作答」模式，一樣可以練習！';
+  return '';
+}
+function intro(){
+  cur=-1; attempts=0; phase='idle'; results=[];
+  var log=$('log'); if(log) log.innerHTML='';
+  updateDots(); showRows(['start']); focusPara(-1);
+  addMsg('owl','你好呀！我係貓頭鷹老師 🦉<br>先讀一讀《外婆的菜園》（可以按「🔊 朗讀全文」聽一聽），準備好就按「開始對答」，我會問你 6 條問題。');
+  notice(voiceOK?'':voiceReason());
+}
+function disableVoice(reason){
+  voiceOK=false; listening=false;
+  var b=$('micBtn'); if(b){ b.classList.add('off'); b.classList.remove('rec'); b.textContent='🎤 用唔到'; }
+  notice('📌 '+reason+' 已經轉做「打字作答」模式，一樣可以練習！');
+  var a=$('ans'); if(a){ try{ a.focus(); }catch(e){} }
+}
+function startQuiz(){
+  if(reading) stopRead();
+  cur=-1; results=[]; nextQ();
+}
+function nextQ(){
+  cur++;
+  if(cur>=QS.length){ summary(); return; }
+  attempts=0; phase='await'; focusPara(-1); updateDots();
+  var q=QS[cur];
+  addMsg('owl','<span class="tag">第 '+(cur+1)+' 題 · '+q.type+'</span><br>'+esc(q.q));
+  showRows(['ans','ans2']);
+  var a=$('ans'); if(a) a.value='';
+  say(['第'+(cur+1)+'題。',q.q],function(){ if(a&&phase==='await'){ try{ a.focus(); }catch(e){} } },true);
+}
+function replay(){ if(phase==='await'&&QS[cur]) say(QS[cur].q,null,true); }
+function setNext(){ var b=$('nextBtn'); if(b) b.textContent=(cur>=QS.length-1)?'睇總結 ➜':'下一題 ➜'; }
+
+function submit(text,isIdk){
+  if(phase!=='await') return;
+  var q=QS[cur]; text=String(text||'').trim();
+  if(!text&&!isIdk){ notice('先講或者打啲字，再按「送出」啦～'); return; }
+  if(voiceOK||isFile||!SR) { /* 保持語音提示 */ }
+  addMsg('me',isIdk?'（我唔識）':esc(text));
+  attempts++; var ok=false;
+  if(!isIdk){
+    if(q.open) ok=norm(text).length>=q.min; else ok=hit(q,text);
+  }
+  var a=$('ans'); if(a) a.value='';
+  if(ok){
+    results[cur]={ok:true,tries:attempts,open:q.open}; phase='fb'; ding('good'); updateDots(); focusPara(q.p);
+    var praise=q.open?'講得好呀，多謝你同我分享！':(attempts===1?'好叻呀！一次就答啱！':'你好叻喎！試多一次就答啱喇！');
+    addMsg('good','<span class="star">⭐</span> '+praise+'<br>'+(q.open?'我嘅例子：':'完整答案：')+esc(q.ans));
+    showRows(['next']); setNext();
+    say([praise,(q.open?'我嘅例子係：':'完整答案係：'),q.ans],null,true);
+  } else if(attempts===1){
+    ding('hint'); focusPara(q.p);
+    var lead=q.open?'可以再講多少少嗎？':'差少少喔，唔緊要，再試吓！';
+    addMsg('hint','💡 '+lead+'<br>'+esc(q.hint));
+    say([lead,q.hint],function(){ if(a&&phase==='await'){ try{ a.focus(); }catch(e){} } },true);
+  } else {
+    results[cur]={ok:false,tries:attempts,open:q.open}; phase='fb'; ding('hint'); updateDots(); focusPara(q.p);
+    addMsg('hint','🌟 冇問題，我哋一齊睇吓答案：<br><b>'+esc(q.ans)+'</b><br><small>已經幫你標示咗文章嘅位置，睇多一次就會記得。</small>');
+    showRows(['next']); setNext();
+    say(['冇問題，我哋一齊睇吓答案：',q.ans],null,true);
+  }
+}
+
+function summary(){
+  phase='summary'; focusPara(-1); updateDots(); showRows([]);
+  var n=0, miss=[], i;
+  for(i=0;i<QS.length;i++){
+    if(QS[i].open) continue;
+    if(results[i]&&results[i].ok) n++; else miss.push(i);
+  }
+  var html='<div class="sumCard"><h3>🎉 完成啦！</h3>你答啱咗 <span class="big">'+n+' / '+OBJ_COUNT+'</span> 題<br><small>（第 6 題感受題冇對錯，你都有講出自己嘅諗法。）</small>';
+  var spoken=['完成啦！你答啱咗'+OBJ_COUNT+'題入面嘅'+n+'題。'];
+  if(miss.length){
+    html+='<br><br>建議溫習：<div class="rev">';
+    var names=[];
+    miss.forEach(function(qi){
+      var p=QS[qi].p;
+      html+='<button class="btn" type="button" data-rev="'+p+'">第 '+(qi+1)+' 題 → 聽'+PNAMES[p]+'</button>';
+      if(names.indexOf(PNAMES[p])<0) names.push(PNAMES[p]);
+    });
+    html+='</div>'; spoken.push('可以溫習'+names.join('同')+'。');
+  } else { html+='<br>全部答啱，好叻呀！可以試吓同家人讀一讀成篇文章。'; spoken.push('全部答啱，好叻呀！'); }
+  html+='<div class="acts"><button class="btn primary" type="button" data-act="again">↺ 再玩一次</button><button class="btn" type="button" data-act="read">🔊 朗讀全文</button></div></div>';
+  addMsg('good',html);
+  ding('good'); say(spoken,null,true);
+}
+
+/* ---------- 咪高峰 ---------- */
+function setMicUI(){
+  var b=$('micBtn'); if(!b||!voiceOK) return;
+  if(listening){ b.classList.add('rec'); b.textContent='👂 聽緊…'; } else { b.classList.remove('rec'); b.textContent='🎤 講答案'; }
+}
+function stopMic(){ try{ if(rec) rec.stop(); }catch(e){} listening=false; setMicUI(); }
+function startMic(){
+  if(phase!=='await') return;
+  if(!voiceOK){
+    notice(voiceReason()||'📌 語音用唔到，請用打字作答。');
+    var a0=$('ans'); if(a0){ try{ a0.focus(); }catch(e){} }
+    return;
+  }
+  if(listening){ stopMic(); return; }
+  if(reading) stopRead();
+  cancelSpeech();
+  micText=''; micErr=false;
+  try{ rec=new SR(); }catch(e){ disableVoice('開唔到語音辨識。'); return; }
+  rec.lang=recLang; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+  rec.onstart=function(){ listening=true; setMicUI(); notice('🎤 聽緊你講…講完會自動送出。'); };
+  rec.onresult=function(e){
+    var t=''; try{ for(var i=0;i<e.results.length;i++) t+=e.results[i][0].transcript; }catch(x){}
+    micText=t; var a=$('ans'); if(a) a.value=t;
+  };
+  rec.onerror=function(e){
+    var er=e&&e.error; micErr=true;
+    if(er==='no-speech'){ notice('📌 冇聽到聲音，再按一次 🎤 試吓，或者直接打字。'); }
+    else if(er==='aborted'){ micErr=false; }
+    else if(er==='not-allowed'||er==='service-not-allowed'){ disableVoice('未允許使用咪高峰（或者呢個環境唔支援語音）。'); }
+    else if(er==='network'){ disableVoice('語音辨識要連接網絡，而家連唔到。'); }
+    else if(er==='audio-capture'){ disableVoice('搵唔到咪高峰。'); }
+    else if(er==='language-not-supported'){
+      if(recLang!=='zh-HK'){ recLang='zh-HK'; notice('📌 轉用另一種語言設定，請再按一次 🎤。'); }
+      else disableVoice('呢個瀏覽器唔支援廣東話辨識。');
+    } else { notice('📌 語音出咗啲問題，再試一次或者用打字。'); }
+  };
+  rec.onend=function(){
+    listening=false; setMicUI();
+    if(voiceOK&&!micErr){
+      if(micText.trim()){ notice(''); submit(micText,false); }
+      else notice('📌 冇聽到聲音，再按一次 🎤 試吓，或者直接打字。');
+    }
+  };
+  try{ rec.start(); }catch(e){ disableVoice('開唔到語音辨識。'); }
+}
+
+/* ---------- 事件 ---------- */
+function resetAll(){
+  if(listening) stopMic();
+  stopRead(); cancelSpeech(); intro();
+}
+function init(){
+  owlEl=$('owl'); buildStory(); buildDots();
+  loadVoices();
+  try{
+    if(synth&&synth.addEventListener) synth.addEventListener('voiceschanged',loadVoices);
+    else if(synth) synth.onvoiceschanged=loadVoices;
+  }catch(e){}
+  var m=$('micBtn'); if(m&&!voiceOK){ m.classList.add('off'); m.textContent='🎤 用唔到'; }
+  $('readBtn').addEventListener('click',readAll);
+  $('startBtn').addEventListener('click',startQuiz);
+  $('nextBtn').addEventListener('click',function(){ if(phase==='fb'){ focusPara(-1); nextQ(); } });
+  $('sendBtn').addEventListener('click',function(){ if(listening) stopMic(); submit($('ans').value,false); });
+  $('idkBtn').addEventListener('click',function(){ if(listening) stopMic(); submit('',true); });
+  $('replayBtn').addEventListener('click',replay);
+  $('micBtn').addEventListener('click',startMic);
+  $('ans').addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.isComposing){ e.preventDefault(); submit($('ans').value,false); }
+  });
+  $('log').addEventListener('click',function(e){
+    var t=e.target; if(!t||!t.closest) return;
+    var b=t.closest('[data-rev]');
+    if(b){ var p=parseInt(b.getAttribute('data-rev'),10); focusPara(p); readPara(p); return; }
+    var c=t.closest('[data-act]');
+    if(c){ var a=c.getAttribute('data-act'); if(a==='again') resetAll(); else if(a==='read') readAll(); }
+  });
+  $('resetBtn').addEventListener('click',resetAll);
+  $('fsBtn').addEventListener('click',function(){
+    try{
+      if(document.fullscreenElement){ document.exitFullscreen(); }
+      else if(document.documentElement.requestFullscreen){ document.documentElement.requestFullscreen(); }
+    }catch(e){}
+  });
+  intro();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+</body>
+</html>

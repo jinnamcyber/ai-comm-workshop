@@ -1,0 +1,7 @@
+art/raw/
+*.log
+*.msg.txt
+voice_samples/
+__pycache__/
+*.part
+.DS_Store

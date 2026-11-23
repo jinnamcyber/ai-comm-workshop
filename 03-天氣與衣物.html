@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>天氣與衣物</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+  --childbg:#FFF2C9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:clamp(24px,1.25vw,30px);line-height:1.35;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;gap:10px;padding:10px 16px 4px;overflow:hidden}
+
+/* top bar */
+.top{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{display:flex;align-items:center;gap:14px;min-width:0}
+.chip{background:var(--primary);color:#fff;border-radius:999px;padding:6px 22px;font-weight:700;font-size:24px;white-space:nowrap}
+h1{margin:0;font-size:clamp(28px,2.1vw,42px);white-space:nowrap}
+.top .right{display:flex;gap:12px}
+.btn{min-height:64px;border:0;border-radius:18px;font-size:inherit;font-weight:700;color:#fff;background:var(--primary);
+  box-shadow:0 6px 0 rgba(31,42,68,.28);padding:0 24px;cursor:pointer;transition:transform .08s,box-shadow .08s,filter .15s;touch-action:manipulation;white-space:nowrap}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(31,42,68,.28)}
+.btn.ghost{background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:0 5px 0 var(--line)}
+.btn.ghost:active{box-shadow:0 0 0 var(--line)}
+.btn.good{background:var(--good)}
+.btn.accent{background:var(--accent)}
+.btn:focus-visible,.wxb:focus-visible,.item:focus-visible{outline:4px solid var(--hint);outline-offset:2px}
+
+/* stage */
+.stage{flex:1;min-height:0;display:grid;grid-template-columns:1.2fr .85fr 1.25fr;gap:14px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;display:flex;flex-direction:column;min-height:0;min-width:0}
+
+/* scene */
+.scene-wrap{position:relative;flex:1;min-height:0;border-radius:16px;overflow:hidden;background:#BFE3FF}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wxinfo{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;pointer-events:none}
+.pill{background:rgba(255,255,255,.9);border-radius:16px;padding:2px 16px;font-weight:800;font-size:clamp(28px,2vw,40px);box-shadow:0 4px 0 rgba(31,42,68,.12)}
+.pill.small{font-size:clamp(24px,1.5vw,32px);font-weight:700;color:var(--ink-2)}
+.wx-buttons{flex:none;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
+.wxb{min-height:80px;border:3px solid var(--line);background:#fff;color:var(--ink);border-radius:16px;font-size:24px;font-weight:700;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:2px 0;cursor:pointer;box-shadow:0 5px 0 var(--line);
+  transition:transform .08s,box-shadow .08s,background .2s,border-color .2s;touch-action:manipulation;line-height:1.15}
+.wxb .em{font-size:30px;line-height:1.1}
+.wxb:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.wxb.on{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 5px 0 var(--primary)}
+.wxb.rand{background:var(--accent-soft);border-color:#F4B3C8;box-shadow:0 5px 0 #F4B3C8}
+
+/* child */
+.child-card{padding:8px}
+.child-wrap{position:relative;flex:1;min-height:0;border-radius:16px;background:var(--childbg);transition:background-color .9s ease,outline-color .2s;overflow:hidden;outline:4px solid transparent;outline-offset:-4px}
+.child-wrap.drop{outline:4px dashed var(--primary);background-image:linear-gradient(rgba(47,111,237,.10),rgba(47,111,237,.10))}
+#childSvg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.anim{transform-box:fill-box;transform-origin:center}
+.layer{opacity:0;transform:translateY(-16px) scale(.94);transition:opacity .28s ease,transform .32s cubic-bezier(.3,1.5,.5,1);pointer-events:none}
+.layer.on{opacity:1;transform:none}
+
+/* wardrobe */
+.ward-card h2{margin:2px 6px 8px;font-size:clamp(26px,1.7vw,34px);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ward-card h2 small{font-size:24px;color:var(--ink-2);font-weight:500}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:8px}
+.item{position:relative;min-height:64px;min-width:0;border:3px solid var(--line);background:#FFFDF8;border-radius:16px;padding:4px 4px 2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-size:24px;font-weight:700;color:var(--ink);cursor:grab;
+  box-shadow:0 5px 0 var(--line);touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .08s,box-shadow .08s,background .2s,border-color .2s;line-height:1.15}
+.item svg{flex:1;min-height:0;width:100%;pointer-events:none}
+.item:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.item.worn{background:var(--good-soft);border-color:var(--good);box-shadow:0 5px 0 var(--good)}
+.item.worn::after{content:"✓";position:absolute;right:6px;top:2px;width:30px;height:30px;border-radius:50%;background:var(--good);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1}
+.item.clear{background:var(--accent-soft);border-color:#F4B3C8;box-shadow:0 5px 0 #F4B3C8;justify-content:center;gap:2px;cursor:pointer}
+.item.clear .em{font-size:40px;line-height:1}
+.ghost-drag{position:fixed;z-index:50;width:110px;height:110px;pointer-events:none;transform:translate(-50%,-60%) rotate(-4deg);filter:drop-shadow(0 10px 10px rgba(31,42,68,.3))}
+.ghost-drag svg{width:100%;height:100%}
+
+/* strip */
+.strip{flex:none;display:flex;gap:12px;align-items:stretch;min-height:112px}
+.strip .btn{min-width:150px;font-size:clamp(26px,1.7vw,34px)}
+.msg{flex:1;min-width:0;display:flex;gap:12px;align-items:center;background:#fff;border:4px solid var(--line);border-radius:var(--radius);padding:8px 18px;box-shadow:var(--shadow);transition:background .3s,border-color .3s;max-height:154px;overflow:auto}
+.msg.good{background:var(--good-soft);border-color:var(--good);animation:okpop .5s ease}
+.msg.hint{background:var(--hint-soft);border-color:var(--hint)}
+.msg.say{background:var(--primary-soft);border-color:var(--primary)}
+#msgMain{flex:1;min-width:0;line-height:1.4}
+.hd{font-weight:800;margin-right:12px}
+.tip{display:inline-block;margin:2px 14px 2px 0}
+.tip::before{content:"• ";color:var(--ink-2)}
+.sent{font-size:clamp(26px,1.7vw,34px);font-weight:700;line-height:1.55}
+.chunk{border-radius:10px;padding:0 2px;transition:background .2s}
+.chunk.now{background:var(--hint);color:#fff}
+.chunk.now .slot{background:#fff;color:var(--ink)}
+.slot{background:#fff;border-bottom:5px solid var(--primary);border-radius:8px;padding:0 6px;margin:0 1px;color:var(--primary)}
+.sub{display:block;font-size:24px;font-weight:500;color:var(--ink-2)}
+.tools{display:flex;gap:8px;flex:none}
+.tools[hidden]{display:none}
+.tools .btn{min-width:64px;padding:0 14px}
+.btn.tog[aria-pressed="true"]{background:var(--hint);color:#fff}
+footer{flex:none;text-align:right;font-size:14px;color:var(--ink-2);padding:0 4px 2px}
+
+/* weather animations */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(820px)}}
+@keyframes rain{from{transform:translate(0,-40px)}to{transform:translate(-70px,580px)}}
+@keyframes snowfall{0%{transform:translate(0,-20px)}30%{transform:translate(-26px,170px)}65%{transform:translate(22px,360px)}100%{transform:translate(-8px,560px)}}
+@keyframes wl{0%{transform:translateX(-220px);opacity:0}12%{opacity:.9}85%{opacity:.9}100%{transform:translateX(780px);opacity:0}}
+@keyframes leaf{0%{transform:translate(-60px,0) rotate(0)}25%{transform:translate(160px,-50px) rotate(200deg)}50%{transform:translate(340px,25px) rotate(380deg)}75%{transform:translate(520px,-40px) rotate(560deg)}100%{transform:translate(740px,12px) rotate(760deg)}}
+@keyframes heat{0%{transform:translateY(0);opacity:0}25%{opacity:.85}100%{transform:translateY(-70px);opacity:0}}
+@keyframes ripple{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1.15);opacity:0}}
+@keyframes drip{0%{transform:translateY(-4px) scale(.7);opacity:0}20%{opacity:1;transform:translateY(0) scale(1)}100%{transform:translateY(30px);opacity:0}}
+@keyframes smoke{0%{transform:translate(0,0) scale(.5);opacity:.9}100%{transform:translate(-14px,-60px) scale(1.5);opacity:0}}
+@keyframes kite{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+@keyframes hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-22px)}60%{transform:translateY(0)}78%{transform:translateY(-9px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes okpop{0%{transform:scale(.97)}60%{transform:scale(1.015)}100%{transform:scale(1)}}
+@keyframes twinkle{0%,100%{opacity:.35}50%{opacity:1}}
+.wxl{opacity:0;visibility:hidden;transition:opacity .9s ease,visibility 0s .9s;pointer-events:none}
+.wxl.on{opacity:1;visibility:visible;transition:opacity .9s ease,visibility 0s}
+.spin{animation:spin 26s linear infinite}
+.pulse{animation:pulse 3.4s ease-in-out infinite}
+.cl{animation:drift 80s linear infinite}
+.rd{animation:rain .8s linear infinite}
+.sf{animation:snowfall 8s linear infinite}
+.wl{animation:wl 5s linear infinite}
+.lf{animation:leaf 7s linear infinite}
+.hw{animation:heat 3.2s ease-out infinite}
+.rp{animation:ripple 2.2s ease-out infinite}
+.dr{animation:drip 1.8s ease-in infinite}
+.sm{animation:smoke 3.6s ease-out infinite}
+.kt{animation:kite 2.4s ease-in-out infinite;transform-box:view-box;transform-origin:300px 400px}
+.blink{animation:blink 4.2s infinite}
+.hop{animation:hop .8s ease}
+.shiver{animation:shake .16s linear infinite}
+.tw{animation:twinkle 1.6s ease-in-out infinite}
+.fxg{opacity:0;transition:opacity .25s;pointer-events:none}
+.fxg.on{opacity:1}
+
+/* narrow screens */
+@media (max-width:980px){
+  #app{height:auto;min-height:100vh;overflow:visible}
+  .stage{grid-template-columns:1fr}
+  .scene-wrap{min-height:320px;flex:none;height:56vw}
+  .child-wrap{min-height:420px}
+  .grid{grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(110px,auto)}
+  .strip{flex-wrap:wrap}
+  .msg{flex-basis:100%;order:3}
+  .item{touch-action:pan-y}
+  h1{white-space:normal}
+  .top{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){.cl,.spin,.pulse{animation-duration:200s}}
+</style>
+</head>
+<body>
+
+<!-- sprite: gradients + garments -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <linearGradient id="sk-sunny" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EC6FF"/><stop offset="1" stop-color="#E4F6FF"/></linearGradient>
+  <linearGradient id="sk-rainy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6F7D96"/><stop offset="1" stop-color="#C3CCD9"/></linearGradient>
+  <linearGradient id="sk-cold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A9C7E2"/><stop offset="1" stop-color="#EEF5FB"/></linearGradient>
+  <linearGradient id="sk-hot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFB45C"/><stop offset="1" stop-color="#FFF0C4"/></linearGradient>
+  <linearGradient id="sk-windy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FCDE0"/><stop offset="1" stop-color="#E5F5EE"/></linearGradient>
+
+  <g id="cloud"><circle cx="30" cy="34" r="22"/><circle cx="58" cy="24" r="28"/><circle cx="90" cy="34" r="22"/><rect x="28" y="34" width="64" height="22" rx="11"/></g>
+  <path id="hillBack" d="M0,340 C100,290 220,290 320,330 S520,300 640,330 V520 H0 Z"/>
+  <path id="hillFront" d="M0,400 C140,360 300,380 420,410 S600,390 640,400 V520 H0 Z"/>
+
+  <!-- tops -->
+  <g id="g-tshort">
+    <line x1="113" y1="208" x2="101" y2="254" stroke="#4FA9E8" stroke-width="38"/>
+    <line x1="207" y1="208" x2="219" y2="254" stroke="#4FA9E8" stroke-width="38"/>
+    <circle cx="112" cy="207" r="19" fill="#4FA9E8"/><circle cx="208" cy="207" r="19" fill="#4FA9E8"/>
+    <rect x="108" y="184" width="104" height="152" rx="28" fill="#4FA9E8"/>
+    <path d="M138,184 Q160,210 182,184 Z" fill="#3B8FCB"/>
+    <circle cx="160" cy="272" r="15" fill="#FFD36B"/><circle cx="160" cy="272" r="7" fill="#FFB938"/>
+    <line x1="101" y1="250" x2="102" y2="254" stroke="#3B8FCB" stroke-width="38"/>
+    <line x1="219" y1="250" x2="218" y2="254" stroke="#3B8FCB" stroke-width="38"/>
+  </g>
+  <g id="g-tlong">
+    <line x1="110" y1="208" x2="88" y2="302" stroke="#F28C6B" stroke-width="36"/>
+    <line x1="210" y1="208" x2="232" y2="302" stroke="#F28C6B" stroke-width="36"/>
+    <circle cx="110" cy="207" r="18" fill="#F28C6B"/><circle cx="210" cy="207" r="18" fill="#F28C6B"/>
+    <rect x="108" y="184" width="104" height="152" rx="28" fill="#F28C6B"/>
+    <rect x="108" y="236" width="104" height="12" fill="#FFF1D6"/><rect x="108" y="266" width="104" height="12" fill="#FFF1D6"/><rect x="108" y="296" width="104" height="12" fill="#FFF1D6"/>
+    <path d="M138,184 Q160,210 182,184 Z" fill="#D9714F"/>
+    <line x1="88.4" y1="299" x2="88" y2="302" stroke="#D9714F" stroke-width="36"/>
+    <line x1="231.6" y1="299" x2="232" y2="302" stroke="#D9714F" stroke-width="36"/>
+  </g>
+  <!-- outer -->
+  <g id="g-jacket">
+    <line x1="108" y1="206" x2="86" y2="304" stroke="#3F6FD0" stroke-width="40"/>
+    <line x1="212" y1="206" x2="234" y2="304" stroke="#3F6FD0" stroke-width="40"/>
+    <circle cx="108" cy="206" r="20" fill="#3F6FD0"/><circle cx="212" cy="206" r="20" fill="#3F6FD0"/>
+    <rect x="104" y="182" width="112" height="158" rx="28" fill="#3F6FD0"/>
+    <line x1="160" y1="206" x2="160" y2="340" stroke="#FFE29A" stroke-width="5"/>
+    <rect x="118" y="292" width="28" height="9" rx="4" fill="#2E55A8"/><rect x="174" y="292" width="28" height="9" rx="4" fill="#2E55A8"/>
+    <path d="M124,180 L160,214 L196,180 L202,172 L160,164 L118,172 Z" fill="#2E55A8"/>
+    <line x1="86.6" y1="300" x2="86" y2="304" stroke="#2E55A8" stroke-width="40"/>
+    <line x1="233.4" y1="300" x2="234" y2="304" stroke="#2E55A8" stroke-width="40"/>
+  </g>
+  <g id="g-down">
+    <line x1="106" y1="208" x2="85" y2="306" stroke="#8D6BD6" stroke-width="50"/>
+    <line x1="214" y1="208" x2="235" y2="306" stroke="#8D6BD6" stroke-width="50"/>
+    <circle cx="106" cy="208" r="25" fill="#8D6BD6"/><circle cx="214" cy="208" r="25" fill="#8D6BD6"/>
+    <rect x="98" y="180" width="124" height="176" rx="36" fill="#8D6BD6"/>
+    <g fill="none" stroke="#6E4FB8" stroke-width="5" stroke-linecap="round">
+      <path d="M98,224 Q160,238 222,224"/><path d="M98,264 Q160,278 222,264"/><path d="M98,304 Q160,318 222,304"/>
+      <path d="M72,246 Q96,256 118,248"/><path d="M68,282 Q90,292 112,284"/>
+      <path d="M202,248 Q224,256 248,246"/><path d="M208,284 Q230,292 252,282"/>
+    </g>
+    <rect x="124" y="164" width="72" height="38" rx="16" fill="#6E4FB8"/>
+    <line x1="160" y1="206" x2="160" y2="352" stroke="#EADFFF" stroke-width="5"/>
+    <line x1="85.5" y1="302" x2="85" y2="306" stroke="#6E4FB8" stroke-width="50"/>
+    <line x1="234.5" y1="302" x2="235" y2="306" stroke="#6E4FB8" stroke-width="50"/>
+  </g>
+  <g id="g-raincoat">
+    <line x1="108" y1="208" x2="87" y2="303" stroke="#FFC72C" stroke-width="42"/>
+    <line x1="212" y1="208" x2="233" y2="303" stroke="#FFC72C" stroke-width="42"/>
+    <circle cx="108" cy="208" r="21" fill="#FFC72C"/><circle cx="212" cy="208" r="21" fill="#FFC72C"/>
+    <path d="M112,184 L208,184 Q224,280 234,374 Q160,392 86,374 Q96,280 112,184 Z" fill="#FFC72C"/>
+    <line x1="160" y1="230" x2="160" y2="382" stroke="#E8A800" stroke-width="4"/>
+    <circle cx="160" cy="262" r="7" fill="#fff"/><circle cx="160" cy="304" r="7" fill="#fff"/><circle cx="160" cy="346" r="7" fill="#fff"/>
+    <rect x="106" y="326" width="38" height="11" rx="5" fill="#E8A800"/><rect x="176" y="326" width="38" height="11" rx="5" fill="#E8A800"/>
+    <path d="M110,176 Q160,236 210,176 L224,206 Q160,268 96,206 Z" fill="#F2B600"/>
+    <line x1="87.5" y1="299" x2="87" y2="303" stroke="#E8A800" stroke-width="42"/>
+    <line x1="232.5" y1="299" x2="233" y2="303" stroke="#E8A800" stroke-width="42"/>
+  </g>
+  <!-- bottoms -->
+  <g id="g-shorts">
+    <line x1="135" y1="330" x2="135" y2="392" stroke="#3FA796" stroke-width="44"/>
+    <line x1="185" y1="330" x2="185" y2="392" stroke="#3FA796" stroke-width="44"/>
+    <rect x="114" y="316" width="92" height="40" rx="14" fill="#3FA796"/>
+    <rect x="114" y="316" width="92" height="11" rx="5" fill="#2D8A7A"/>
+    <line x1="135" y1="387" x2="135" y2="392" stroke="#2D8A7A" stroke-width="44"/>
+    <line x1="185" y1="387" x2="185" y2="392" stroke="#2D8A7A" stroke-width="44"/>
+    <circle cx="160" cy="341" r="4" fill="#fff"/>
+  </g>
+  <g id="g-pants">
+    <line x1="135" y1="330" x2="135" y2="470" stroke="#3B4A7A" stroke-width="42"/>
+    <line x1="185" y1="330" x2="185" y2="470" stroke="#3B4A7A" stroke-width="42"/>
+    <rect x="114" y="316" width="92" height="40" rx="14" fill="#3B4A7A"/>
+    <rect x="114" y="316" width="92" height="11" rx="5" fill="#2C3960"/>
+    <line x1="135" y1="463" x2="135" y2="470" stroke="#2C3960" stroke-width="42"/>
+    <line x1="185" y1="463" x2="185" y2="470" stroke="#2C3960" stroke-width="42"/>
+    <line x1="160" y1="350" x2="160" y2="372" stroke="#2C3960" stroke-width="3"/>
+    <circle cx="160" cy="341" r="4" fill="#FFD36B"/>
+  </g>
+  <!-- shoes: one foot centred at x=135, second copy shifted 50 -->
+  <g id="foot-sandal">
+    <rect x="108" y="494" width="54" height="12" rx="6" fill="#B9743E"/>
+    <path d="M114,492 Q135,474 156,492" fill="none" stroke="#F08A3C" stroke-width="8" stroke-linecap="round"/>
+    <line x1="135" y1="478" x2="135" y2="496" stroke="#F08A3C" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g id="foot-boot">
+    <path d="M117,426 H153 V482 Q163,484 163,497 Q163,508 151,508 H119 Q107,508 107,497 Q107,484 117,482 Z" fill="#2FA37A"/>
+    <rect x="114" y="424" width="42" height="12" rx="5" fill="#67D1A8"/>
+    <rect x="105" y="500" width="60" height="9" rx="4.5" fill="#1D6F52"/>
+    <line x1="126" y1="446" x2="126" y2="478" stroke="#fff" stroke-opacity=".4" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g id="foot-sneaker">
+    <path d="M118,476 H152 V490 Q164,490 164,500 Q164,508 154,508 H116 Q106,508 106,499 Q106,490 118,490 Z" fill="#fff" stroke="#C9D1E3" stroke-width="2"/>
+    <rect x="103" y="501" width="64" height="9" rx="4.5" fill="#CBD3E3"/>
+    <path d="M124,486 Q138,498 152,487" fill="none" stroke="#2F6FED" stroke-width="5" stroke-linecap="round"/>
+    <line x1="122" y1="480" x2="148" y2="480" stroke="#9AA6BF" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <g id="g-sandal"><use href="#foot-sandal"/><use href="#foot-sandal" transform="translate(50 0)"/></g>
+  <g id="g-boots"><use href="#foot-boot"/><use href="#foot-boot" transform="translate(50 0)"/></g>
+  <g id="g-sneaker"><use href="#foot-sneaker"/><use href="#foot-sneaker" transform="translate(50 0)"/></g>
+  <!-- head & neck & hand -->
+  <g id="g-sunhat">
+    <ellipse cx="160" cy="84" rx="100" ry="20" fill="#EDBE58"/>
+    <path d="M110,84 Q108,28 160,26 Q212,28 210,84 Z" fill="#F7D987"/>
+    <path d="M110,84 Q160,100 210,84 L210,70 Q160,86 110,70 Z" fill="#E8618C"/>
+    <path d="M70,88 Q160,112 250,88" fill="none" stroke="#E3B24F" stroke-width="4" stroke-linecap="round"/>
+    <path d="M128,52 Q160,40 192,52" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g id="g-beanie">
+    <path d="M96,112 Q92,38 160,36 Q228,38 224,112 Z" fill="#E2574C"/>
+    <path d="M108,74 Q160,56 212,74" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="7" stroke-linecap="round"/>
+    <rect x="92" y="92" width="136" height="26" rx="13" fill="#F07A70"/>
+    <g stroke="#D0453B" stroke-width="3" stroke-linecap="round"><line x1="112" y1="97" x2="112" y2="113"/><line x1="132" y1="97" x2="132" y2="113"/><line x1="152" y1="97" x2="152" y2="113"/><line x1="172" y1="97" x2="172" y2="113"/><line x1="192" y1="97" x2="192" y2="113"/><line x1="210" y1="97" x2="210" y2="113"/></g>
+    <circle cx="160" cy="34" r="17" fill="#fff"/><circle cx="154" cy="29" r="5" fill="#EEF2F8"/>
+  </g>
+  <g id="g-scarf">
+    <rect x="174" y="192" width="28" height="82" rx="11" fill="#F28C38"/>
+    <rect x="174" y="216" width="28" height="9" fill="#FFF1D6"/><rect x="174" y="244" width="28" height="9" fill="#FFF1D6"/>
+    <rect x="118" y="174" width="84" height="32" rx="16" fill="#F28C38"/>
+    <rect x="132" y="174" width="9" height="32" fill="#FFF1D6"/><rect x="156" y="174" width="9" height="32" fill="#FFF1D6"/><rect x="180" y="174" width="9" height="32" fill="#FFF1D6"/>
+  </g>
+  <g id="g-umbrella">
+    <line x1="190" y1="20" x2="238" y2="322" stroke="#5B6478" stroke-width="5" stroke-linecap="round"/>
+    <path d="M80,22 Q190,-70 300,22 Q272,8 245,22 Q217,8 190,22 Q162,8 135,22 Q107,8 80,22 Z" fill="#E8618C"/>
+    <path d="M135,22 Q146,-26 190,-24 Q234,-26 245,22 Q217,8 190,22 Q162,8 135,22 Z" fill="#FFC9DA"/>
+    <g stroke="#C94874" stroke-width="3" stroke-linecap="round" fill="none"><path d="M190,-24 L135,22"/><path d="M190,-24 L245,22"/><path d="M190,-24 L190,22"/></g>
+    <circle cx="190" cy="-26" r="5" fill="#5B6478"/>
+  </g>
+</defs>
+</svg>
+
+<div id="app">
+  <header class="top">
+    <div class="title"><span class="chip">全科</span><h1>天氣與衣物</h1></div>
+    <div class="right">
+      <button class="btn ghost" id="btnFs" type="button">⛶ 全螢幕</button>
+      <button class="btn ghost" id="btnReset" type="button">↺ 重新開始</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- scene -->
+    <section class="card" aria-label="天氣場景">
+      <div class="scene-wrap">
+        <svg id="scene" viewBox="0 0 640 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="天氣場景">
+          <g id="skyBox">
+            <rect class="sky" data-w="sunny" width="640" height="520" fill="url(#sk-sunny)"/>
+            <rect class="sky" data-w="rainy" width="640" height="520" fill="url(#sk-rainy)" style="opacity:0"/>
+            <rect class="sky" data-w="cold" width="640" height="520" fill="url(#sk-cold)" style="opacity:0"/>
+            <rect class="sky" data-w="hot" width="640" height="520" fill="url(#sk-hot)" style="opacity:0"/>
+            <rect class="sky" data-w="windy" width="640" height="520" fill="url(#sk-windy)" style="opacity:0"/>
+          </g>
+          <!-- sunny sun -->
+          <g class="wxl on" data-w="sunny" transform="translate(-50 0)">
+            <circle class="pulse anim" cx="490" cy="100" r="66" fill="#FFE27A" opacity=".45"/>
+            <g id="raysSunny" class="spin anim"></g>
+            <circle cx="490" cy="100" r="40" fill="#FFD43B"/>
+            <circle cx="474" cy="94" r="5" fill="#1F2A44"/><circle cx="506" cy="94" r="5" fill="#1F2A44"/>
+            <ellipse cx="465" cy="108" rx="8" ry="5" fill="#FF9E7A" opacity=".7"/><ellipse cx="515" cy="108" rx="8" ry="5" fill="#FF9E7A" opacity=".7"/>
+            <path d="M476,110 Q490,124 504,110" fill="none" stroke="#1F2A44" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <g class="wxl on" data-w="sunny" fill="#fff" opacity="1">
+            <g class="cl" style="animation-duration:90s;animation-delay:-30s"><use href="#cloud" transform="translate(-140,60) scale(.9)"/></g>
+            <g class="cl" style="animation-duration:120s;animation-delay:-80s"><use href="#cloud" transform="translate(-140,170) scale(.7)"/></g>
+            <g class="cl" style="animation-duration:100s;animation-delay:-5s"><use href="#cloud" transform="translate(-140,20) scale(.6)"/></g>
+          </g>
+          <!-- hot sun -->
+          <g class="wxl" data-w="hot" transform="translate(-50 0)">
+            <circle class="pulse anim" cx="490" cy="104" r="86" fill="#FFB347" opacity=".5"/>
+            <g id="raysHot" class="spin anim" style="animation-duration:14s"></g>
+            <circle cx="490" cy="104" r="50" fill="#FF8A3D"/>
+            <rect x="458" y="90" width="28" height="20" rx="8" fill="#1F2A44"/><rect x="494" y="90" width="28" height="20" rx="8" fill="#1F2A44"/>
+            <line x1="484" y1="98" x2="496" y2="98" stroke="#1F2A44" stroke-width="4"/>
+            <path d="M474,126 Q490,142 506,126 Z" fill="#8A2E3B"/>
+            <g transform="translate(540,92)"><path class="dr anim" d="M0,-14 Q11,2 0,10 Q-11,2 0,-14Z" fill="#6EC6FF"/></g>
+            <g transform="translate(440,112)"><path class="dr anim" style="animation-delay:-.9s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z" fill="#6EC6FF"/></g>
+          </g>
+          <!-- rain clouds -->
+          <g class="wxl" data-w="rainy" fill="#59657D">
+            <g class="cl" style="animation-duration:70s;animation-delay:-25s"><use href="#cloud" transform="translate(-170,-12) scale(1.9)"/></g>
+            <g class="cl" style="animation-duration:90s;animation-delay:-60s"><use href="#cloud" transform="translate(-170,40) scale(1.6)"/></g>
+            <g class="cl" style="animation-duration:80s;animation-delay:-5s"><use href="#cloud" transform="translate(-170,-30) scale(1.5)"/></g>
+          </g>
+          <g class="wxl" data-w="cold" fill="#fff">
+            <g class="cl" style="animation-duration:110s;animation-delay:-40s"><use href="#cloud" transform="translate(-170,30) scale(1.3)"/></g>
+            <g class="cl" style="animation-duration:130s;animation-delay:-100s"><use href="#cloud" transform="translate(-170,100) scale(.9)"/></g>
+            <g class="cl" style="animation-duration:120s;animation-delay:-10s"><use href="#cloud" transform="translate(-170,0) scale(1)"/></g>
+          </g>
+          <g class="wxl" data-w="windy" fill="#fff">
+            <g class="cl" style="animation-duration:16s;animation-delay:-4s"><use href="#cloud" transform="translate(-160,40) scale(1.2,.8)"/></g>
+            <g class="cl" style="animation-duration:22s;animation-delay:-14s"><use href="#cloud" transform="translate(-160,110) scale(1,.7)"/></g>
+            <g class="cl" style="animation-duration:19s;animation-delay:-9s"><use href="#cloud" transform="translate(-160,0) scale(.8,.6)"/></g>
+          </g>
+
+          <!-- back hill -->
+          <use href="#hillBack" fill="#93D37F"/>
+          <use href="#hillBack" fill="#E7C86E" class="wxl" data-w="hot"/>
+          <use href="#hillBack" fill="#6FAF72" class="wxl" data-w="rainy"/>
+          <use href="#hillBack" fill="#EAF2F8" class="wxl" data-w="cold"/>
+
+          <!-- house -->
+          <g id="house" transform="translate(-50 0)">
+            <rect x="530" y="268" width="20" height="46" fill="#B5543A"/>
+            <rect x="440" y="315" width="110" height="88" fill="#FFEBC2"/>
+            <path d="M425,322 L495,258 L565,322 Z" fill="#E0724E"/>
+            <rect x="482" y="354" width="28" height="50" rx="4" fill="#8A5A3C"/>
+            <rect x="452" y="338" width="24" height="24" rx="3" fill="#FFE7A8" stroke="#8A5A3C" stroke-width="3"/>
+            <rect x="516" y="338" width="24" height="24" rx="3" fill="#FFE7A8" stroke="#8A5A3C" stroke-width="3"/>
+            <g class="wxl" data-w="cold">
+              <path d="M436,310 L495,260 L554,310 Q495,290 436,310 Z" fill="#fff"/>
+              <rect x="528" y="264" width="24" height="7" rx="3" fill="#fff"/>
+              <circle class="sm anim" cx="540" cy="262" r="9" fill="#E3EAF2"/>
+              <circle class="sm anim" style="animation-delay:-1.2s" cx="540" cy="262" r="9" fill="#E3EAF2"/>
+              <circle class="sm anim" style="animation-delay:-2.4s" cx="540" cy="262" r="9" fill="#E3EAF2"/>
+            </g>
+          </g>
+
+          <!-- tree -->
+          <g id="tree">
+            <rect x="142" y="290" width="16" height="140" rx="6" fill="#8A5A3C"/>
+            <path d="M150,330 L128,300" stroke="#8A5A3C" stroke-width="8" stroke-linecap="round"/>
+            <path d="M150,344 L176,312" stroke="#8A5A3C" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="108" cy="288" r="40" fill="#4FB65B"/><circle cx="194" cy="288" r="42" fill="#4FB65B"/>
+            <circle cx="150" cy="256" r="58" fill="#5CC568"/><circle cx="140" cy="300" r="34" fill="#4FB65B"/>
+            <circle cx="132" cy="240" r="14" fill="#7BD887" opacity=".6"/>
+            <g class="wxl" data-w="cold" fill="#fff">
+              <ellipse cx="150" cy="204" rx="40" ry="11"/><ellipse cx="102" cy="254" rx="24" ry="8"/><ellipse cx="198" cy="252" rx="26" ry="8"/>
+            </g>
+          </g>
+
+          <!-- front hill -->
+          <use href="#hillFront" fill="#6DBE5E"/>
+          <use href="#hillFront" fill="#DDB555" class="wxl" data-w="hot"/>
+          <use href="#hillFront" fill="#4E9A56" class="wxl" data-w="rainy"/>
+          <use href="#hillFront" fill="#FFFFFF" class="wxl" data-w="cold"/>
+
+          <!-- snowman -->
+          <g class="wxl" data-w="cold" stroke="#BFD0E3" stroke-width="2">
+            <circle cx="340" cy="428" r="32" fill="#fff"/><circle cx="340" cy="386" r="23" fill="#fff"/><circle cx="340" cy="354" r="17" fill="#fff"/>
+            <circle cx="334" cy="351" r="2.5" fill="#1F2A44" stroke="none"/><circle cx="347" cy="351" r="2.5" fill="#1F2A44" stroke="none"/>
+            <path d="M340,357 L360,361 L340,364 Z" fill="#F28C38" stroke="none"/>
+            <rect x="322" y="372" width="36" height="8" rx="4" fill="#E2574C" stroke="none"/>
+            <rect x="326" y="330" width="28" height="8" rx="2" fill="#1F2A44" stroke="none"/><rect x="331" y="312" width="18" height="20" rx="2" fill="#1F2A44" stroke="none"/>
+            <circle cx="340" cy="394" r="2.5" fill="#1F2A44" stroke="none"/><circle cx="340" cy="406" r="2.5" fill="#1F2A44" stroke="none"/>
+          </g>
+          <!-- puddles -->
+          <g class="wxl" data-w="rainy">
+            <ellipse cx="250" cy="446" rx="44" ry="9" fill="#8DBCE8" opacity=".75"/><ellipse cx="400" cy="478" rx="58" ry="11" fill="#8DBCE8" opacity=".75"/><ellipse cx="90" cy="486" rx="48" ry="10" fill="#8DBCE8" opacity=".75"/>
+            <ellipse class="rp anim" cx="250" cy="446" rx="40" ry="8" fill="none" stroke="#fff" stroke-width="3"/>
+            <ellipse class="rp anim" style="animation-delay:-1.1s" cx="400" cy="478" rx="52" ry="10" fill="none" stroke="#fff" stroke-width="3"/>
+            <ellipse class="rp anim" style="animation-delay:-.5s" cx="90" cy="486" rx="44" ry="9" fill="none" stroke="#fff" stroke-width="3"/>
+          </g>
+          <!-- heat waves -->
+          <g class="wxl" data-w="hot" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="5" stroke-linecap="round">
+            <path class="hw anim" d="M0,0 q10,-12 20,0 t20,0 t20,0 t20,0 t20,0 t20,0" transform="translate(70,430)"/>
+            <path class="hw anim" style="animation-delay:-1s" d="M0,0 q10,-12 20,0 t20,0 t20,0 t20,0 t20,0 t20,0" transform="translate(250,450)"/>
+            <path class="hw anim" style="animation-delay:-2s" d="M0,0 q10,-12 20,0 t20,0 t20,0 t20,0 t20,0 t20,0" transform="translate(420,425)"/>
+            <path class="hw anim" style="animation-delay:-.5s" d="M0,0 q10,-12 20,0 t20,0 t20,0 t20,0 t20,0 t20,0" transform="translate(160,490)"/>
+            <path class="hw anim" style="animation-delay:-1.6s" d="M0,0 q10,-12 20,0 t20,0 t20,0 t20,0 t20,0 t20,0" transform="translate(500,480)"/>
+          </g>
+          <g class="wxl" data-w="rainy" id="rainFx"></g>
+          <g class="wxl" data-w="cold" id="snowFx"></g>
+          <g class="wxl" data-w="cold" id="coldWindFx" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"></g>
+          <g class="wxl" data-w="windy" id="windFx" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"></g>
+          <g class="wxl" data-w="windy" id="leafFx"></g>
+          <g class="wxl" data-w="windy">
+            <g class="kt">
+              <path d="M300,400 Q330,330 362,262 T372,150" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2.5"/>
+              <path d="M372,100 L396,136 L372,184 L348,136 Z" fill="#E8618C"/>
+              <path d="M372,100 L372,184 M348,136 L396,136" stroke="#FFD36B" stroke-width="3" fill="none"/>
+              <path d="M372,184 q-12,12 0,22 t0,22 t0,22" fill="none" stroke="#2F6FED" stroke-width="4" stroke-linecap="round"/>
+            </g>
+          </g>
+        </svg>
+        <div class="wxinfo"><div class="pill" id="wxName">☀️ 晴天</div><div class="pill small" id="wxTemp">🌡️ 26°C</div></div>
+      </div>
+      <div class="wx-buttons" id="wxButtons">
+        <button class="wxb on" type="button" data-wx="sunny"><span class="em">☀️</span>晴天</button>
+        <button class="wxb" type="button" data-wx="rainy"><span class="em">🌧️</span>落雨</button>
+        <button class="wxb" type="button" data-wx="cold"><span class="em">❄️</span>寒冷</button>
+        <button class="wxb" type="button" data-wx="hot"><span class="em">🔥</span>炎熱</button>
+        <button class="wxb" type="button" data-wx="windy"><span class="em">🌬️</span>大風</button>
+        <button class="wxb rand" type="button" id="btnRand" aria-label="隨機天氣"><span class="em">🎲</span>隨機</button>
+      </div>
+    </section>
+
+    <!-- child -->
+    <section class="card child-card" aria-label="小朋友">
+      <div class="child-wrap" id="drop">
+        <svg id="childSvg" viewBox="0 -40 320 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="小朋友">
+          <ellipse cx="160" cy="511" rx="100" ry="9" fill="#1F2A44" opacity=".12"/>
+          <g id="childBody" class="anim">
+            <g id="base">
+              <line x1="135" y1="330" x2="135" y2="470" stroke="#F7C79E" stroke-width="38" stroke-linecap="round"/>
+              <line x1="185" y1="330" x2="185" y2="470" stroke="#F7C79E" stroke-width="38" stroke-linecap="round"/>
+              <ellipse cx="135" cy="492" rx="26" ry="12" fill="#F7C79E"/><ellipse cx="185" cy="492" rx="26" ry="12" fill="#F7C79E"/>
+              <line x1="110" y1="208" x2="84" y2="318" stroke="#F7C79E" stroke-width="28" stroke-linecap="round"/>
+              <line x1="210" y1="208" x2="236" y2="318" stroke="#F7C79E" stroke-width="28" stroke-linecap="round"/>
+              <circle cx="83" cy="324" r="16" fill="#F7C79E"/><circle cx="237" cy="324" r="16" fill="#F7C79E"/>
+              <rect x="143" y="160" width="34" height="40" rx="12" fill="#EDB285"/>
+              <rect x="112" y="186" width="96" height="152" rx="26" fill="#F3F0E8"/>
+              <path d="M114,318 H206 V346 Q185,364 160,350 Q135,364 114,346 Z" fill="#DDE6F2"/>
+              <circle cx="160" cy="262" r="5" fill="#E3DDD0"/>
+            </g>
+            <g id="z-bottom"></g><g id="z-shoes"></g><g id="z-top"></g><g id="z-outer"></g>
+            <g id="face">
+              <ellipse cx="97" cy="124" rx="11" ry="15" fill="#EDB285"/><ellipse cx="223" cy="124" rx="11" ry="15" fill="#EDB285"/>
+              <circle cx="160" cy="115" r="64" fill="#F7C79E"/>
+              <path d="M97,108 C90,48 128,36 160,36 C194,36 232,48 223,108 C214,90 198,80 178,76 C168,90 132,92 112,80 C104,88 99,98 97,108 Z" fill="#4A3426"/>
+              <path id="brL" d="M127,108 Q138,103 149,108" fill="none" stroke="#4A3426" stroke-width="5" stroke-linecap="round"/>
+              <path id="brR" d="M171,108 Q182,103 193,108" fill="none" stroke="#4A3426" stroke-width="5" stroke-linecap="round"/>
+              <g class="blink anim"><ellipse cx="138" cy="126" rx="7" ry="9" fill="#1F2A44"/><ellipse cx="182" cy="126" rx="7" ry="9" fill="#1F2A44"/>
+                <circle cx="140.5" cy="122" r="2.8" fill="#fff"/><circle cx="184.5" cy="122" r="2.8" fill="#fff"/></g>
+              <ellipse id="chL" cx="121" cy="144" rx="12" ry="7.5" fill="#F5A3A3" opacity=".65"/><ellipse id="chR" cx="199" cy="144" rx="12" ry="7.5" fill="#F5A3A3" opacity=".65"/>
+              <path d="M157,136 Q160,141 163,136" fill="none" stroke="#E0A27C" stroke-width="3" stroke-linecap="round"/>
+              <path id="mouth" d="M144,148 Q160,162 176,148" fill="none" stroke="#1F2A44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <ellipse id="tongue" cx="160" cy="160" rx="9" ry="5.5" fill="#F07A8A" opacity="0"/>
+            </g>
+            <g id="z-neck"></g><g id="z-head"></g>
+            <g id="fx">
+              <g id="fxSweat" class="fxg">
+                <g transform="translate(236,86)"><path class="dr anim" d="M0,-14 Q11,2 0,10 Q-11,2 0,-14Z" fill="#6EC6FF"/></g>
+                <g transform="translate(86,96)"><path class="dr anim" style="animation-delay:-.6s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z" fill="#6EC6FF"/></g>
+                <g transform="translate(228,150)"><path class="dr anim" style="animation-delay:-1.2s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z" fill="#6EC6FF"/></g>
+              </g>
+              <g id="fxCold" class="fxg" fill="none" stroke="#7EB6F0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M52,200 l12,-8 l-12,-8 l12,-8"/><path d="M268,200 l-12,-8 l12,-8 l-12,-8"/><path d="M56,250 l12,-8 l-12,-8"/><path d="M264,250 l-12,-8 l12,-8"/>
+              </g>
+              <g id="fxWet" class="fxg" fill="#6EC6FF">
+                <g transform="translate(120,50)"><path class="dr anim" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z"/></g>
+                <g transform="translate(200,60)"><path class="dr anim" style="animation-delay:-.7s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z"/></g>
+                <g transform="translate(160,40)"><path class="dr anim" style="animation-delay:-1.3s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z"/></g>
+                <g transform="translate(90,200)"><path class="dr anim" style="animation-delay:-.3s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z"/></g>
+                <g transform="translate(230,210)"><path class="dr anim" style="animation-delay:-1s" d="M0,-12 Q9,2 0,8 Q-9,2 0,-12Z"/></g>
+              </g>
+            </g>
+            <g id="z-hand"></g>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- wardrobe -->
+    <section class="card ward-card" aria-label="衣物櫃">
+      <h2>衣物櫃 <small>點一點，或者拉去小朋友身上</small></h2>
+      <div class="grid" id="grid"></div>
+    </section>
+  </main>
+
+  <div class="strip">
+    <button class="btn good" id="btnCheck" type="button">✅ 檢查</button>
+    <button class="btn accent" id="btnSpeak" type="button">🗣️ 講一講</button>
+    <div class="msg" id="msg" aria-live="polite">
+      <div id="msgMain"></div>
+      <div class="tools" id="msgTools" hidden>
+        <button class="btn ghost" id="btnReplay" type="button" aria-label="再聽一次">🔊</button>
+        <button class="btn ghost tog" id="btnSlow" type="button" aria-pressed="false" aria-label="慢速">🐢</button>
+      </div>
+    </div>
+  </div>
+  <footer>AI 輔助備課工作坊 · 示範教具</footer>
+</div>
+
+<script src="audio/03/voice.js"></script>
+<script>
+(function(){
+'use strict';
+var NS='http://www.w3.org/2000/svg';
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function el(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs){e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+function rnd(a,b){return a+Math.random()*(b-a);}
+
+/* ---------- data ---------- */
+var ITEMS=[
+ {id:'sunhat',slot:'head',name:'太陽帽',vb:'55 15 210 95'},
+ {id:'beanie',slot:'head',name:'冷帽',vb:'85 15 150 110'},
+ {id:'scarf',slot:'neck',name:'頸巾',vb:'105 165 110 115'},
+ {id:'tshort',slot:'top',name:'短袖衫',vb:'70 170 180 180'},
+ {id:'tlong',slot:'top',name:'長袖衫',vb:'50 168 220 184'},
+ {id:'jacket',slot:'outer',name:'外套',vb:'50 164 220 190'},
+ {id:'down',slot:'outer',name:'羽絨',vb:'45 160 230 200'},
+ {id:'raincoat',slot:'outer',name:'雨褸',vb:'50 160 220 225'},
+ {id:'shorts',slot:'bottom',name:'短褲',vb:'100 305 120 100'},
+ {id:'pants',slot:'bottom',name:'長褲',vb:'100 305 120 175'},
+ {id:'sandal',slot:'shoes',name:'涼鞋',vb:'100 466 120 50'},
+ {id:'boots',slot:'shoes',name:'水靴',vb:'100 418 120 98'},
+ {id:'sneaker',slot:'shoes',name:'波鞋',vb:'100 466 120 50'},
+ {id:'umbrella',slot:'hand',name:'雨遮',vb:'75 -35 230 365'}
+];
+var BYID={};ITEMS.forEach(function(i){BYID[i.id]=i;});
+var W={
+ sunny:{name:'晴天',em:'☀️',temp:26,adj:'好晴朗',bg:'#FFF2C9',tree:.8,bias:0},
+ rainy:{name:'落雨',em:'🌧️',temp:20,adj:'落緊雨',bg:'#DDE5F0',tree:1.4,bias:0},
+ cold:{name:'寒冷',em:'❄️',temp:8,adj:'好凍',bg:'#E3F0FA',tree:.5,bias:0},
+ hot:{name:'炎熱',em:'🔥',temp:35,adj:'好熱',bg:'#FFE3BF',tree:.3,bias:0},
+ windy:{name:'大風',em:'🌬️',temp:18,adj:'好大風',bg:'#E0F3EC',tree:7,bias:5}
+};
+var REASON={
+ sunny:[['sunhat','太陽帽可以擋住太陽'],['umbrella','雨遮可以遮太陽'],['tshort','短袖衫著得涼快啲'],['shorts','短褲著得涼快啲'],['sandal','涼鞋好透氣']],
+ rainy:[['umbrella','雨遮可以擋雨'],['raincoat','雨褸唔會濕身'],['boots','水靴踩水都唔怕濕']],
+ cold:[['down','羽絨好暖'],['jacket','外套可以保暖'],['beanie','冷帽可以保暖'],['scarf','頸巾可以保暖'],['tlong','長袖衫暖啲'],['pants','長褲暖啲']],
+ hot:[['tshort','短袖衫著得涼快啲'],['shorts','短褲著得涼快啲'],['sunhat','太陽帽可以擋住太陽'],['sandal','涼鞋好透氣']],
+ windy:[['jacket','外套可以擋風'],['down','羽絨可以擋風'],['raincoat','雨褸可以擋風'],['tlong','長袖衫可以擋風'],['scarf','頸巾可以擋風']]
+};
+var worn={},curW='sunny',msgState='idle',slow=false;
+
+/* ---------- audio ---------- */
+var ac=null;
+function ctx(){try{if(!ac){var C=window.AudioContext||window.webkitAudioContext;if(C)ac=new C();}if(ac&&ac.state==='suspended')ac.resume();}catch(e){ac=null;}return ac;}
+function tone(f1,f2,t0,dur,vol,type){var a=ctx();if(!a)return;try{var o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f1,a.currentTime+t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+t0+dur);g.gain.setValueAtTime(0.0001,a.currentTime+t0);g.gain.exponentialRampToValueAtTime(vol,a.currentTime+t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+t0+dur);o.connect(g);g.connect(a.destination);o.start(a.currentTime+t0);o.stop(a.currentTime+t0+dur+0.05);}catch(e){}}
+function ding(){tone(880,0,0,.5,.18);tone(1318,0,.12,.6,.16);}
+function pop(){tone(420,640,0,.1,.06,'triangle');}
+
+/* ---------- scene build ---------- */
+function rays(g,cx,cy,r1,r2,n,color,w){for(var i=0;i<n;i++){var a=i/n*Math.PI*2,rr=(i%2?r2-8:r2);el('line',{x1:cx+Math.cos(a)*r1,y1:cy+Math.sin(a)*r1,x2:cx+Math.cos(a)*rr,y2:cy+Math.sin(a)*rr,stroke:color,'stroke-width':w,'stroke-linecap':'round'},g);}}
+rays($('#raysSunny'),490,100,52,76,12,'#FFC93C',8);
+rays($('#raysHot'),490,104,62,92,14,'#FF6B2B',9);
+(function(){var g=$('#rainFx');for(var i=0;i<70;i++){var x=rnd(-20,720);var l=el('line',{x1:x,y1:0,x2:x-4,y2:15,stroke:'#A5D0FF','stroke-width':3,'stroke-linecap':'round','class':'rd'},g);l.style.animationDuration=rnd(.55,.95)+'s';l.style.animationDelay=(-rnd(0,1.5))+'s';}
+ g=$('#snowFx');for(i=0;i<56;i++){var c=el('circle',{cx:rnd(0,650),cy:0,r:rnd(2,5.5),fill:'#fff','class':'sf'},g);c.style.animationDuration=rnd(5,10)+'s';c.style.animationDelay=(-rnd(0,10))+'s';}
+ g=$('#coldWindFx');for(i=0;i<5;i++){wline(g,rnd(60,420),rnd(7,11),rnd(0,8),.55);}
+ g=$('#windFx');for(i=0;i<9;i++){wline(g,rnd(30,430),rnd(2.2,3.6),rnd(0,4),1);}
+ g=$('#leafFx');var cols=['#7BC96F','#E8A33B','#D9684A','#A5CF5B','#F2C94C'];
+ for(i=0;i<11;i++){var gg=el('g',{transform:'translate(0,'+rnd(60,430)+')'},g);var lf=el('g',{'class':'lf anim'},gg);lf.style.animationDuration=rnd(3.2,5.6)+'s';lf.style.animationDelay=(-rnd(0,6))+'s';
+  el('path',{d:'M0,0 C6,-11 18,-11 26,0 C18,11 6,11 0,0 Z',fill:cols[i%cols.length]},lf);el('path',{d:'M2,0 L24,0',stroke:'rgba(31,42,68,.35)','stroke-width':1.5},lf);}
+ function wline(g,y,dur,delay,sc){var o=el('g',{transform:'translate(0,'+y+') scale('+sc+')'},g);var p=el('path',{d:'M0,0 C30,-8 60,8 100,0 C115,-4 125,-14 118,-22 C112,-29 100,-24 103,-17','class':'wl'},o);p.style.animationDuration=dur+'s';p.style.animationDelay=(-delay)+'s';}
+})();
+
+/* ---------- child layers & wardrobe ---------- */
+var zmap={bottom:'z-bottom',shoes:'z-shoes',top:'z-top',outer:'z-outer',neck:'z-neck',head:'z-head',hand:'z-hand'};
+ITEMS.forEach(function(it){var box=$('#'+zmap[it.slot]);if(!box)return;var g=el('g',{'class':'layer anim',id:'ly-'+it.id},box);el('use',{href:'#g-'+it.id},g);
+  if(it.id==='umbrella'){el('circle',{cx:237,cy:324,r:17,fill:'#F7C79E'},g);el('path',{d:'M227,318 Q237,312 247,318',fill:'none',stroke:'#EDB285','stroke-width':3,'stroke-linecap':'round'},g);}});
+var grid=$('#grid');
+ITEMS.forEach(function(it){var b=document.createElement('button');b.type='button';b.className='item';b.id='it-'+it.id;b.setAttribute('data-id',it.id);b.setAttribute('aria-pressed','false');
+  var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox',it.vb);s.setAttribute('aria-hidden','true');var u=document.createElementNS(NS,'use');u.setAttribute('href','#g-'+it.id);s.appendChild(u);b.appendChild(s);
+  var t=document.createElement('span');t.textContent=it.name;b.appendChild(t);grid.appendChild(b);});
+(function(){var b=document.createElement('button');b.type='button';b.className='item clear';b.id='btnClear';b.innerHTML='<span class="em">👕</span><span>全部脫低</span>';grid.appendChild(b);})();
+
+function render(){ITEMS.forEach(function(it){var on=worn[it.slot]===it.id;var l=$('#ly-'+it.id);if(l)l.classList.toggle('on',on);var c=$('#it-'+it.id);if(c){c.classList.toggle('worn',on);c.setAttribute('aria-pressed',on?'true':'false');}});}
+function wear(id,force){var it=BYID[id];if(!it)return;var was=worn[it.slot]===id;if(was&&!force){delete worn[it.slot];}else{worn[it.slot]=id;}render();pop();staleFeedback();}
+function clearAll(){worn={};render();staleFeedback();}
+
+/* drag & drop + tap */
+var drag=null,suppress=false,dropEl=$('#drop');
+function overDrop(x,y){if(!dropEl)return false;var r=dropEl.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;}
+function endDrag(){if(drag&&drag.ghost&&drag.ghost.parentNode)drag.ghost.parentNode.removeChild(drag.ghost);if(dropEl)dropEl.classList.remove('drop');drag=null;}
+grid.addEventListener('pointerdown',function(e){var c=e.target.closest?e.target.closest('.item'):null;if(!c||c.id==='btnClear')return;if(e.pointerType==='mouse'&&e.button!==0)return;
+  drag={id:c.getAttribute('data-id'),x:e.clientX,y:e.clientY,on:false,ghost:null,pid:e.pointerId,card:c};try{c.setPointerCapture(e.pointerId);}catch(er){}});
+grid.addEventListener('pointermove',function(e){if(!drag||e.pointerId!==drag.pid)return;
+  if(!drag.on){if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)<14)return;drag.on=true;var gh=document.createElement('div');gh.className='ghost-drag';var s=drag.card.querySelector('svg');if(s)gh.appendChild(s.cloneNode(true));document.body.appendChild(gh);drag.ghost=gh;}
+  drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';if(dropEl)dropEl.classList.toggle('drop',overDrop(e.clientX,e.clientY));e.preventDefault();});
+function finishDrag(e,cancel){if(!drag||e.pointerId!==drag.pid)return;var d=drag;if(d.on){suppress=true;setTimeout(function(){suppress=false;},120);if(!cancel&&overDrop(e.clientX,e.clientY)){wear(d.id,true);var cs=$('#childBody');if(cs){cs.classList.remove('hop');void cs.getBoundingClientRect();cs.classList.add('hop');}}}endDrag();}
+grid.addEventListener('pointerup',function(e){finishDrag(e,false);});
+grid.addEventListener('pointercancel',function(e){finishDrag(e,true);});
+grid.addEventListener('click',function(e){var c=e.target.closest?e.target.closest('.item'):null;if(!c)return;if(suppress){return;}if(c.id==='btnClear'){clearAll();return;}wear(c.getAttribute('data-id'),false);});
+
+/* ---------- weather ---------- */
+var skies=$$('#skyBox .sky'),curSky=skies[0],skyTimer=null;
+function setWeather(id){if(!W[id])return;curW=id;var w=W[id];var sc=$('#scene');if(sc)sc.setAttribute('data-wx',id);
+  $$('#scene .wxl').forEach(function(g){var list=(g.getAttribute('data-w')||'').split(',');g.classList.toggle('on',list.indexOf(id)>=0);});
+  var ns=skies.filter(function(s){return s.getAttribute('data-w')===id;})[0];
+  if(ns&&ns!==curSky){var old=curSky;ns.style.transition='none';ns.style.opacity='0';ns.parentNode.appendChild(ns);void ns.getBoundingClientRect();ns.style.transition='opacity .9s ease';ns.style.opacity='1';curSky=ns;
+    clearTimeout(skyTimer);skyTimer=setTimeout(function(){skies.forEach(function(s){if(s!==curSky){s.style.transition='none';s.style.opacity='0';}});},1000);}
+  $$('.wxb[data-wx]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-wx')===id);});
+  var n=$('#wxName'),t=$('#wxTemp');if(n)n.textContent=w.em+' '+w.name;if(t)t.textContent='🌡️ '+w.temp+'°C';
+  var cw=$('.child-wrap');if(cw)cw.style.setProperty('--childbg',w.bg);
+  stopTalk();cancelSpeech();staleFeedback(true);}
+$$('.wxb[data-wx]').forEach(function(b){b.addEventListener('click',function(){ctx();setWeather(b.getAttribute('data-wx'));});});
+$('#btnRand').addEventListener('click',function(){ctx();var keys=Object.keys(W).filter(function(k){return k!==curW;});setWeather(keys[Math.floor(Math.random()*keys.length)]);});
+
+/* tree sway (smooth amplitude) */
+(function(){var tree=$('#tree'),amp=.8,bias=0,t0=performance.now();
+ function loop(now){var w=W[curW];amp+=(w.tree-amp)*.04;bias+=(w.bias-bias)*.04;var f=curW==='windy'?5.2:1.6;var a=bias+amp*Math.sin((now-t0)/1000*f);if(tree)tree.setAttribute('transform','rotate('+a.toFixed(2)+' 150 420)');requestAnimationFrame(loop);}
+ requestAnimationFrame(loop);})();
+
+/* ---------- mood ---------- */
+var MOODS={
+ neutral:{m:'M144,148 Q160,162 176,148',fill:'none',tg:0,bl:'M127,108 Q138,103 149,108',br:'M171,108 Q182,103 193,108',ch:'#F5A3A3'},
+ happy:{m:'M140,143 Q160,176 180,143 Z',fill:'#8A2E3B',tg:1,bl:'M127,105 Q138,98 149,105',br:'M171,105 Q182,98 193,105',ch:'#F5A3A3'},
+ worry:{m:'M146,155 Q160,142 174,155',fill:'none',tg:0,bl:'M127,112 Q138,108 149,100',br:'M171,100 Q182,108 193,112',ch:'#F5A3A3'},
+ cold:{m:'M143,152 L149,146 L155,152 L161,146 L167,152 L173,146 L177,151',fill:'none',tg:0,bl:'M127,112 Q138,108 149,100',br:'M171,100 Q182,108 193,112',ch:'#9CCBF5'},
+ hot:{m:'M146,148 Q160,170 174,148 Z',fill:'#8A2E3B',tg:1,bl:'M127,112 Q138,108 149,100',br:'M171,100 Q182,108 193,112',ch:'#F2766B'},
+ open:{m:'M146,146 Q160,170 174,146 Z',fill:'#8A2E3B',tg:1,bl:'M127,105 Q138,99 149,105',br:'M171,105 Q182,99 193,105',ch:'#F5A3A3'}
+};
+function setMood(name,fx){var m=MOODS[name]||MOODS.neutral;var mo=$('#mouth');if(mo){mo.setAttribute('d',m.m);mo.setAttribute('fill',m.fill);}
+ var tg=$('#tongue');if(tg)tg.setAttribute('opacity',m.tg?'1':'0');var a=$('#brL'),b=$('#brR');if(a)a.setAttribute('d',m.bl);if(b)b.setAttribute('d',m.br);
+ ['chL','chR'].forEach(function(i){var c=$('#'+i);if(c)c.setAttribute('fill',m.ch);});
+ var fxm={sweat:$('#fxSweat'),cold:$('#fxCold'),wet:$('#fxWet')};for(var k in fxm){if(fxm[k])fxm[k].classList.toggle('on',fx===k);}
+ var cb=$('#childBody');if(cb)cb.classList.toggle('shiver',fx==='cold');}
+var talkTimer=null,curMood='neutral';
+function startTalk(){stopTalk();var open=false;talkTimer=setInterval(function(){open=!open;setMood(open?'open':'happy');},230);}
+function stopTalk(){if(talkTimer){clearInterval(talkTimer);talkTimer=null;setMood(curMood==='talk'?'neutral':curMood);}}
+
+/* ---------- messages ---------- */
+var msg=$('#msg'),msgMain=$('#msgMain'),tools=$('#msgTools');
+function showMsg(html,cls,withTools){if(!msgMain)return;msgMain.innerHTML=html;msg.className='msg'+(cls?' '+cls:'');if(tools)tools.hidden=!withTools;if(cls==='good'){msg.style.animation='none';void msg.offsetWidth;msg.style.animation='';}}
+function defaultMsg(){msgState='idle';curMood='neutral';setMood('neutral');showMsg('<span class="hd">👆 點一點</span>揀個天氣，再揀衫畀小朋友著，然後撳「檢查」或者「講一講」。','',false);}
+function staleFeedback(force){if(msgState!=='idle'||force){stopTalk();cancelSpeech();curMood='neutral';setMood('neutral');if(msgState!=='idle'||force)defaultMsg();}}
+
+/* ---------- check ---------- */
+function evaluate(wid,w){
+ var base=[];
+ if(!w.top&&!w.outer)base.push('仲未著上衣喎，揀一件畀小朋友著啦');
+ if(!w.bottom)base.push('仲未著褲喎，揀短褲或者長褲啦');
+ if(!w.shoes)base.push('仲未著鞋喎，揀一對鞋啦');
+ if(base.length)return {base:true,must:base.map(function(t){return {t:t,fx:'none'};}),nice:[]};
+ var must=[],nice=[];function M(t,fx){must.push({t:t,fx:fx||'none'});}function N(t){nice.push(t);}
+ var heavy=(w.outer==='down'||w.outer==='jacket'||w.outer==='raincoat');
+ var sun=(w.head==='sunhat'||w.hand==='umbrella');
+ if(wid==='sunny'){
+  if(w.outer==='down')M('今日好暖，羽絨會好熱，換件薄啲嘅衫啦','sweat');
+  if(w.head==='beanie'||w.neck==='scarf')M('今日唔凍，冷帽同頸巾可以放低','sweat');
+  if(w.outer==='jacket'||w.outer==='raincoat')N('今日好暖，外套可以唔著');
+  if(!sun)N('太陽好猛喎，戴頂太陽帽會好啲');
+  if(w.shoes==='boots')N('今日唔落雨，水靴留返落雨天著');
+ }else if(wid==='hot'){
+  if(w.outer==='down')M('好熱喎，羽絨會好焗，換薄啲嘅衫啦','sweat');
+  else if(heavy)M('好熱喎，唔使著外套啦','sweat');
+  if(w.head==='beanie'||w.neck==='scarf')M('好熱喎，冷帽同頸巾今日唔使用','sweat');
+  if(w.top==='tlong'||w.bottom==='pants')N('著短袖衫同短褲會涼快啲');
+  if(w.shoes==='boots')N('水靴會焗腳，涼鞋或者波鞋好啲');
+  if(!sun)N('太陽好猛，戴頂太陽帽或者撐遮防曬');
+ }else if(wid==='rainy'){
+  if(w.hand!=='umbrella'&&w.outer!=='raincoat')M('落雨喎，記得帶遮或者著雨褸','wet');
+  if(w.shoes!=='boots')N('著水靴踩水就唔怕濕腳喇');
+  if(w.outer==='down')N('落雨天氣唔係好凍，羽絨會有啲熱');
+ }else if(wid==='cold'){
+  var wt=({tshort:1,tlong:2})[w.top]||0;wt+=({jacket:2,down:4,raincoat:1.5})[w.outer]||0;
+  if(wt<4)M('好凍喎，要著厚啲，試吓加件外套或者羽絨','cold');
+  if(w.bottom==='shorts')M('好凍喎，短褲會凍親，換長褲啦','cold');
+  if(w.shoes==='sandal')M('涼鞋會凍腳，換雙波鞋或者水靴啦','cold');
+  if(w.head!=='beanie')N(w.head==='sunhat'?'太陽帽擋唔到凍，冷帽暖啲':'戴頂冷帽會暖啲');
+  if(w.neck!=='scarf')N('圍條頸巾仲暖');
+ }else if(wid==='windy'){
+  if(!w.outer&&w.top!=='tlong')M('風大喎，著件外套或者長袖衫擋風','cold');
+  if(w.head==='sunhat')M('大風會吹走太陽帽喎，換冷帽或者唔戴','none');
+  if(w.hand==='umbrella')M('大風撐遮好危險，遮會俾風吹反','none');
+  if(w.bottom==='shorts')N('風大，長褲會暖啲');
+  if(w.shoes==='sandal')N('風大涼鞋會凍腳');
+ }
+ return {base:false,must:must,nice:nice};
+}
+var PRAISE=['著得啱啱好！','好叻！呢套衫今日著得啱','啱晒！咁著就舒服喇'];
+function doCheck(){
+ ctx();stopTalk();cancelSpeech();var r=evaluate(curW,worn);var html='',cb=$('#childBody');
+ if(r.must.length){
+  html='<span class="hd">💡 再諗一諗</span>'+r.must.slice(0,3).map(function(m){return '<span class="tip">'+m.t+'</span>';}).join('');
+  showMsg(html,'hint',false);msgState='check';
+  if(r.base){curMood='neutral';setMood('neutral');}else{var fx=r.must[0].fx;curMood=fx==='sweat'?'hot':fx==='cold'?'cold':'worry';setMood(curMood,fx==='none'?null:fx);}
+ }else{
+  html='<span class="hd">✅ '+PRAISE[Math.floor(Math.random()*PRAISE.length)]+'</span>'+r.nice.slice(0,2).map(function(t){return '<span class="tip">仲可以：'+t+'</span>';}).join('');
+  showMsg(html,'good',false);msgState='check';curMood='happy';setMood('happy');ding();
+  if(cb){cb.classList.remove('hop');void cb.getBoundingClientRect();cb.classList.add('hop');}
+ }
+}
+$('#btnCheck').addEventListener('click',doCheck);
+if($('#childBody'))$('#childBody').addEventListener('animationend',function(e){if(e.animationName==='hop')this.classList.remove('hop');});
+
+/* ---------- speak (預錄真人聲 + fallback TTS) ---------- */
+var canTTS=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+var voices=[];function loadVoices(){try{voices=canTTS?window.speechSynthesis.getVoices():[];}catch(e){voices=[];}}
+loadVoices();try{if(canTTS)window.speechSynthesis.addEventListener('voiceschanged',loadVoices);}catch(e){}
+function pickVoice(){function n(v){return (v.lang||'').replace('_','-').toLowerCase();}
+ return voices.filter(function(v){return n(v)==='zh-hk';})[0]||voices.filter(function(v){return n(v).indexOf('yue')===0;})[0]||voices.filter(function(v){return n(v).indexOf('zh')===0;})[0]||null;}
+function ttsFallback(text,opt){opt=opt||{};var done=false,tm=null;function fin(){if(done)return;done=true;clearTimeout(tm);if(opt.onend)opt.onend();}
+ tm=setTimeout(fin,canTTS?Math.max(1500,text.length*600)+4000:Math.max(900,text.length*350));
+ if(canTTS){try{var u=new SpeechSynthesisUtterance(text);u.lang='zh-HK';var v=pickVoice();if(v)u.voice=v;u.rate=(opt.rate&&opt.rate<1)?.6:.85;u.onend=fin;u.onerror=fin;window.speechSynthesis.speak(u);}catch(e){fin();}}}
+var VOICE=(function(){var cur=null;
+ function norm(s){return String(s).replace(/\s+/g,'');}
+ function lookup(t){return (window.VOICE_LINES||{})[norm(t)];}
+ function stop(){if(cur){cur.onended=null;cur.onerror=null;try{cur.pause();}catch(e){}cur=null;}try{if(canTTS)window.speechSynthesis.cancel();}catch(e){}}
+ function speak(text,opt){opt=opt||{};stop();var src=lookup(text);
+  if(src){try{var a=new Audio(src);cur=a;a.playbackRate=opt.rate||1;a.preservesPitch=true;
+   a.onended=function(){if(cur===a)cur=null;if(opt.onend)opt.onend();};
+   a.onerror=function(){if(cur===a)cur=null;ttsFallback(text,opt);};
+   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(cur===a)cur=null;ttsFallback(text,opt);});return;}catch(e){cur=null;}}
+  ttsFallback(text,opt);}
+ return {speak:speak,stop:stop,has:function(t){return !!lookup(t);}};})();
+var token=0;
+function cancelSpeech(){token++;VOICE.stop();}
+/* segs: [{c:chunkIndex,t:text}] 固定片段逐段播放，逐段高亮 */
+function sayChunks(segs,onChunk,onEnd){var my=++token;VOICE.stop();var i=0,last=-1,rate=slow?.75:1;
+ function next(){if(my!==token)return;if(i>=segs.length){if(onEnd)onEnd();return;}var sg=segs[i++];if(sg.c!==last){last=sg.c;if(onChunk)onChunk(sg.c);}
+  VOICE.speak(sg.t,{rate:rate,onend:function(){if(my!==token)return;setTimeout(next,30);}});}
+ setTimeout(next,60);}
+var FALLBACK='我想著得舒服啲。';
+function adjSeg(wd){return '今日天氣'+wd.adj+'呀，';}
+function joinList(a){if(a.length<=1)return a.map(function(v){return {s:v};});var o=[];a.forEach(function(x,i){if(i>0)o.push({t:i===a.length-1?'同':'、'});o.push({s:x});});return o;}
+function buildSentence(){
+ var w=worn,wd=W[curW];
+ var clothes=['outer','top','bottom','shoes'].map(function(s){return w[s]?BYID[w[s]].name:null;}).filter(Boolean);
+ var acc=[];if(w.head)acc.push('戴'+BYID[w.head].name);if(w.neck)acc.push('圍'+BYID[w.neck].name);if(w.hand)acc.push('拎'+BYID[w.hand].name);
+ if(!clothes.length&&!acc.length)return null;
+ function names(list,c){var o=[];list.forEach(function(x,i){if(i>0)o.push({c:c,t:'同'});o.push({c:c,t:x});});return o;}
+ var chunks=[];
+ chunks.push({parts:[{t:'今日天氣'},{s:wd.adj},{t:'呀，'}],seg:[{c:0,t:adjSeg(wd)}]});
+ if(clothes.length){var c1=chunks.length;chunks.push({parts:[{t:'我會著'}].concat(joinList(clothes),[{t:'，'}]),seg:[{c:c1,t:'我會著'}].concat(names(clothes,c1))});}
+ if(acc.length){var c2=chunks.length;var lead=clothes.length?'仲會':'我會';chunks.push({parts:[{t:lead}].concat(joinList(acc),[{t:'，'}]),seg:[{c:c2,t:lead}].concat(names(acc,c2))});}
+ var rs=[];(REASON[curW]||[]).forEach(function(r){var slot=BYID[r[0]].slot;if(w[slot]===r[0]&&rs.length<2)rs.push(r[1]);});
+ var c3=chunks.length,seg=[{c:c3,t:'因為'}],disp;
+ if(rs.length){rs.forEach(function(r,i){seg.push({c:c3,t:r+(i<rs.length-1?'，':'。')});});disp=rs.join('，');}
+ else{seg.push({c:c3,t:FALLBACK});disp=FALLBACK.replace('。','');}
+ chunks.push({parts:[{t:'因為'},{s:disp},{t:'。'}],seg:seg});
+ return chunks;}
+function allSegments(){var o={};function add(t){o[t]=1;}
+ Object.keys(W).forEach(function(k){add(adjSeg(W[k]));});
+ ['我會著','仲會','我會','同','因為',FALLBACK].forEach(add);
+ ITEMS.forEach(function(it){if(it.slot==='hand')add('拎'+it.name);else if(it.slot==='head')add('戴'+it.name);else if(it.slot==='neck')add('圍'+it.name);else add(it.name);});
+ Object.keys(REASON).forEach(function(k){REASON[k].forEach(function(r){add(r[1]+'，');add(r[1]+'。');});});
+ return Object.keys(o);}
+var lastChunks=null;
+function renderSentence(chunks){return '<div class="sent">'+chunks.map(function(c,i){return '<span class="chunk" data-i="'+i+'">'+c.parts.map(function(p){return p.s!==undefined?'<span class="slot">'+p.s+'</span>':p.t;}).join('')+'</span>';}).join('')+'</div>';}
+function setNow(i){$$('#msgMain .chunk').forEach(function(c){c.classList.toggle('now',String(i)===c.getAttribute('data-i'));});}
+function doSpeak(fresh){
+ ctx();var chunks=fresh?buildSentence():lastChunks;
+ if(!chunks){stopTalk();cancelSpeech();showMsg('<span class="hd">👕 先揀衫吖</span>你先揀啲衫畀小朋友著，再撳「講一講」吖。','hint',false);msgState='say';return;}
+ lastChunks=chunks;msgState='say';curMood='happy';
+ var segs=[];chunks.forEach(function(c){c.seg.forEach(function(x){segs.push(x);});});
+ var hasVoice=VOICE.has(segs[0].t)||canTTS;
+ showMsg(renderSentence(chunks)+'<span class="sub">'+(hasVoice?'聽聽看，然後跟住讀':'呢部機冇語音，請老師讀出嚟，學生跟讀')+'</span>','say',true);
+ startTalk();
+ sayChunks(segs,function(i){setNow(i);},function(){stopTalk();setNow(-1);curMood='happy';setMood('happy');var sub=$('#msgMain .sub');if(sub)sub.textContent='🎤 輪到你喇！跟住讀一次';});
+}
+$('#btnSpeak').addEventListener('click',function(){doSpeak(true);});
+$('#btnReplay').addEventListener('click',function(){doSpeak(false);});
+$('#btnSlow').addEventListener('click',function(){slow=!slow;this.setAttribute('aria-pressed',slow?'true':'false');if(lastChunks&&msgState==='say')doSpeak(false);});
+
+/* ---------- top bar ---------- */
+var fsBtn=$('#btnFs');
+function fsLabel(){if(fsBtn)fsBtn.textContent=document.fullscreenElement?'⛶ 離開全螢幕':'⛶ 全螢幕';}
+if(fsBtn)fsBtn.addEventListener('click',function(){try{if(document.fullscreenElement){document.exitFullscreen();}else if(document.documentElement.requestFullscreen){document.documentElement.requestFullscreen();}}catch(e){}});
+document.addEventListener('fullscreenchange',fsLabel);
+$('#btnReset').addEventListener('click',function(){stopTalk();cancelSpeech();worn={};lastChunks=null;slow=false;var sl=$('#btnSlow');if(sl)sl.setAttribute('aria-pressed','false');render();setWeather('sunny');defaultMsg();});
+
+/* init */
+render();setWeather('sunny');defaultMsg();
+window.__wx={allSegments:allSegments,wear:wear,setWeather:setWeather,check:doCheck,speak:function(){doSpeak(true);},worn:function(){return worn;}};
+})();
+</script>
+</body>
+</html>

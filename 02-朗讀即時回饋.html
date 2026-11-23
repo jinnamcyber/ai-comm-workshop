@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>朗讀即時回饋</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:clamp(24px,1.45vw,28px);line-height:1.5;min-height:100vh;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;border:0;touch-action:manipulation}
+.app{max-width:1920px;margin:0 auto;padding:clamp(12px,1.4vw,26px);display:flex;flex-direction:column;gap:clamp(10px,1.1vw,20px);min-height:100vh}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.chip{background:var(--primary-soft);color:var(--primary);font-weight:700;border-radius:999px;padding:6px 20px;white-space:nowrap}
+h1{margin:0;font-size:clamp(28px,2.4vw,46px);font-weight:800;letter-spacing:.04em}
+.tools{display:flex;gap:12px}
+.btn{min-height:64px;padding:0 28px;border-radius:18px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .08s, box-shadow .08s, background .15s;user-select:none;-webkit-user-select:none}
+.btn:active{transform:translateY(4px)}
+.btn:focus-visible,.ch:focus-visible,.seg button:focus-visible,.tab:focus-visible{outline:4px solid var(--primary);outline-offset:3px}
+.btn.ghost{background:#fff;border:3px solid var(--line);box-shadow:0 5px 0 var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.primary{background:var(--primary);color:#fff;box-shadow:0 6px 0 #1F4DB0}
+.btn.primary:active{box-shadow:0 2px 0 #1F4DB0}
+.btn.accent{background:var(--accent);color:#fff;box-shadow:0 6px 0 #B8416A}
+.btn.accent:active{box-shadow:0 2px 0 #B8416A}
+.btn.good{background:var(--good);color:#fff;box-shadow:0 6px 0 #147A50}
+.btn.good:active{box-shadow:0 2px 0 #147A50}
+.btn.hint{background:var(--hint-soft);color:#8A5A00;border:3px solid var(--hint);box-shadow:0 5px 0 #D68E26}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.big{min-height:clamp(72px,6vw,96px);padding:0 clamp(26px,2.6vw,48px);font-size:clamp(26px,2vw,36px);border-radius:24px}
+
+/* levels */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,16px)}
+.tab{min-height:72px;border-radius:20px;background:#fff;border:3px solid var(--line);box-shadow:0 5px 0 var(--line);font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 14px;transition:background .15s,border-color .15s}
+.tab small{font-weight:600;color:var(--ink-2);font-size:.75em}
+.tab.on{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 5px 0 #1F4DB0}
+.tab.on small{color:#DCE7FF}
+.tab .stars{letter-spacing:2px;color:var(--hint);font-size:.9em}
+.tab.on .stars{color:#FFE08A}
+
+/* main grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,25vw,460px);gap:clamp(12px,1.4vw,26px);flex:1;align-items:stretch}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(16px,1.8vw,34px)}
+.main{display:flex;flex-direction:column;gap:clamp(10px,1.2vw,22px);position:relative;min-width:0}
+.qmeta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.qno{font-weight:800;color:var(--ink-2)}
+.dots{display:flex;gap:10px;align-items:center}
+.dot{width:20px;height:20px;border-radius:50%;background:var(--line);border:3px solid transparent;transition:background .2s}
+.dot.cur{border-color:var(--primary);background:#fff}
+.dot.g{background:var(--good)}
+.dot.y{background:var(--hint)}
+.seg{display:inline-flex;background:var(--bg);border:3px solid var(--line);border-radius:18px;padding:4px;gap:4px}
+.seg button{min-height:56px;padding:0 20px;border-radius:14px;background:transparent;font-weight:700;color:var(--ink-2)}
+.seg button.on{background:var(--primary);color:#fff}
+
+.targetbox{flex:1;display:flex;align-items:center;justify-content:center;min-height:clamp(150px,22vw,380px);background:var(--bg);border-radius:20px;padding:clamp(12px,1.6vw,30px);border:3px dashed var(--line)}
+.target{text-align:center;line-height:1.6;font-weight:700;letter-spacing:.06em;word-break:break-all}
+.target.w{font-size:clamp(70px,9vw,170px)}
+.target.s{font-size:clamp(42px,5vw,96px)}
+.target.p{font-size:clamp(30px,3.3vw,64px);text-align:left;line-height:1.9}
+.ch{display:inline-block;border-radius:.18em;padding:0 .04em;margin:0 .02em;border:0;background:transparent;font:inherit;color:inherit;letter-spacing:0;transition:background .25s,color .25s,transform .25s}
+button.ch{cursor:pointer;min-width:1.1em;min-height:1.3em}
+.ch.ok{background:var(--good-soft);color:var(--good);animation:pop .4s ease both}
+.ch.miss{background:var(--hint-soft);color:#9A6200;box-shadow:inset 0 -.1em 0 var(--hint)}
+.ch.tflag{background:var(--hint-soft);color:#9A6200;box-shadow:inset 0 -.1em 0 var(--hint)}
+.ch.neutral.tpend{background:#fff;box-shadow:inset 0 0 0 3px var(--line)}
+.punc{color:var(--ink-2)}
+@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+.controls{display:flex;gap:clamp(10px,1vw,18px);flex-wrap:wrap;align-items:center;justify-content:center}
+.heard{min-height:2.4em;text-align:center;color:var(--ink-2)}
+.heard b{color:var(--ink)}
+.tip{text-align:center;color:var(--ink-2);min-height:1.5em}
+
+.wave{display:none;align-items:center;justify-content:center;gap:12px;height:clamp(64px,6vw,96px)}
+.wave.on{display:flex}
+.micwrap{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center}
+.micwrap::before,.micwrap::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--accent);opacity:.35;animation:ring 1.4s ease-out infinite}
+.micwrap::after{animation-delay:.7s}
+.micdot{position:relative;width:60px;height:60px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;animation:beat .7s ease-in-out infinite alternate}
+@keyframes ring{0%{transform:scale(.8);opacity:.5}100%{transform:scale(1.9);opacity:0}}
+@keyframes beat{from{transform:scale(1)}to{transform:scale(1.12)}}
+.bars{display:flex;align-items:center;gap:7px;height:100%}
+.bars i{display:block;width:9px;height:30%;border-radius:6px;background:var(--accent);animation:bar .9s ease-in-out infinite}
+.bars i:nth-child(2n){background:var(--primary)}
+.bars i:nth-child(1){animation-delay:-.1s}.bars i:nth-child(2){animation-delay:-.5s}.bars i:nth-child(3){animation-delay:-.3s}.bars i:nth-child(4){animation-delay:-.7s}.bars i:nth-child(5){animation-delay:-.2s}.bars i:nth-child(6){animation-delay:-.6s}.bars i:nth-child(7){animation-delay:-.4s}.bars i:nth-child(8){animation-delay:-.8s}.bars i:nth-child(9){animation-delay:-.15s}.bars i:nth-child(10){animation-delay:-.55s}
+@keyframes bar{0%,100%{height:18%}50%{height:100%}}
+.recording-label{font-weight:800;color:var(--accent)}
+
+.notice{border-radius:18px;padding:16px 22px;border:3px solid var(--hint);background:var(--hint-soft);color:#6B4500;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.notice.info{border-color:var(--primary);background:var(--primary-soft);color:#173E92}
+.notice p{margin:0;flex:1 1 320px}
+.notice[hidden]{display:none}
+
+/* side */
+.side{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,1.2vw,20px);text-align:center}
+.mascot{width:min(100%,clamp(170px,15vw,290px));height:auto;overflow:visible}
+.mascot .m-body{transform-box:fill-box;transform-origin:50% 100%}
+.mascot .waves,.mascot .sparks{opacity:0;transition:opacity .3s}
+.mascot.listening .m-body{animation:wob .5s ease-in-out infinite alternate}
+.mascot.listening .waves{opacity:1;animation:wv .8s ease-in-out infinite alternate}
+.mascot.listening .beak-low{animation:talk .35s ease-in-out infinite alternate}
+.mascot.happy .m-body{animation:hop .55s ease-in-out 3}
+.mascot.happy .sparks{opacity:1;animation:wv .6s ease-in-out infinite alternate}
+.mascot.think .m-body{transform:rotate(-5deg)}
+@keyframes wob{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+@keyframes wv{from{transform:scale(.92)}to{transform:scale(1.06)}}
+@keyframes talk{from{transform:translateY(0)}to{transform:translateY(6px)}}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.bubble{background:var(--accent-soft);border-radius:20px;padding:14px 18px;font-weight:700;width:100%;position:relative;min-height:3.2em;display:flex;align-items:center;justify-content:center}
+.bubble.good{background:var(--good-soft);color:#12724D}
+.bubble.hint{background:var(--hint-soft);color:#7A5000}
+.meter{width:100%}
+.pct{font-size:clamp(54px,5vw,96px);font-weight:900;line-height:1;color:var(--ink-2)}
+.pct small{font-size:.4em;font-weight:700}
+.pct.good{color:var(--good)}.pct.hint{color:var(--hint)}
+.bar{height:22px;background:var(--line);border-radius:12px;overflow:hidden;margin-top:10px}
+.bar>div{height:100%;width:0;background:var(--hint);border-radius:12px;transition:width .7s ease, background .3s}
+.bar>div.good{background:var(--good)}
+.legend{display:flex;gap:16px;justify-content:center;font-size:.75em;color:var(--ink-2);flex-wrap:wrap}
+.legend i{display:inline-block;width:1.1em;height:1.1em;border-radius:6px;vertical-align:-.15em;margin-right:6px}
+
+/* summary & settings */
+.summary{display:flex;flex-direction:column;gap:18px;align-items:center;text-align:center;padding:10px}
+.summary h2{margin:0;font-size:1.6em}
+.sumrow{display:flex;align-items:center;gap:18px;width:min(100%,780px);background:var(--bg);border-radius:18px;padding:12px 24px;justify-content:space-between}
+.sumrow .st{color:var(--hint);letter-spacing:3px}
+.overlay{position:fixed;inset:0;background:rgba(31,42,68,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.overlay[hidden]{display:none}
+.panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(18px,2vw,36px);width:min(760px,100%);max-height:94vh;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.panel h2{margin:0}
+.opts{display:flex;gap:12px;flex-wrap:wrap}
+.opt{min-height:64px;padding:0 22px;border-radius:16px;background:#fff;border:3px solid var(--line);font-weight:700}
+.opt.on{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.note{color:var(--ink-2);font-size:.8em;margin:0}
+
+footer{text-align:right;font-size:14px;color:var(--ink-2);padding-right:6px}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .side{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .mascot{width:150px}
+  .btn{padding:0 18px}
+  .tab small{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="chip">中文科 · 語基</span><h1>朗讀即時回饋</h1></div>
+    <div class="tools">
+      <button class="btn ghost" id="btnFull" type="button">⛶ 全螢幕</button>
+      <button class="btn ghost" id="btnReset" type="button">↺ 重新開始</button>
+    </div>
+  </header>
+
+  <nav class="levels" id="levels" aria-label="關卡"></nav>
+
+  <main class="grid">
+    <section class="card main" id="mainCard">
+      <div id="play" style="display:contents">
+        <div class="qmeta">
+          <div class="qno" id="qno"></div>
+          <div class="dots" id="dots" aria-hidden="true"></div>
+          <div class="seg" role="group" aria-label="模式">
+            <button type="button" id="segMic">🎤 學生朗讀</button>
+            <button type="button" id="segTea">👩‍🏫 老師評分</button>
+          </div>
+        </div>
+        <div class="targetbox"><div class="target w" id="target"></div></div>
+        <div class="wave" id="wave" aria-live="polite">
+          <div class="micwrap"><div class="micdot">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </div></div>
+          <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <span class="recording-label">聽緊…請朗讀</span>
+        </div>
+        <div class="heard" id="heard"></div>
+        <div class="controls">
+          <button class="btn big primary" id="btnDemo" type="button">🔊 示範</button>
+          <button class="btn big accent" id="btnRec" type="button">🎤 開始朗讀</button>
+          <button class="btn big good" id="btnDone" type="button" hidden>✅ 完成評分</button>
+          <button class="btn big hint" id="btnRetry" type="button" hidden>↻ 再讀一次</button>
+          <button class="btn big ghost" id="btnNext" type="button">下一題 ➜</button>
+          <button class="btn ghost" id="btnSet" type="button" aria-label="設定">⚙ 設定</button>
+        </div>
+        <div class="tip" id="tip"></div>
+        <div class="notice" id="notice" hidden></div>
+      </div>
+      <div class="summary" id="summary" hidden></div>
+    </section>
+
+    <aside class="card side">
+      <svg class="mascot" id="mascot" viewBox="0 0 220 240" aria-hidden="true">
+        <g class="m-body">
+          <ellipse cx="82" cy="222" rx="20" ry="8" fill="#F29A3A" stroke="#1F2A44" stroke-width="5"/>
+          <ellipse cx="128" cy="222" rx="20" ry="8" fill="#F29A3A" stroke="#1F2A44" stroke-width="5"/>
+          <path d="M96 40 C92 22 102 12 110 6 C112 18 120 22 126 28 C132 18 140 16 146 18 C142 30 138 38 130 44Z" fill="#FFD25E" stroke="#1F2A44" stroke-width="5" stroke-linejoin="round"/>
+          <ellipse cx="110" cy="130" rx="78" ry="86" fill="#FFD25E" stroke="#1F2A44" stroke-width="5"/>
+          <ellipse cx="110" cy="158" rx="46" ry="48" fill="#FFF1B8"/>
+          <path d="M34 128 C16 140 14 166 30 176 C40 160 44 146 44 134Z" fill="#FFC13A" stroke="#1F2A44" stroke-width="5" stroke-linejoin="round"/>
+          <ellipse cx="80" cy="104" rx="10" ry="12" fill="#1F2A44"/><circle cx="83" cy="99" r="3.6" fill="#fff"/>
+          <ellipse cx="140" cy="104" rx="10" ry="12" fill="#1F2A44"/><circle cx="143" cy="99" r="3.6" fill="#fff"/>
+          <ellipse cx="62" cy="128" rx="13" ry="8" fill="#FF8FAF" opacity=".75"/>
+          <ellipse cx="158" cy="128" rx="13" ry="8" fill="#FF8FAF" opacity=".75"/>
+          <path d="M96 122 L124 122 L110 136Z" fill="#F29A3A" stroke="#1F2A44" stroke-width="4.5" stroke-linejoin="round"/>
+          <path class="beak-low" d="M99 138 L121 138 L110 148Z" fill="#F29A3A" stroke="#1F2A44" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M176 150 C190 146 196 134 190 124 C180 132 174 140 172 148Z" fill="#FFC13A" stroke="#1F2A44" stroke-width="5" stroke-linejoin="round"/>
+          <g>
+            <rect x="186" y="104" width="18" height="30" rx="9" fill="#5B6478" stroke="#1F2A44" stroke-width="4"/>
+            <path d="M195 134 L195 154" stroke="#1F2A44" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <g class="waves" fill="none" stroke="#E8618C" stroke-width="5" stroke-linecap="round" style="transform-box:fill-box;transform-origin:center">
+            <path d="M26 60 Q14 80 26 100"/><path d="M10 48 Q-8 80 10 112"/>
+            <path d="M194 60 Q206 80 194 100" /><path d="M210 48 Q228 80 210 112"/>
+          </g>
+        </g>
+        <g class="sparks" fill="#FFB020" stroke="#1F2A44" stroke-width="3" stroke-linejoin="round" style="transform-box:fill-box;transform-origin:center">
+          <path d="M30 30 l5 12 12 5 -12 5 -5 12 -5 -12 -12 -5 12 -5z"/>
+          <path d="M190 22 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z"/>
+          <path d="M206 190 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/>
+        </g>
+      </svg>
+      <div class="bubble" id="bubble">先㩒「🔊 示範」聽一聽，再自己讀吖！</div>
+      <div class="meter">
+        <div class="pct" id="pct">--<small>%</small></div>
+        <div class="bar"><div id="bar"></div></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--good-soft);box-shadow:inset 0 0 0 3px var(--good)"></i>讀對了</span><span><i style="background:var(--hint-soft);box-shadow:inset 0 0 0 3px var(--hint)"></i>再練一練</span></div>
+    </aside>
+  </main>
+  <footer>AI 輔助備課工作坊 · 示範教具</footer>
+</div>
+
+<div class="overlay" id="settings" hidden>
+  <div class="panel" role="dialog" aria-label="設定">
+    <h2>⚙ 設定</h2>
+    <div>
+      <div style="font-weight:700;margin-bottom:8px">語音辨識語言</div>
+      <div class="opts" id="langOpts">
+        <button type="button" class="opt" data-lang="yue-Hant-HK">廣東話 yue-Hant-HK</button>
+        <button type="button" class="opt" data-lang="zh-HK">zh-HK</button>
+        <button type="button" class="opt" data-lang="zh-TW">zh-TW</button>
+      </div>
+      <p class="note">先試 yue-Hant-HK；如果瀏覽器不支援會自動改用 zh-HK。辨識結果如果常常出錯，可以手動切換。</p>
+    </div>
+    <div>
+      <div style="font-weight:700;margin-bottom:8px">示範語速</div>
+      <div class="opts" id="rateOpts">
+        <button type="button" class="opt" data-rate="0.65">慢</button>
+        <button type="button" class="opt" data-rate="0.85">適中</button>
+        <button type="button" class="opt" data-rate="1">正常</button>
+      </div>
+    </div>
+    <button class="btn big primary" id="setClose" type="button">完成</button>
+  </div>
+</div>
+
+<script src="audio/02/voice.js"></script>
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var LOCAL = 'http:' + '//localhost';
+
+/* ===== 題目 ===== */
+var LEVELS = [
+  {short:'詞語', name:'第一關 詞語', icon:'🍎', cls:'w', items:['蘋果','小貓','朋友','學校','太陽','快樂']},
+  {short:'短句', name:'第二關 短句', icon:'🌟', cls:'s', items:[
+    '我喜歡吃紅色的蘋果。','小貓躺在窗邊曬太陽。','今天我和朋友一起玩遊戲。','媽媽笑著對我說早安。']},
+  {short:'短段落', name:'第三關 短段落', icon:'📖', cls:'p', items:[
+    '星期六早上，我和爸爸媽媽去公園玩。天氣很好，花兒開得很美。我們一起放風箏，大家都笑得很開心。']}
+];
+
+/* ===== 簡繁對照（常見字） ===== */
+var S2T = (function(){
+  var pairs = '们們这這个個说說话話对對时時开開学學习習师師爱愛欢歡乐樂车車风風门門见見来來么麼后後国國园園书書马馬鸟鳥鱼魚红紅绿綠蓝藍黄黃样樣还還吗嗎儿兒听聽读讀买買卖賣长長东東区區动動会會过過远遠热熱画畫阳陽虽雖为為应應点點间間问問关關兴興发發经經机機电電气氣实實种種体體现現头頭让讓请請谢謝总總脑腦灯燈云雲鸡雞猫貓饭飯饱飽饿餓汤湯鲜鮮礼禮边邊帮幫带帶当當几幾钱錢难難认認识識写寫鸭鴨叶葉树樹妈媽爷爺爸爸姐姐里裡裏裡麽麼著着';
+  var m = {}, i;
+  for(i=0;i+1<pairs.length;i+=2){ m[pairs.charAt(i)] = pairs.charAt(i+1); }
+  m['着']='著'; m['著']='著'; /* 統一 */
+  return m;
+})();
+var DIGITS = {'0':'〇','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九'};
+var CHAR_RE = /[㐀-䶿一-鿿豈-﫿0-9A-Za-z]/;
+function isChar(c){ return CHAR_RE.test(c); }
+function normChar(c){
+  if(DIGITS[c]) return DIGITS[c];
+  return S2T[c] || c.toLowerCase();
+}
+function normList(s){
+  var out = [], i, c;
+  s = String(s || '');
+  for(i=0;i<s.length;i++){ c = s.charAt(i); if(isChar(c)) out.push(normChar(c)); }
+  return out;
+}
+function lcsMarks(T, H){
+  var n = T.length, m = H.length, dp = [], i, j, marks = [];
+  for(i=0;i<=n;i++){ dp.push(new Array(m+1).fill(0)); marks.push(false); }
+  for(i=1;i<=n;i++){
+    for(j=1;j<=m;j++){
+      dp[i][j] = (T[i-1] === H[j-1]) ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  i = n; j = m;
+  while(i>0 && j>0){
+    if(T[i-1] === H[j-1]){ marks[i-1] = true; i--; j--; }
+    else if(dp[i-1][j] >= dp[i][j-1]){ i--; } else { j--; }
+  }
+  marks.length = n;
+  return {marks: marks, hits: dp[n][m]};
+}
+
+/* ===== 狀態 ===== */
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+var LANGS = ['yue-Hant-HK','zh-HK','zh-TW'];
+var S = {
+  level:0, idx:0, mode: SR ? 'mic' : 'teacher',
+  lang:'yue-Hant-HK', rate:0.85,
+  tokens:[], flags:{}, result:null, recording:false, finished:false,
+  scores:[{},{},{}]
+};
+var rec = null, recTimer = null, ttsVoices = [], audioCtx = null, langTried = {};
+
+/* ===== 工具 ===== */
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function curText(){ return LEVELS[S.level].items[S.idx]; }
+function tokenize(text){
+  var arr = [], i, c;
+  for(i=0;i<text.length;i++){ c = text.charAt(i); arr.push({ch:c, isChar:isChar(c), n:isChar(c)?normChar(c):''}); }
+  return arr;
+}
+function setText(id, t){ var e = $(id); if(e) e.textContent = t; }
+function show(id, on){ var e = $(id); if(e) e.hidden = !on; }
+
+/* ===== 聲音 ===== */
+function ensureAudio(){
+  try{
+    if(!audioCtx){ var AC = window.AudioContext || window.webkitAudioContext; if(AC) audioCtx = new AC(); }
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }catch(e){}
+}
+function ding(count){
+  try{
+    ensureAudio(); if(!audioCtx) return;
+    var notes = [784, 988, 1175].slice(0, count || 1), t0 = audioCtx.currentTime;
+    notes.forEach(function(f, k){
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + k*0.14);
+      g.gain.exponentialRampToValueAtTime(0.22, t0 + k*0.14 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + k*0.14 + 0.5);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t0 + k*0.14); o.stop(t0 + k*0.14 + 0.55);
+    });
+  }catch(e){}
+}
+function loadVoices(){
+  try{ if(window.speechSynthesis) ttsVoices = window.speechSynthesis.getVoices() || []; }catch(e){ ttsVoices = []; }
+}
+function pickVoice(lang){
+  var norm = function(l){ return String(l||'').replace('_','-').toLowerCase(); }, want = norm(lang), i, v;
+  for(i=0;i<ttsVoices.length;i++){ v = ttsVoices[i]; if(norm(v.lang) === want) return v; }
+  for(i=0;i<ttsVoices.length;i++){ v = ttsVoices[i]; if(norm(v.lang).indexOf('yue') === 0) return v; }
+  var pre = want.split('-')[0];
+  for(i=0;i<ttsVoices.length;i++){ v = ttsVoices[i]; if(norm(v.lang).indexOf(pre) === 0) return v; }
+  return null;
+}
+function ttsFallback(text, opt){
+  try{
+    var ss = window.speechSynthesis;
+    if(!ss || typeof SpeechSynthesisUtterance === 'undefined'){
+      setText('tip', '部機冇朗讀功能，請老師或同學先示範吖。'); return;
+    }
+    ss.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-HK'; u.rate = (opt && opt.rate) || S.rate;
+    var v = pickVoice(u.lang); if(v){ u.voice = v; }
+    if(opt && opt.onend){ u.onend = opt.onend; }
+    ss.speak(u);
+  }catch(e){}
+}
+var VOICE = (function(){
+  var cur = null;
+  var norm = function(s){ return String(s).replace(/\s+/g, ''); };
+  var lookup = function(t){ return (window.VOICE_LINES || {})[norm(t)]; };
+  function stop(){
+    if(cur){ cur.onended = null; try{ cur.pause(); }catch(e){} cur = null; }
+    try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
+  }
+  function speak(text, opt){
+    opt = opt || {};
+    stop();
+    var src = lookup(text);
+    if(src){
+      try{
+        var a = new Audio(src); cur = a;
+        a.playbackRate = opt.rate || 1; a.preservesPitch = true;
+        a.onended = function(){ if(cur === a) cur = null; if(opt.onend) opt.onend(); };
+        a.onerror = function(){ cur = null; ttsFallback(text, opt); };
+        var pr = a.play();
+        if(pr && pr.catch) pr.catch(function(){ cur = null; ttsFallback(text, opt); });
+        return;
+      }catch(e){ cur = null; }
+    }
+    ttsFallback(text, opt);
+  }
+  return {speak: speak, stop: stop};
+})();
+function speak(text){ VOICE.speak(text, {rate: S.rate}); }
+
+/* ===== 提示 ===== */
+function showNotice(html, kind, opts){
+  var n = $('notice'); if(!n) return;
+  n.className = 'notice' + (kind === 'info' ? ' info' : '');
+  n.innerHTML = '<p>' + html + '</p>' + (opts && opts.teacherBtn ? '<button type="button" class="btn hint" id="noticeTea">改用老師評分模式</button>' : '');
+  n.hidden = false;
+  var b = $('noticeTea');
+  if(b){ b.addEventListener('click', function(){ setMode('teacher'); }); }
+}
+function hideNotice(){ show('notice', false); }
+function supportMsg(){
+  return '語音辨識需要 Chrome / Edge 同網絡；可以用 <b>' + LOCAL + '</b> 打開。現在可以先用「老師評分模式」：老師聽學生朗讀，直接點擊讀錯的字標成黃色。';
+}
+
+/* ===== 渲染 ===== */
+function buildLevels(){
+  var box = $('levels'); if(!box) return;
+  box.innerHTML = '';
+  LEVELS.forEach(function(lv, i){
+    var done = Object.keys(S.scores[i]).length, total = lv.items.length;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'tab' + (i === S.level ? ' on' : '');
+    b.innerHTML = '<span>' + lv.icon + '</span><span>' + lv.name + '</span><small>' + done + '/' + total + '</small>' ;
+    b.addEventListener('click', function(){ goto(i, 0); });
+    box.appendChild(b);
+  });
+}
+function buildDots(){
+  var box = $('dots'); if(!box) return;
+  var lv = LEVELS[S.level]; box.innerHTML = '';
+  lv.items.forEach(function(_, i){
+    var d = document.createElement('span'), sc = S.scores[S.level][i];
+    d.className = 'dot' + (i === S.idx ? ' cur' : '') + (sc != null ? (sc >= 70 ? ' g' : ' y') : '');
+    box.appendChild(d);
+  });
+}
+function renderTarget(){
+  var t = $('target'); if(!t) return;
+  var lv = LEVELS[S.level], teacher = S.mode === 'teacher', r = S.result, html = '', i, tk, cls, tag;
+  t.className = 'target ' + lv.cls;
+  for(i=0;i<S.tokens.length;i++){
+    tk = S.tokens[i];
+    if(!tk.isChar){ html += '<span class="punc">' + esc(tk.ch) + '</span>'; continue; }
+    if(r){ cls = r.marks[i] ? 'ok' : 'miss'; }
+    else if(teacher){ cls = S.flags[i] ? 'tflag' : 'neutral tpend'; }
+    else { cls = 'neutral'; }
+    tag = (teacher || r) ? 'button' : 'span';
+    html += '<' + tag + (tag === 'button' ? ' type="button"' : '') + ' class="ch ' + cls + '" data-i="' + i + '">' + esc(tk.ch) + '</' + tag + '>';
+  }
+  t.innerHTML = html;
+}
+function renderMeta(){
+  var lv = LEVELS[S.level];
+  setText('qno', lv.name + ' · 第 ' + (S.idx+1) + ' / ' + lv.items.length + ' 題');
+  buildDots(); buildLevels();
+  var mic = $('segMic'), tea = $('segTea');
+  if(mic) mic.className = S.mode === 'mic' ? 'on' : '';
+  if(tea) tea.className = S.mode === 'teacher' ? 'on' : '';
+}
+function renderControls(){
+  var teacher = S.mode === 'teacher', r = S.result;
+  show('btnRec', !teacher && !r && true);
+  var rb = $('btnRec');
+  if(rb){
+    if(S.recording){ rb.textContent = '⏹ 讀完了'; rb.hidden = false; }
+    else { rb.textContent = '🎤 開始朗讀'; rb.hidden = teacher || !!r; }
+  }
+  show('btnDone', teacher && !r);
+  show('btnRetry', !!r && !S.recording);
+  var dm = $('btnDemo'); if(dm) dm.disabled = false;
+  var w = $('wave'); if(w) w.className = 'wave' + (S.recording ? ' on' : '');
+  var tip = $('tip');
+  if(tip){
+    if(S.recording) tip.textContent = '';
+    else if(teacher && !r) tip.textContent = '老師：聽學生朗讀，點擊讀錯的字（會變黃），完成後按「完成評分」。';
+    else if(teacher && r) tip.textContent = '可以再點擊文字修改，回饋會即時更新。';
+    else if(r) tip.textContent = '黃色嘅字再練一練；㩒一下個字可以聽佢點讀。';
+    else tip.textContent = '';
+  }
+}
+function setMascot(state){
+  var m = $('mascot'); if(!m) return;
+  m.setAttribute('class', 'mascot' + (state ? ' ' + state : ''));
+}
+function setBubble(text, kind){
+  var b = $('bubble'); if(!b) return;
+  b.className = 'bubble' + (kind ? ' ' + kind : ''); b.textContent = text;
+}
+function renderMeter(){
+  var r = S.result, p = $('pct'), bar = $('bar');
+  if(!r){
+    if(p){ p.className = 'pct'; p.innerHTML = '--<small>%</small>'; }
+    if(bar){ bar.style.width = '0'; bar.className = ''; }
+    return;
+  }
+  var good = r.acc >= 80;
+  if(p){ p.className = 'pct ' + (good ? 'good' : 'hint'); p.innerHTML = r.acc + '<small>%</small>'; }
+  if(bar){ bar.style.width = r.acc + '%'; bar.className = good ? 'good' : ''; }
+}
+function feedbackFor(acc){
+  if(acc >= 100) return ['好叻呀！每個字都讀啱晒！', 'good'];
+  if(acc >= 85) return ['讀得好好呀！得少少字要再練一練。', 'good'];
+  if(acc >= 60) return ['唔錯喎！黃色嘅字再聽多次，然後再讀一次吖。', 'hint'];
+  if(acc >= 30) return ['慢慢嚟，先聽示範，再慢慢讀吖。', 'hint'];
+  return ['唔緊要，我哋先聽示範，再試多次啦。', 'hint'];
+}
+function renderAll(){
+  renderMeta(); renderTarget(); renderControls(); renderMeter();
+}
+
+/* ===== 結果計算 ===== */
+function applyMarks(marks, heardText){
+  var total = 0, ok = 0, i;
+  for(i=0;i<S.tokens.length;i++){ if(S.tokens[i].isChar){ total++; if(marks[i]) ok++; } }
+  var acc = total ? Math.round(ok * 100 / total) : 0;
+  S.result = {marks: marks, acc: acc, heard: heardText};
+  S.scores[S.level][S.idx] = acc;
+  var fb = feedbackFor(acc);
+  setBubble(fb[0], fb[1]);
+  setMascot(acc >= 85 ? 'happy' : 'think');
+  if(acc >= 60) ding(acc >= 100 ? 3 : (acc >= 85 ? 2 : 1));
+  setTimeout(function(){ speak(fb[0]); }, acc >= 60 ? 700 : 100);
+  var h = $('heard');
+  if(h) h.innerHTML = heardText != null ? '聽到：<b>' + (heardText ? esc(heardText) : '（沒有聽到）') + '</b>' : '';
+  renderAll();
+}
+function evaluateHeard(text){
+  var T = [], idxMap = [], i;
+  for(i=0;i<S.tokens.length;i++){ if(S.tokens[i].isChar){ T.push(S.tokens[i].n); idxMap.push(i); } }
+  var res = lcsMarks(T, normList(text)), marks = [];
+  for(i=0;i<S.tokens.length;i++) marks.push(false);
+  for(i=0;i<idxMap.length;i++) marks[idxMap[i]] = !!res.marks[i];
+  applyMarks(marks, text);
+}
+function evaluateTeacher(){
+  var marks = [], i;
+  for(i=0;i<S.tokens.length;i++) marks.push(S.tokens[i].isChar && !S.flags[i]);
+  applyMarks(marks, null);
+}
+function recomputeTeacher(){
+  var marks = [], i;
+  for(i=0;i<S.tokens.length;i++) marks.push(S.tokens[i].isChar && !S.flags[i]);
+  var total = 0, ok = 0;
+  for(i=0;i<S.tokens.length;i++){ if(S.tokens[i].isChar){ total++; if(marks[i]) ok++; } }
+  var acc = total ? Math.round(ok*100/total) : 0;
+  S.result = {marks: marks, acc: acc, heard: null};
+  S.scores[S.level][S.idx] = acc;
+  var fb = feedbackFor(acc); setBubble(fb[0], fb[1]);
+  setMascot(acc >= 85 ? 'happy' : 'think');
+  renderAll();
+}
+
+/* ===== 語音辨識 ===== */
+function clearRecTimer(){ if(recTimer){ clearTimeout(recTimer); recTimer = null; } }
+function stopRec(){
+  clearRecTimer();
+  try{ if(rec) rec.stop(); }catch(e){}
+}
+function startRec(isRetryLang){
+  if(!SR){ showNotice(supportMsg(), 'warn'); setMode('teacher'); return; }
+  if(S.recording){ stopRec(); return; }
+  ensureAudio();
+  VOICE.stop();
+  hideNotice();
+  var segs = [], interim = '', lastErr = '', gotAny = false, r;
+  try{
+    r = new SR();
+  }catch(e){ showNotice(supportMsg(), 'warn', {teacherBtn:true}); return; }
+  rec = r;
+  if(!isRetryLang) langTried = {};
+  langTried[S.lang] = true;
+  r.lang = S.lang;
+  r.continuous = (S.level === 2);
+  r.interimResults = true;
+  r.maxAlternatives = 3;
+  r.onstart = function(){
+    S.recording = true; setMascot('listening');
+    setBubble('我聽緊，大聲啲讀吖！', '');
+    var h = $('heard'); if(h) h.textContent = '';
+    renderControls();
+  };
+  r.onresult = function(ev){
+    gotAny = true; interim = '';
+    var i, k, res, alts;
+    for(i=ev.resultIndex;i<ev.results.length;i++){
+      res = ev.results[i];
+      if(res.isFinal){
+        alts = [];
+        for(k=0;k<res.length;k++) alts.push(res[k].transcript);
+        segs[i] = alts;
+      } else { interim += res[0].transcript; }
+    }
+    var shown = '', j;
+    for(j=0;j<segs.length;j++){ if(segs[j]) shown += segs[j][0]; }
+    var h = $('heard'); if(h) h.innerHTML = '聽到：<b>' + esc(shown + interim) + '</b>';
+  };
+  r.onerror = function(ev){ lastErr = (ev && ev.error) || 'error'; };
+  r.onend = function(){
+    clearRecTimer();
+    S.recording = false; rec = null; setMascot('');
+    if(lastErr === 'language-not-supported'){
+      var nextLang = null, q;
+      for(q=0;q<LANGS.length;q++){ if(!langTried[LANGS[q]]){ nextLang = LANGS[q]; break; } }
+      if(nextLang){ S.lang = nextLang; syncSettings(); renderControls(); startRec(true); return; }
+    }
+    if(lastErr && lastErr !== 'no-speech' && lastErr !== 'aborted'){
+      renderControls(); handleRecError(lastErr); return;
+    }
+    var best = '', bestHits = -1, k, j, cand, T = [], i;
+    for(i=0;i<S.tokens.length;i++){ if(S.tokens[i].isChar) T.push(S.tokens[i].n); }
+    var maxAlt = 1;
+    for(j=0;j<segs.length;j++){ if(segs[j] && segs[j].length > maxAlt) maxAlt = segs[j].length; }
+    for(k=0;k<maxAlt;k++){
+      cand = '';
+      for(j=0;j<segs.length;j++){ if(segs[j]) cand += segs[j][Math.min(k, segs[j].length-1)]; }
+      if(cand){
+        var hs = lcsMarks(T, normList(cand)).hits;
+        if(hs > bestHits){ bestHits = hs; best = cand; }
+      }
+    }
+    if(!best && interim){ best = interim; }
+    if(!best){
+      renderControls();
+      setBubble('我聽唔到聲喎，行近啲再讀多次吖。', 'hint');
+      setText('tip', '請確認已允許使用咪高峰，然後按「🎤 開始朗讀」。');
+      var tp = $('tip'); if(tp) tp.textContent = gotAny ? '' : '請確認已經允許用咪高峰，然後再㩒「🎤 開始朗讀」。';
+      return;
+    }
+    evaluateHeard(best);
+  };
+  try{
+    r.start();
+    clearRecTimer();
+    recTimer = setTimeout(function(){ stopRec(); }, S.level === 2 ? 30000 : 9000);
+  }catch(e){
+    S.recording = false; rec = null; renderControls();
+    handleRecError('start-failed');
+  }
+}
+function handleRecError(code){
+  var msg;
+  if(code === 'not-allowed' || code === 'service-not-allowed'){
+    msg = '咪高峰沒有被允許，或者這個頁面（例如 file:// 直接打開）不能使用語音辨識。請在網址列允許咪高峰；也可以用 <b>' + LOCAL + '</b> 打開。';
+  } else if(code === 'network'){
+    msg = '語音辨識需要網絡。請檢查網絡；語音辨識需要 Chrome / Edge 同網絡，可以用 <b>' + LOCAL + '</b> 打開。';
+  } else if(code === 'audio-capture'){
+    msg = '找不到咪高峰，請檢查裝置有沒有接上咪高峰。';
+  } else {
+    msg = '語音辨識暫時用不到（' + esc(code) + '）。語音辨識需要 Chrome / Edge 同網絡；可以用 <b>' + LOCAL + '</b> 打開。';
+  }
+  showNotice(msg + ' 現在可以用「老師評分模式」繼續上課。', 'warn', {teacherBtn:true});
+  setBubble('語音辨識暫時用唔到，不如請老師幫手評分。', 'hint');
+}
+
+/* ===== 流程 ===== */
+function loadItem(){
+  if(S.recording) stopRecSilent();
+  S.tokens = tokenize(curText());
+  S.flags = {}; S.result = null;
+  var h = $('heard'); if(h) h.textContent = '';
+  setBubble('先㩒「🔊 示範」聽一聽，再自己讀吖！', '');
+  setMascot('');
+  renderAll();
+}
+function stopRecSilent(){
+  clearRecTimer();
+  try{ if(rec){ rec.onend = null; rec.onresult = null; rec.onerror = null; rec.abort(); } }catch(e){}
+  rec = null; S.recording = false;
+}
+function goto(l, i){
+  S.finished = false; S.level = l; S.idx = i;
+  show('summary', false); var p = $('play'); if(p) p.style.display = 'contents';
+  hideNoticeKeepSupport(); loadItem();
+}
+function next(){
+  var lv = LEVELS[S.level];
+  if(S.idx + 1 < lv.items.length){ goto(S.level, S.idx + 1); return; }
+  if(S.level + 1 < LEVELS.length){ goto(S.level + 1, 0); return; }
+  finish();
+}
+function finish(){
+  stopRecSilent(); S.finished = true;
+  var p = $('play'); if(p) p.style.display = 'none';
+  var sm = $('summary'); if(!sm) return;
+  var html = '<h2>🎉 三關完成！</h2>', total = 0, cnt = 0;
+  LEVELS.forEach(function(lv, i){
+    var sum = 0, n = 0, k;
+    for(k in S.scores[i]){ sum += S.scores[i][k]; n++; }
+    var avg = n ? Math.round(sum / n) : 0;
+    total += sum; cnt += n;
+    var stars = avg >= 90 ? '★★★' : (avg >= 70 ? '★★☆' : (n ? '★☆☆' : '☆☆☆'));
+    html += '<div class="sumrow"><span>' + lv.icon + ' ' + lv.name + '</span><span class="st">' + stars + '</span><b>' + (n ? avg + '%' : '未完成') + '</b></div>';
+  });
+  html += '<button type="button" class="btn big primary" id="sumAgain">再玩一次</button>';
+  sm.innerHTML = html; sm.hidden = false;
+  var a = $('sumAgain'); if(a) a.addEventListener('click', resetAll);
+  setBubble('你完成晒所有挑戰，好叻呀！', 'good'); setMascot('happy'); ding(3);
+  buildLevels();
+}
+function resetAll(){
+  stopRecSilent();
+  S.scores = [{},{},{}]; S.level = 0; S.idx = 0;
+  S.mode = SR ? 'mic' : 'teacher';
+  hideNotice();
+  goto(0, 0); initNotices();
+  setText('pct', '--');
+}
+function hideNoticeKeepSupport(){
+  hideNotice(); initNotices();
+}
+function initNotices(){
+  if(!SR){ showNotice(supportMsg(), 'info'); }
+  else if(location.protocol === 'file:'){
+    showNotice('如果按「開始朗讀」沒有反應，請用 Chrome / Edge 並允許咪高峰；也可以用 <b>' + LOCAL + '</b> 打開。', 'info');
+  }
+}
+function setMode(m){
+  if(m === 'mic' && !SR){ showNotice(supportMsg(), 'warn'); m = 'teacher'; }
+  if(S.recording) stopRecSilent();
+  S.mode = m; S.result = null; S.flags = {};
+  setMascot(''); setBubble(m === 'teacher' ? '老師㩒一下讀錯嘅字，我即刻畀回饋。' : '先㩒「🔊 示範」聽一聽，再自己讀吖！', '');
+  var h = $('heard'); if(h) h.textContent = '';
+  if(m === 'mic'){ hideNotice(); initNotices(); }
+  renderAll();
+}
+function syncSettings(){
+  var q, i;
+  q = document.querySelectorAll('#langOpts .opt');
+  for(i=0;i<q.length;i++) q[i].className = 'opt' + (q[i].getAttribute('data-lang') === S.lang ? ' on' : '');
+  q = document.querySelectorAll('#rateOpts .opt');
+  for(i=0;i<q.length;i++) q[i].className = 'opt' + (Math.abs(parseFloat(q[i].getAttribute('data-rate')) - S.rate) < .01 ? ' on' : '');
+}
+
+/* ===== 事件 ===== */
+function on(id, ev, fn){ var e = $(id); if(e) e.addEventListener(ev, fn); }
+on('btnDemo', 'click', function(){ ensureAudio(); speak(curText()); });
+on('btnRec', 'click', function(){ startRec(false); });
+on('btnDone', 'click', function(){ evaluateTeacher(); });
+on('btnRetry', 'click', function(){
+  S.result = null; S.flags = {};
+  var h = $('heard'); if(h) h.textContent = '';
+  setBubble(S.mode === 'teacher' ? '老師㩒一下讀錯嘅字，我即刻畀回饋。' : '再讀多次，你一定得嘅！', '');
+  setMascot(''); renderAll();
+  if(S.mode === 'mic'){ startRec(false); }
+});
+on('btnNext', 'click', next);
+on('segMic', 'click', function(){ setMode('mic'); });
+on('segTea', 'click', function(){ setMode('teacher'); });
+on('btnReset', 'click', resetAll);
+on('btnSet', 'click', function(){ syncSettings(); show('settings', true); });
+on('setClose', 'click', function(){ show('settings', false); });
+on('settings', 'click', function(e){ if(e.target && e.target.id === 'settings') show('settings', false); });
+on('langOpts', 'click', function(e){
+  var t = e.target && e.target.closest ? e.target.closest('.opt') : null;
+  if(t){ S.lang = t.getAttribute('data-lang') || S.lang; langTried = {}; syncSettings(); }
+});
+on('rateOpts', 'click', function(e){
+  var t = e.target && e.target.closest ? e.target.closest('.opt') : null;
+  if(t){ var v = parseFloat(t.getAttribute('data-rate')); if(v) S.rate = v; syncSettings(); speak('你好'); }
+});
+on('btnFull', 'click', function(){
+  try{
+    if(document.fullscreenElement){ document.exitFullscreen(); }
+    else if(document.documentElement.requestFullscreen){ document.documentElement.requestFullscreen(); }
+  }catch(e){}
+});
+on('target', 'click', function(e){
+  var t = e.target && e.target.closest ? e.target.closest('.ch') : null;
+  if(!t) return;
+  var i = parseInt(t.getAttribute('data-i'), 10);
+  if(isNaN(i) || !S.tokens[i]) return;
+  if(S.mode === 'teacher'){
+    S.flags[i] = !S.flags[i];
+    if(S.result){ recomputeTeacher(); } else { renderTarget(); }
+  } else if(S.result){
+    speak(S.tokens[i].ch);
+  }
+});
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') show('settings', false); });
+
+try{
+  if(window.speechSynthesis){
+    loadVoices();
+    if(window.speechSynthesis.addEventListener) window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    else window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}catch(e){}
+
+syncSettings();
+loadItem();
+initNotices();
+})();
+</script>
+</body>
+</html>

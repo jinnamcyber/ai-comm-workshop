@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同 AI 好好溝通</title>
+<style>
+:root{
+  --bg:#0B1028; --bg2:#141B3D; --card:rgba(255,255,255,.06); --card2:rgba(255,255,255,.10); --line:rgba(255,255,255,.14);
+  --ink:#F4F1EA; --ink-2:#A9B0CC; --ink-3:#6F7898;
+  --blue:#6E9BFF; --green:#3DDC97; --amber:#FFC14D; --pink:#FF6F9F; --violet:#B48CFF; --cyan:#4FD8F0;
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font)}
+body{font-size:min(1.25vw,2.2vh);-webkit-font-smoothing:antialiased}
+
+/* ---------- aurora background ---------- */
+.aurora{position:fixed;inset:-20%;z-index:0;filter:blur(80px) saturate(1.2);opacity:.55;pointer-events:none}
+.aurora i{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:drift 26s ease-in-out infinite alternate}
+.aurora i:nth-child(1){width:55vw;height:55vw;left:5%;top:10%;background:#2F4CFF;animation-duration:30s}
+.aurora i:nth-child(2){width:45vw;height:45vw;right:0;top:0;background:#B0389A;animation-duration:24s;animation-delay:-8s}
+.aurora i:nth-child(3){width:40vw;height:40vw;left:35%;bottom:-5%;background:#0FA88A;animation-duration:34s;animation-delay:-14s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(8vw,-6vh) scale(1.15)}100%{transform:translate(-6vw,8vh) scale(.95)}}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ---------- deck ---------- */
+.deck{position:fixed;inset:0;z-index:1;perspective:1600px}
+.slide{position:absolute;inset:0;padding:6vh 6vw 8vh;display:flex;flex-direction:column;justify-content:center;gap:3vh;
+  opacity:0;visibility:hidden;transform:translateX(6vw) rotateY(-8deg) scale(.96);filter:blur(10px);
+  transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .7s,visibility 0s .9s}
+.slide.on{opacity:1;visibility:visible;transform:none;filter:none;transition-delay:0s}
+.slide.past{transform:translateX(-6vw) rotateY(8deg) scale(.96)}
+.f{opacity:0;transform:translateY(2.4vh);transition:opacity .6s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.f.in{opacity:1;transform:none}
+
+.kicker{font-size:1.15em;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+h1,h2,h3{margin:0;line-height:1.2;font-weight:900;letter-spacing:.01em}
+h1{font-size:5.4em}
+h2{font-size:3.4em}
+h3{font-size:1.7em}
+p{margin:0}
+.lead{font-size:1.75em;color:var(--ink-2);line-height:1.6;max-width:36em}
+.grad{background:linear-gradient(100deg,var(--cyan),var(--blue) 35%,var(--violet) 65%,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hl{color:var(--amber)}
+.glass{background:var(--card);border:1px solid var(--line);border-radius:1.6em;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.row{display:flex;gap:2vw;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:2vh}
+.btn{appearance:none;border:0;cursor:pointer;font:700 1.15em var(--font);color:#0B1028;background:var(--amber);border-radius:.9em;padding:.7em 1.3em;box-shadow:0 .3em 0 #B5801C;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(.25em);box-shadow:0 .05em 0 #B5801C}
+.btn.ghost{background:var(--card2);color:var(--ink);box-shadow:0 .3em 0 rgba(0,0,0,.35)}
+.tag{position:absolute;top:3.2vh;right:4vw;font-size:.95em;color:var(--ink-3);letter-spacing:.1em}
+
+/* ---------- chrome ---------- */
+.progress{position:fixed;left:0;bottom:0;height:5px;z-index:5;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.hud{position:fixed;right:2vw;bottom:2.4vh;z-index:6;display:flex;gap:.6em;align-items:center;font-size:.9em;color:var(--ink-3);opacity:.25;transition:opacity .3s}
+.hud:hover{opacity:1}
+.hud button{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:.6em;padding:.35em .7em;font:600 1em var(--font);cursor:pointer}
+.navzone{position:fixed;top:0;bottom:0;width:7vw;z-index:4;cursor:pointer}
+.navzone.l{left:0}.navzone.r{right:0}
+
+/* ---------- 1 title ---------- */
+.title{align-items:flex-start}
+.title h1{font-size:7.4em;line-height:1.08}
+.floaty{position:absolute;right:5vw;top:15vh;width:44vw;height:70vh;pointer-events:none}
+.hero-art{position:absolute;left:8%;top:12%;width:88%;aspect-ratio:3/2;object-fit:cover;border-radius:2.2em;box-shadow:0 3vh 8vh rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.15);animation:bob 9s ease-in-out infinite}
+.blind-head{display:flex;align-items:center;gap:3vw}
+.blind-head img{height:30vh;aspect-ratio:3/2;object-fit:cover;border-radius:1.6em;box-shadow:0 2vh 6vh rgba(0,0,0,.45);margin-left:auto}
+.bub{position:absolute;padding:.8em 1.2em;border-radius:1.3em;font-size:1.35em;font-weight:700;white-space:nowrap;animation:bob 6s ease-in-out infinite;box-shadow:0 1em 3em rgba(0,0,0,.3)}
+.bub.t{background:var(--ink);color:#0B1028;border-bottom-right-radius:.3em}
+.bub.a{background:linear-gradient(135deg,#3B5BFF,#9B5CFF);color:#fff;border-bottom-left-radius:.3em}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6vh)}}
+
+/* ---------- blind draw ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6vw}
+.step{padding:1.6em;display:flex;flex-direction:column;gap:.6em}
+.step b{font-size:2.6em;color:var(--amber);line-height:1}
+.step p{font-size:1.4em;line-height:1.55;color:var(--ink-2)}
+.step strong{color:var(--ink)}
+.reveal{position:fixed;inset:0;z-index:20;background:rgba(5,8,22,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3vh}
+.reveal.on{display:flex}
+.reveal svg{width:min(70vw,110vh);height:auto;background:#FFFDF7;border-radius:2vh}
+.reveal p{font-size:1.6em;color:var(--ink-2)}
+
+/* ---------- survey charts ---------- */
+.bars{display:flex;flex-direction:column;gap:1.4vh;width:100%}
+.bar{display:grid;grid-template-columns:9em 1fr 3.4em;align-items:center;gap:1em;font-size:1.45em}
+.bar .track{height:1.25em;border-radius:1em;background:rgba(255,255,255,.07);overflow:hidden}
+.bar .fill{height:100%;width:0;border-radius:1em;background:linear-gradient(90deg,var(--blue),var(--violet));transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.bar.star .fill{background:linear-gradient(90deg,var(--amber),var(--pink))}
+.bar .v{font-weight:900;font-variant-numeric:tabular-nums;text-align:right}
+.bar .nm{color:var(--ink-2)}.bar.star .nm{color:var(--ink);font-weight:800}
+.dots{display:grid;grid-template-columns:repeat(21,1fr);gap:.7vw;width:100%}
+.dot{aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.08);transform:scale(.2);transition:transform .5s cubic-bezier(.3,1.6,.5,1),background .5s}
+.legend{display:grid;grid-template-columns:repeat(5,1fr);gap:1vw}
+.legend div{padding:1em;font-size:1.2em;line-height:1.45}
+.legend b{display:block;font-size:2.4em;line-height:1.1}
+.big-stat{font-size:9em;font-weight:900;line-height:1}
+.goal{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4vw}
+.goal div{padding:1.4em;display:flex;flex-direction:column;gap:.4em}
+.goal b{font-size:3.6em;line-height:1}
+.goal span{font-size:1.3em;color:var(--ink-2);line-height:1.5}
+
+/* ---------- quote ---------- */
+.quote{font-size:4.6em;font-weight:900;line-height:1.3;max-width:15em}
+.quote .w{display:inline-block;opacity:0;transform:translateY(.4em);transition:opacity .5s,transform .5s}
+.on .quote .w{opacity:1;transform:none}
+
+/* ---------- chat sim ---------- */
+.chat{display:grid;grid-template-columns:1.05fr 1fr;gap:3vw;align-items:center}
+.phone{padding:2em;display:flex;flex-direction:column;gap:1.2em;min-height:56vh}
+.msg{max-width:90%;padding:.9em 1.2em;border-radius:1.2em;font-size:1.5em;line-height:1.5}
+.msg.t{align-self:flex-end;background:var(--ink);color:#0B1028;border-bottom-right-radius:.3em}
+.msg.a{align-self:flex-start;background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:.3em}
+.typing::after{content:"▍";animation:blink 1s steps(1) infinite;margin-left:.1em}
+@keyframes blink{50%{opacity:0}}
+.guesses{position:relative;height:56vh}
+.guess{position:absolute;padding:.6em 1em;border-radius:1em;font-size:1.35em;font-weight:700;background:rgba(255,193,77,.14);border:1px dashed var(--amber);color:var(--amber);opacity:0;transform:scale(.6);transition:opacity .4s,transform .5s cubic-bezier(.3,1.6,.5,1)}
+.guess.in{opacity:1;transform:scale(1)}
+.brain{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:7em}
+
+/* ---------- builder ---------- */
+.builder{display:grid;grid-template-columns:1fr 1.15fr;gap:2.4vw;align-items:stretch;height:70vh}
+.toggles{display:flex;flex-direction:column;gap:1.1vh}
+.tg{display:grid;grid-template-columns:2.4em 1fr;gap:.8em;align-items:center;padding:.8em 1em;border-radius:1.1em;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:left;color:var(--ink);font:inherit;transition:border-color .3s,background .3s,transform .15s}
+.tg:hover{transform:translateX(.4em)}
+.tg .n{width:2.2em;height:2.2em;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:1.2em;border:2px solid currentColor;color:var(--c)}
+.tg strong{font-size:1.4em;display:block}
+.tg span{font-size:1.05em;color:var(--ink-2);display:block;line-height:1.4}
+.tg.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.tg.on .n{background:var(--c);color:#0B1028}
+.meter{display:flex;align-items:center;gap:1em;font-size:1.3em;margin-top:.6vh}
+.meter .track{flex:1;height:.9em;border-radius:1em;background:rgba(255,255,255,.08);overflow:hidden}
+.meter .fill{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--amber),var(--green));transition:width .6s}
+.out{display:flex;flex-direction:column;gap:1.2vh;min-height:0}
+.promptbox{padding:1.1em 1.3em;font-size:1.22em;line-height:1.7;min-height:9.5em;max-height:26vh;overflow:auto}
+.promptbox .seg{border-bottom:3px solid var(--c);padding-bottom:.05em;animation:pop .5s}
+.promptbox .empty{color:var(--ink-3)}
+@keyframes pop{from{background:color-mix(in srgb,var(--c) 40%,transparent)}to{background:transparent}}
+.preview{position:relative;flex:1;border-radius:1.4em;overflow:hidden;border:1px solid var(--line);background:#FFF8EC;min-height:0}
+.preview iframe{position:absolute;left:0;top:0;width:1600px;height:900px;border:0;transform-origin:0 0;pointer-events:none;transition:filter .8s}
+.fog{position:absolute;inset:0;display:grid;place-items:center;font-size:2.2em;font-weight:900;color:#0B1028;transition:opacity .8s;background:radial-gradient(circle,rgba(255,248,236,.2),rgba(255,248,236,.75))}
+
+/* ---------- vs ---------- */
+.vs{display:grid;grid-template-columns:1fr 1.9fr;gap:2vw;align-items:stretch}
+.vs .glass{padding:1.6em}
+.vs h3{display:flex;gap:.4em;align-items:center;margin-bottom:.7em}
+.bad{border-top:.4em solid var(--amber)!important}
+.good{border-top:.4em solid var(--green)!important}
+.bigbad{font-size:2.6em;font-weight:900;line-height:1.35}
+.goodtxt{font-size:1.45em;line-height:1.85}
+.goodtxt .e{border-bottom:.18em solid var(--c);padding-bottom:.05em;transition:background .4s}
+.goodtxt .e.flash{background:color-mix(in srgb,var(--c) 35%,transparent)}
+.keys{display:flex;gap:.6em;flex-wrap:wrap;margin-top:1em}
+.keys span{font-size:1.05em;padding:.3em .8em;border-radius:1em;border:2px solid var(--c);color:var(--c);font-weight:700;cursor:pointer}
+
+/* ---------- feedback ---------- */
+.fb{display:grid;grid-template-columns:1fr 1fr;gap:2vw}
+.fb .glass{padding:1.6em;display:flex;flex-direction:column;gap:1em}
+.fb .say{font-size:1.9em;font-weight:800;line-height:1.45}
+.fb ul{margin:0;padding-left:1.2em;font-size:1.35em;line-height:1.7;color:var(--ink-2)}
+.fb li b{color:var(--ink)}
+
+/* ---------- traps ---------- */
+.traps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6vw;perspective:1200px}
+.trap{height:24vh;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,1.3,.5,1)}
+.trap.flip{transform:rotateY(180deg)}
+.trap>div{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:1.4em;padding:1.4em;display:flex;flex-direction:column;justify-content:center;gap:.5em}
+.trap .fr{background:var(--card);border:1px solid var(--line)}
+.trap .fr b{font-size:3em;line-height:1}
+.trap .fr strong{font-size:1.7em}
+.trap .bk{background:linear-gradient(135deg,rgba(61,220,151,.22),rgba(110,155,255,.22));border:1px solid var(--green);transform:rotateY(180deg)}
+.trap .bk p{font-size:1.3em;line-height:1.6}
+
+/* ---------- showcase ---------- */
+.wall{display:grid;grid-template-columns:repeat(5,1fr);gap:1.2vw}
+.tile{position:relative;border-radius:1em;overflow:hidden;cursor:pointer;background:#FFF8EC;aspect-ratio:16/10;border:1px solid var(--line);transition:transform .35s cubic-bezier(.3,1.4,.5,1),box-shadow .35s}
+.tile:hover{transform:translateY(-.6vh) scale(1.04);box-shadow:0 2vh 5vh rgba(0,0,0,.45);z-index:2}
+.tile iframe{position:absolute;left:0;top:0;width:1600px;height:1000px;border:0;transform-origin:0 0;pointer-events:none}
+.tile .cap{position:absolute;left:0;right:0;bottom:0;padding:1.6em .8em .6em;background:linear-gradient(transparent,rgba(11,16,40,.92));font-size:1.05em;font-weight:800}
+.tile .cap small{display:block;font-weight:500;color:var(--ink-2);font-size:.85em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .ph{position:absolute;inset:0;display:grid;place-items:center;color:#5B6478;font-size:1.2em}
+.viewer{position:fixed;inset:0;z-index:30;background:rgba(5,8,22,.94);display:none;flex-direction:column;padding:2vh 2vw;gap:1.4vh}
+.viewer.on{display:flex;animation:zoomin .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes zoomin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.viewer header{display:flex;align-items:center;gap:1em}
+.viewer header h3{flex:1;font-size:1.6em}
+.viewer header q{color:var(--ink-2);font-size:1.15em}
+.viewer iframe{flex:1;border:0;border-radius:1.2em;background:#FFF8EC;width:100%}
+
+/* ---------- gemini steps ---------- */
+.gsteps{display:grid;grid-template-columns:repeat(6,1fr);gap:1vw;counter-reset:s}
+.gs{padding:1.3em 1.1em;display:flex;flex-direction:column;gap:.6em;position:relative}
+.gs .ic{font-size:2.6em}
+.gs strong{font-size:1.35em}
+.gs p{font-size:1.1em;color:var(--ink-2);line-height:1.55}
+.gs::before{counter-increment:s;content:counter(s);position:absolute;top:.6em;right:.9em;font-weight:900;font-size:1.6em;color:var(--ink-3)}
+.warn{padding:1em 1.4em;font-size:1.3em;border-left:.35em solid var(--amber);line-height:1.6}
+
+/* ---------- tiers ---------- */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6vw}
+.tier{padding:1.5em;display:flex;flex-direction:column;gap:.8em}
+.tier .lv{font-size:1.2em;font-weight:800;color:var(--c)}
+.tier h3{font-size:1.9em}
+.tier p{font-size:1.2em;color:var(--ink-2);line-height:1.55}
+.tpl{font-family:var(--font);font-size:1.08em;line-height:1.7;background:rgba(0,0,0,.25);border-radius:.9em;padding:.9em 1em;white-space:pre-wrap;flex:1}
+.tpl i{font-style:normal;color:var(--amber);border-bottom:1px dashed var(--amber)}
+
+/* ---------- timer ---------- */
+.timer{position:fixed;top:2.4vh;left:50%;transform:translateX(-50%) translateY(-200%);z-index:25;display:flex;align-items:center;gap:1em;padding:.6em 1.2em;border-radius:1.4em;font-size:1.3em;transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+.timer.on{transform:translateX(-50%)}
+.timer .t{font-size:2.2em;font-weight:900;font-variant-numeric:tabular-nums;min-width:4.2em;text-align:center}
+.timer.done .t{color:var(--pink);animation:blink 1s steps(1) infinite}
+.timer button{appearance:none;border:0;background:var(--card2);color:var(--ink);border-radius:.7em;padding:.4em .7em;font:700 .9em var(--font);cursor:pointer}
+
+/* ---------- end ---------- */
+.take{display:flex;flex-direction:column;gap:2.2vh}
+.take div{display:flex;gap:1em;align-items:baseline;font-size:2.4em;font-weight:800;line-height:1.35}
+.take b{color:var(--amber);font-size:1.2em;min-width:1.2em}
+.overview{position:fixed;inset:0;z-index:40;background:rgba(5,8,22,.96);display:none;padding:5vh 5vw;overflow:auto}
+.overview.on{display:block}
+.overview h3{margin-bottom:2vh}
+.ov{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2vw}
+.ov button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:1em;padding:1em 1.2em;font:600 1.2em var(--font);cursor:pointer;line-height:1.4}
+.ov button.cur{border-color:var(--amber);background:rgba(255,193,77,.12)}
+.ov button small{display:block;color:var(--ink-3);font-size:.8em}
+</style>
+</head>
+<body>
+<div class="aurora"><i></i><i></i><i></i></div>
+<canvas id="stars"></canvas>
+
+<div class="deck" id="deck">
+
+<!-- 1 TITLE -->
+<section class="slide title" data-title="開場">
+  <div class="kicker">AI 輔助備課與數碼教具製作 · 教師工作坊</div>
+  <h1>同 AI<br><span class="grad">好好溝通</span></h1>
+  <p class="lead">點樣講，AI 先會明？<br>點樣講，佢就會亂估？</p>
+  <div class="floaty">
+    <img class="hero-art" src="art/deck_hero.jpg" alt="老師同 AI 小助手傾偈">
+    <div class="bub t" style="left:0;top:2%;animation-delay:-1s">整個植物遊戲</div>
+    <div class="bub a" style="left:62%;top:4%;animation-delay:-3s">幾年級？🤔</div>
+    <div class="bub a" style="left:-4%;top:40%;animation-delay:-2s">白板定手機？</div>
+    <div class="bub t" style="left:4%;top:76%;animation-delay:-.5s">我係小三常識老師…</div>
+    <div class="bub a" style="left:66%;top:80%;animation-delay:-2.5s">明白晒！✨</div>
+  </div>
+</section>
+
+<!-- 2 BLIND DRAW -->
+<section class="slide" data-title="熱身：盲畫">
+  <div class="tag">0–10 分鐘 · 熱身</div>
+  <div class="blind-head"><div class="col" style="gap:1vh"><div class="kicker">熱身遊戲</div><h2>🎨 盲畫挑戰</h2></div><img src="art/deck_blind.jpg" alt="兩位老師背對背，一個講一個畫"></div>
+  <div class="steps">
+    <div class="glass step f"><b>1</b><strong style="font-size:1.6em">兩人一組</strong><p><strong>A</strong> 睇圖，只可以用口講。<br><strong>B</strong> 背對螢幕，照住畫。</p></div>
+    <div class="glass step f"><b>2</b><strong style="font-size:1.6em">第一輪：一句講晒</strong><p>A 只可以講<strong>一句</strong>。<br>B 唔准發問。<br>⏱ 1 分鐘</p></div>
+    <div class="glass step f"><b>3</b><strong style="font-size:1.6em">第二輪：講清楚</strong><p>A 可以講幾多都得。<br>B 可以發問、A 可以糾正。<br>⏱ 2 分鐘</p></div>
+  </div>
+  <div class="row f" style="gap:1em">
+    <button class="btn" data-reveal="pic1">👀 第一輪圖（只畀 A 睇）</button>
+    <button class="btn" data-reveal="pic2">👀 第二輪圖</button>
+    <button class="btn ghost" data-timer="60">⏱ 1 分鐘</button>
+    <button class="btn ghost" data-timer="120">⏱ 2 分鐘</button>
+  </div>
+</section>
+
+<!-- 3 DEBRIEF -->
+<section class="slide" data-title="B 就係 AI">
+  <div class="kicker">點解第二幅畫得好咁多？</div>
+  <p class="quote" data-words>B 就係 AI。你講得模糊，佢就靠估；你講得清楚、肯回饋，佢就畫得準。</p>
+</section>
+
+<!-- 4 SURVEY TOOLS -->
+<section class="slide" data-title="問卷：常用工具" data-bars>
+  <div class="tag">10–20 分鐘 · 你哋嘅問卷</div>
+  <div class="kicker">21 位老師嘅問卷</div>
+  <h2>大家平時用緊乜 AI？</h2>
+  <div class="bars">
+    <div class="bar"><span class="nm">Canva</span><div class="track"><div class="fill" data-v="20"></div></div><span class="v" data-n="20">0</span></div>
+    <div class="bar star"><span class="nm">Google Gemini</span><div class="track"><div class="fill" data-v="17"></div></div><span class="v" data-n="17">0</span></div>
+    <div class="bar"><span class="nm">DeepSeek</span><div class="track"><div class="fill" data-v="10"></div></div><span class="v" data-n="10">0</span></div>
+    <div class="bar"><span class="nm">ChatGPT</span><div class="track"><div class="fill" data-v="7"></div></div><span class="v" data-n="7">0</span></div>
+    <div class="bar"><span class="nm">Kimi</span><div class="track"><div class="fill" data-v="4"></div></div><span class="v" data-n="4">0</span></div>
+    <div class="bar"><span class="nm">NotebookLM</span><div class="track"><div class="fill" data-v="2"></div></div><span class="v" data-n="2">0</span></div>
+    <div class="bar"><span class="nm">豆包</span><div class="track"><div class="fill" data-v="2"></div></div><span class="v" data-n="2">0</span></div>
+  </div>
+  <p class="lead f">👉 今日用 <span class="hl">Gemini Canvas</span>：大部分人已經有，寫完即刻見到成品。</p>
+</section>
+
+<!-- 5 SURVEY EXPERIENCE -->
+<section class="slide" data-title="問卷：經驗" data-dots>
+  <div class="kicker">我哋喺唔同起點</div>
+  <h2>21 位老師，五種經驗</h2>
+  <div class="dots" id="dots"></div>
+  <div class="legend">
+    <div class="glass" style="--c:#FF6F9F"><b style="color:var(--pink)">1</b>未用過 AI 備課</div>
+    <div class="glass"><b style="color:var(--amber)">4</b>用 AI 構思、改寫、整理</div>
+    <div class="glass"><b style="color:var(--blue)">8</b>用 AI 整教材，再自己修改</div>
+    <div class="glass"><b style="color:var(--violet)">4</b>整過互動教材</div>
+    <div class="glass"><b style="color:var(--green)">4</b>整過 HTML 教具</div>
+  </div>
+  <p class="lead f">今日嘅實作分三級，<span class="hl">每個人都有適合自己嘅挑戰</span>。</p>
+</section>
+
+<!-- 6 SURVEY GOALS -->
+<section class="slide" data-title="問卷：想做乜" data-bars>
+  <div class="kicker">如果今日可以完成一件作品…</div>
+  <h2>你哋最想整嘅係：</h2>
+  <div class="goal">
+    <div class="glass f"><b class="grad">9</b><span>學生操作嘅互動活動<br>配對、排序、聽音、即時回饋</span></div>
+    <div class="glass f"><b style="color:var(--blue)">7</b><span>配合課題嘅<br>課堂活動或材料</span></div>
+    <div class="glass f"><b style="color:var(--violet)">4</b><span>教師操作嘅教具<br>互動地圖、可調數值示範</span></div>
+    <div class="glass f"><b style="color:var(--ink-2)">1</b><span>互動影片／軟件</span></div>
+  </div>
+  <div class="row f" style="align-items:center;gap:2vw">
+    <span class="big-stat hl">12</span>
+    <p class="lead">位老師仲未有具體諗法。<br><b style="color:var(--ink)">冇問題，今日就係為咗呢個。</b></p>
+  </div>
+</section>
+
+<!-- 7 BIG IDEA -->
+<section class="slide" data-title="核心訊息">
+  <div class="tag">20–35 分鐘 · 溝通</div>
+  <div class="kicker">今日最重要嘅一句</div>
+  <p class="quote" data-words>AI 係一個好叻、但完全唔識你班學生嘅新同事。</p>
+  <p class="lead f">佢唔知你教幾年級、學生程度點、用唔用白板。<br><b style="color:var(--ink)">你唔講，佢就靠估。</b></p>
+</section>
+
+<!-- 8 CHAT SIM -->
+<section class="slide" data-title="一句講晒會點？" data-chat>
+  <div class="kicker">實驗：只講一句</div>
+  <div class="chat">
+    <div class="glass phone">
+      <div class="msg t" id="chatQ"></div>
+      <div class="msg a f" id="chatA" style="opacity:0">好！我整咗一個植物遊戲 🌱<br><span style="color:var(--ink-3)">（簡體字、細字、要登入、手機版、問題太深…）</span></div>
+    </div>
+    <div class="guesses" id="guesses">
+      <div class="brain">🤖</div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 BUILDER -->
+<section class="slide" data-title="五要素：互動示範" data-builder>
+  <div class="kicker">有效溝通五要素 · 撳吓試吓</div>
+  <div class="builder">
+    <div class="toggles">
+      <button class="tg" style="--c:var(--cyan)" data-k="0"><span class="n">1</span><div><strong>身份同對象</strong><span>我係邊個？學生係邊個？</span></div></button>
+      <button class="tg" style="--c:var(--blue)" data-k="1"><span class="n">2</span><div><strong>目的</strong><span>學生要學識乜？</span></div></button>
+      <button class="tg" style="--c:var(--violet)" data-k="2"><span class="n">3</span><div><strong>形式</strong><span>要乜成品？點樣用？</span></div></button>
+      <button class="tg" style="--c:var(--pink)" data-k="3"><span class="n">4</span><div><strong>限制</strong><span>有乜唔得？</span></div></button>
+      <button class="tg" style="--c:var(--green)" data-k="4"><span class="n">5</span><div><strong>具體回饋</strong><span>試完之後，邊度要改？</span></div></button>
+      <div class="meter"><span>清晰度</span><div class="track"><div class="fill" id="meter"></div></div><b id="meterV">0/5</b></div>
+    </div>
+    <div class="out">
+      <div class="glass promptbox" id="promptbox"><span class="empty">整一個植物遊戲。</span></div>
+      <div class="preview" id="preview">
+        <iframe data-src="01-植物的組成.html" title="植物的組成" tabindex="-1"></iframe>
+        <div class="fog" id="fog">🤔 AI 估緊……</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 VS -->
+<section class="slide" data-title="無效 vs 有效">
+  <div class="kicker">同一個要求，兩種講法</div>
+  <div class="vs">
+    <div class="glass bad f"><h3>❌ 無效</h3><p class="bigbad">「整一個植物遊戲」</p><p class="lead" style="font-size:1.3em;margin-top:1em">AI 要自己估：年級、語言、裝置、題型、難度……</p></div>
+    <div class="glass good f"><h3>✅ 有效</h3>
+      <p class="goodtxt" id="goodtxt"><span class="e" style="--c:var(--cyan)" data-k="0">我係小三常識老師，學生程度參差。</span><span class="e" style="--c:var(--blue)" data-k="1">課題係「植物的組成部分」，目標係令學生認識根、莖、葉、花、果實同佢哋嘅功能。</span><span class="e" style="--c:var(--violet)" data-k="2">請整一個 HTML 互動活動，喺電子白板用：學生按指示點選植物部分，答啱有讚，答錯有提示，最後可以睇植物成長動畫。</span><span class="e" style="--c:var(--pink)" data-k="3">用繁體中文，字要大，唔使登入，可以離線打開。</span></p>
+      <div class="keys">
+        <span style="--c:var(--cyan)" data-k="0">① 身份同對象</span><span style="--c:var(--blue)" data-k="1">② 目的</span><span style="--c:var(--violet)" data-k="2">③ 形式</span><span style="--c:var(--pink)" data-k="3">④ 限制</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 FEEDBACK -->
+<section class="slide" data-title="具體回饋">
+  <div class="kicker">第一版唔滿意？好正常。重點係點樣講。</div>
+  <h2>回饋要<span class="grad">具體</span></h2>
+  <div class="fb">
+    <div class="glass bad f"><h3>❌ 無效回饋</h3><p class="say">「唔好睇，改靚啲。」</p><p class="say">「再整過。」</p><ul><li>AI 唔知邊度唔好睇</li><li>重頭整，好嘅部分都冇埋</li></ul></div>
+    <div class="glass good f"><h3>✅ 具體回饋</h3><p class="say">「字太細，坐後排睇唔到，標題同按鈕放大一倍。答錯唔好用紅色，改做黃色加提示。<span class="hl">其他保持不變。</span>」</p><ul><li><b>邊度</b>：標題、按鈕、答錯畫面</li><li><b>點解</b>：後排睇唔到</li><li><b>改做點</b>：放大一倍、黃色提示</li><li><b>保護好嘅部分</b>：其他不變</li></ul></div>
+  </div>
+</section>
+
+<!-- 12 TRAPS -->
+<section class="slide" data-title="六個常見陷阱">
+  <div class="kicker">撳卡揭曉</div>
+  <h2>老師最易中嘅六個陷阱</h2>
+  <div class="traps">
+    <div class="trap"><div class="fr"><b>🌫️</b><strong>太短太模糊</strong></div><div class="bk"><p>「整個英文練習」——邊個 tense？幾多題？咩程度？<br><b>→ 講清楚五要素</b></p></div></div>
+    <div class="trap"><div class="fr"><b>🎒</b><strong>一次過要晒</strong></div><div class="bk"><p>遊戲、計分、動畫、聲音一次過要，結果樣樣半桶水。<br><b>→ 先整骨架，再逐樣加</b></p></div></div>
+    <div class="trap"><div class="fr"><b>😶</b><strong>只講感覺</strong></div><div class="bk"><p>「唔夠好」「怪怪哋」——AI 唔知你指邊度。<br><b>→ 講邊度、點解、改做點</b></p></div></div>
+    <div class="trap"><div class="fr"><b>🙈</b><strong>唔檢查就用</strong></div><div class="bk"><p>AI 會講錯嘢：日數、文法、答案。<br><b>→ 老師係最後把關嘅人</b></p></div></div>
+    <div class="trap"><div class="fr"><b>🏳️</b><strong>出錯就放棄</strong></div><div class="bk"><p>話佢知錯喺邊，佢通常改得返。<br><b>→ 回饋兩三輪，好正常</b></p></div></div>
+    <div class="trap"><div class="fr"><b>🧠</b><strong>以為佢記得你</strong></div><div class="bk"><p>開新對話，佢就唔記得之前講過乜。<br><b>→ 每次重新交代背景</b></p></div></div>
+  </div>
+</section>
+
+<!-- 13 SHOWCASE -->
+<section class="slide" data-title="你哋嘅諗法 → 10 個教具" data-wall>
+  <div class="tag">35–45 分鐘 · 示範</div>
+  <div class="kicker">問卷入面嘅一句說話，變成咗……</div>
+  <h2><span class="grad">10 個真係用得嘅教具</span></h2>
+  <div class="wall" id="wall"></div>
+  <p class="lead" style="font-size:1.25em">撳任何一個試玩 · 唔使登入、可以離線 · <span class="hl">所有插圖都係程式碼畫嘅（SVG），Gemini 一樣寫得出</span></p>
+</section>
+
+<!-- 14 GEMINI -->
+<section class="slide" data-title="Gemini Canvas 六步">
+  <div class="kicker">實作工具：Google Gemini</div>
+  <h2>Gemini Canvas 六步</h2>
+  <div class="gsteps">
+    <div class="glass gs f"><span class="ic">🌐</span><strong>打開 Gemini</strong><p>gemini.google.com<br>用 Google 帳戶登入</p></div>
+    <div class="glass gs f"><span class="ic">🖼️</span><strong>揀 Canvas</strong><p>輸入框下面撳「Canvas」<br>唔撳就只得一大段代碼</p></div>
+    <div class="glass gs f"><span class="ic">📝</span><strong>貼有效 prompt</strong><p>五要素：身份、目的、形式、限制</p></div>
+    <div class="glass gs f"><span class="ic">▶️</span><strong>即時試玩</strong><p>右邊即刻見成品<br>好似學生咁玩一次</p></div>
+    <div class="glass gs f"><span class="ic">🔁</span><strong>具體回饋</strong><p>邊度、點解、改做點<br>改兩三輪</p></div>
+    <div class="glass gs f"><span class="ic">💾</span><strong>存成 HTML</strong><p>下載或複製代碼存檔<br>帶返課室直接開</p></div>
+  </div>
+  <p class="glass warn f">💡 學生<b>唔使登入</b>：Gemini 係老師嘅工具；學生用嘅係你存好嘅 HTML 檔，冇電話、冇電郵都用得。</p>
+</section>
+
+<!-- 15 TIERS -->
+<section class="slide" data-title="實作：揀你嘅挑戰">
+  <div class="tag">45–75 分鐘 · 實作</div>
+  <div class="kicker">30 分鐘 · 揀一級開始</div>
+  <h2>實作：揀你嘅挑戰</h2>
+  <div class="tiers">
+    <div class="glass tier" style="--c:var(--green)"><span class="lv">⭐ 初階 · 填充模板</span><h3>填空就得</h3>
+      <div class="tpl">我係<i>＿年級＿＿科</i>老師，學生<i>（程度）</i>。課題係<i>＿＿＿</i>，目標係令學生<i>＿＿＿</i>。
+請整一個 HTML 互動<i>選擇題／配對</i>活動，喺電子白板用，共 <i>8</i> 題。答啱有讚，答錯有提示。
+用繁體中文，字要大，唔使登入，可以離線打開。</div>
+      <button class="btn ghost" data-copy="0">📋 複製模板</button></div>
+    <div class="glass tier" style="--c:var(--blue)"><span class="lv">⭐⭐ 中階 · 自己課題</span><h3>用五要素自己寫</h3>
+      <p>揀一個下星期真係要教嘅課題，用五要素寫 prompt。</p>
+      <p><b style="color:var(--ink)">任務：</b>至少做 <span class="hl">兩輪具體回饋</span>，記低第一版同改完版。</p>
+      <p>可以參考展示頁每個教具嘅「有效講法」。</p></div>
+    <div class="glass tier" style="--c:var(--violet)"><span class="lv">⭐⭐⭐ 進階 · 加功能</span><h3>逐樣加上去</h3>
+      <p>先整骨架，再一輪加一樣：</p>
+      <p>🔊 朗讀（廣東話／英文／葡文）<br>🏆 計分同星星<br>🎚️ 可調數值嘅示範<br>🖨️ 列印版工作紙</p>
+      <p><b style="color:var(--ink)">挑戰：</b>每輪只要求一樣嘢。</p></div>
+  </div>
+  <div class="row" style="gap:1em"><button class="btn" data-timer="1800">⏱ 開始 30 分鐘</button></div>
+</section>
+
+<!-- 16 SHARE -->
+<section class="slide" data-title="分享：第一版 vs 改完版">
+  <div class="tag">75–85 分鐘 · 分享</div>
+  <div class="kicker">分享時間</div>
+  <h2>第一版 <span class="hl">→</span> 改完版</h2>
+  <div class="steps">
+    <div class="glass step f"><b>1</b><strong style="font-size:1.6em">打開第一版</strong><p>你第一句係點講？<br>AI 估錯咗啲乜？</p></div>
+    <div class="glass step f"><b>2</b><strong style="font-size:1.6em">講你嘅回饋</strong><p>你講咗邊句具體回饋？<br>邊一句最有效？</p></div>
+    <div class="glass step f"><b>3</b><strong style="font-size:1.6em">打開改完版</strong><p>差別喺邊？<br>聽日點樣用落堂？</p></div>
+  </div>
+  <div class="row f" style="gap:1em"><button class="btn ghost" data-timer="600">⏱ 10 分鐘</button></div>
+</section>
+
+<!-- 17 TAKEAWAYS -->
+<section class="slide" data-title="帶走三句">
+  <div class="tag">85–90 分鐘 · 總結</div>
+  <div class="kicker">今日帶走三句</div>
+  <div class="take">
+    <div class="f"><b>1</b><span>AI 係<span class="grad">同事</span>，唔係魔法。你唔講，佢就靠估。</span></div>
+    <div class="f"><b>2</b><span>講清楚<span class="hl">對象、目的、形式、限制</span>，再一步步<span class="hl">具體回饋</span>。</span></div>
+    <div class="f"><b>3</b><span>老師係最後把關嘅人：<span class="hl">試玩、檢查</span>，先帶入課室。</span></div>
+  </div>
+  <p class="lead f" style="font-size:1.35em">溝通方法係通用嘅：Gemini、ChatGPT、DeepSeek 都一樣有效。</p>
+</section>
+
+<!-- 18 END -->
+<section class="slide title" data-title="多謝">
+  <div class="floaty"><img class="hero-art" src="art/03_sunny.jpg" alt="陽光下嘅澳門街角"></div>
+  <h1 style="font-size:8em"><span class="grad">多謝！</span></h1>
+  <p class="lead">有問題，隨時問 🙌</p>
+  <div class="row" style="gap:1em"><a class="btn" href="index.html" target="_blank" style="text-decoration:none">🗂️ 打開教具展示頁</a></div>
+</section>
+
+</div>
+
+<!-- overlays -->
+<div class="reveal" id="reveal">
+  <svg id="pic1" viewBox="0 0 800 500" style="display:none">
+    <rect x="0" y="0" width="800" height="500" fill="#FFFDF7"/>
+    <circle cx="640" cy="110" r="60" fill="#FFC14D"/>
+    <rect x="200" y="230" width="260" height="190" fill="#6E9BFF" stroke="#1F2A44" stroke-width="8"/>
+    <polygon points="180,235 330,120 480,235" fill="#FF6F9F" stroke="#1F2A44" stroke-width="8"/>
+    <rect x="300" y="330" width="60" height="90" fill="#FFFDF7" stroke="#1F2A44" stroke-width="8"/>
+    <line x1="0" y1="420" x2="800" y2="420" stroke="#1F2A44" stroke-width="8"/>
+  </svg>
+  <svg id="pic2" viewBox="0 0 800 500" style="display:none">
+    <rect x="0" y="0" width="800" height="500" fill="#FFFDF7"/>
+    <circle cx="150" cy="120" r="55" fill="none" stroke="#1F2A44" stroke-width="8"/>
+    <rect x="320" y="70" width="160" height="160" fill="#3DDC97" stroke="#1F2A44" stroke-width="8" transform="rotate(15 400 150)"/>
+    <polygon points="620,60 700,220 540,220" fill="#FFC14D" stroke="#1F2A44" stroke-width="8"/>
+    <path d="M90 380 Q 250 280 400 380 T 710 380" fill="none" stroke="#6E9BFF" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="400" cy="380" r="22" fill="#FF6F9F" stroke="#1F2A44" stroke-width="6"/>
+  </svg>
+  <p>B 唔好望！ · 撳任何位置關閉</p>
+</div>
+
+<div class="viewer" id="viewer">
+  <header><h3 id="vt"></h3><q id="vq"></q><a class="btn ghost" id="vopen" target="_blank" style="text-decoration:none">↗ 新分頁</a><button class="btn" id="vclose">✕ 關閉</button></header>
+  <iframe id="vframe" title="教具"></iframe>
+</div>
+
+<div class="timer glass" id="timer"><span class="t" id="tt">00:00</span><button id="tpause">⏸</button><button id="tplus">+1′</button><button id="tclose">✕</button></div>
+
+<div class="overview" id="overview"><h3>全部投影片 <small style="color:var(--ink-3);font-weight:500">（O 鍵開關）</small></h3><div class="ov" id="ov"></div></div>
+
+<div class="navzone l" id="navl" title="上一頁"></div><div class="navzone r" id="navr" title="下一頁"></div>
+<div class="progress" id="progress"></div>
+<div class="hud"><span id="pageno">1 / 18</span><button id="bov">▦ 總覽</button><button id="bfs">⛶ 全螢幕</button></div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const slides = [...document.querySelectorAll('.slide')];
+let cur = 0;
+
+/* ---------- tools ---------- */
+const TOOLS = [
+  ['01-植物的組成','常識 · 小三','學生按指示點選植物的各個組成部分、可以點選後看到植物成長過程動畫'],
+  ['02-朗讀即時回饋','中文 · 小二至小三','朗讀後，系統自動給予即時回饋'],
+  ['03-天氣與衣物','全科 · 幼兒至小一','觀察天氣，選衣物並練習表達。'],
+  ['04-乘法口訣晨操','數學 · 小二至小三','一個乘法口訣互動遊戲，教師每天早上運動遊戲與學生進行互動'],
+  ['05-音樂聽辨','音樂 · 小一至小三','老師提問題題，學生點選圖示或動畫選項'],
+  ['06-分層工作紙-時態','英文 · 小五至小六','英文科 - Mixed Tenses／利用AI製作分層工作紙'],
+  ['07-小水滴去旅行','幼兒 · K2至K3','以AI製作動畫介紹一些較難的知識點'],
+  ['08-閱讀口語對答','中文 · 小三至小四','可讓學生回家進行複習，設計對答類的口語練習。'],
+  ['09-葡文情境對話','葡文 · 初中 A1','葡文科，主要是不同類型對話'],
+  ['10-地球自轉與公轉','常識 · 小五至小六','地球自轉和圍繞太陽公轉'],
+];
+const wall = $('wall');
+TOOLS.forEach(([slug, meta, q], i) => {
+  const t = document.createElement('div'); t.className = 'tile'; t.dataset.i = i;
+  t.innerHTML = `<div class="ph">載入中…</div><iframe tabindex="-1" title="${slug}"></iframe><div class="cap">${slug.slice(3)}<small>${meta}</small></div>`;
+  wall.appendChild(t);
+});
+const fitFrames = () => {
+  wall.querySelectorAll('.tile').forEach(t => { const f = t.querySelector('iframe'); f.style.transform = `scale(${t.clientWidth / 1600})`; });
+  const pv = $('preview'), pf = pv.querySelector('iframe'); pf.style.transform = `scale(${Math.max(pv.clientWidth / 1600, pv.clientHeight / 900)})`;
+};
+const loadWall = on => wall.querySelectorAll('.tile').forEach((t, i) => {
+  const f = t.querySelector('iframe');
+  if (on && !f.src) { f.src = encodeURI(TOOLS[i][0] + '.html'); f.onload = () => { const p = t.querySelector('.ph'); if (p) p.remove(); }; }
+  if (!on && f.src) { f.removeAttribute('src'); f.src = ''; f.removeAttribute('src'); }
+});
+wall.addEventListener('click', e => {
+  const t = e.target.closest('.tile'); if (!t) return;
+  const [slug, meta, q] = TOOLS[+t.dataset.i];
+  $('vt').textContent = slug.slice(3) + ' · ' + meta; $('vq').textContent = q;
+  $('vframe').src = encodeURI(slug + '.html'); $('vopen').href = encodeURI(slug + '.html');
+  $('viewer').classList.add('on'); loadWall(false);
+});
+$('vclose').onclick = () => { $('viewer').classList.remove('on'); $('vframe').src = 'about:blank'; if (slides[cur].hasAttribute('data-wall')) loadWall(true); };
+
+/* ---------- quote word split ---------- */
+document.querySelectorAll('[data-words]').forEach(p => {
+  const chunks = p.textContent.match(/[^，；。、]+[，；。、]?/g) || [p.textContent];
+  p.innerHTML = chunks.map((c, i) => `<span class="w" style="transition-delay:${.25 + i * .32}s">${c}</span>`).join('');
+});
+
+/* ---------- dots ---------- */
+const dotWrap = $('dots');
+const DOTC = [['var(--pink)',1],['var(--amber)',4],['var(--blue)',8],['var(--violet)',4],['var(--green)',4]];
+const dotCols = DOTC.flatMap(([c, n]) => Array(n).fill(c));
+dotCols.forEach(() => { const d = document.createElement('div'); d.className = 'dot'; dotWrap.appendChild(d); });
+const runDots = on => dotWrap.querySelectorAll('.dot').forEach((d, i) => {
+  if (on) setTimeout(() => { d.style.transform = 'scale(1)'; d.style.background = dotCols[i]; }, 200 + i * 70);
+  else { d.style.transform = ''; d.style.background = ''; }
+});
+
+/* ---------- bars ---------- */
+const runBars = (s, on) => s.querySelectorAll('.bar').forEach((b, i) => {
+  const f = b.querySelector('.fill'), v = b.querySelector('.v'), n = +v.dataset.n;
+  if (!on) { f.style.width = '0'; v.textContent = '0'; return; }
+  setTimeout(() => {
+    f.style.width = (n / 21 * 100) + '%';
+    const t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 1200); v.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+  }, 250 + i * 140);
+});
+
+/* ---------- chat sim ---------- */
+const GUESS = ['幾年級？','廣東話定普通話？','繁體定簡體？','白板定手機？','要唔要登入？','幾多題？','要唔要計分？','學生識唔識字？','用喺邊個課題？','幾深？'];
+const POS = [[8,6],[52,4],[2,26],[60,24],[10,72],[56,70],[30,86],[0,50],[62,48],[30,12]];
+const gWrap = $('guesses');
+GUESS.forEach((g, i) => { const d = document.createElement('div'); d.className = 'guess'; d.textContent = g; d.style.left = POS[i][0] + '%'; d.style.top = POS[i][1] + '%'; gWrap.appendChild(d); });
+let chatTimers = [];
+const runChat = on => {
+  chatTimers.forEach(clearTimeout); chatTimers = [];
+  const q = $('chatQ'), a = $('chatA'), gs = gWrap.querySelectorAll('.guess');
+  q.textContent = ''; q.classList.remove('typing'); a.style.opacity = 0; a.classList.remove('in'); gs.forEach(g => g.classList.remove('in'));
+  if (!on) return;
+  const text = '整一個植物遊戲'; q.classList.add('typing');
+  [...text].forEach((c, i) => chatTimers.push(setTimeout(() => { q.textContent += c; }, 500 + i * 160)));
+  const t1 = 500 + text.length * 160 + 400;
+  chatTimers.push(setTimeout(() => q.classList.remove('typing'), t1));
+  gs.forEach((g, i) => chatTimers.push(setTimeout(() => g.classList.add('in'), t1 + 300 + i * 260)));
+  chatTimers.push(setTimeout(() => { a.style.opacity = 1; a.classList.add('in'); }, t1 + 300 + gs.length * 260 + 500));
+};
+
+/* ---------- builder ---------- */
+const SEGS = [
+  '我係小三常識老師，學生程度參差。',
+  '課題係「植物的組成部分」，目標係令學生認識根、莖、葉、花、果實同佢哋嘅功能。',
+  '請整一個 HTML 互動活動，喺電子白板用：學生按指示點選植物部分，答啱有讚，答錯有提示，最後可以睇植物成長動畫。',
+  '用繁體中文，字要大，唔使登入，可以離線打開。',
+  '（試玩之後）字再大啲；答錯唔好用紅色交叉，改做黃色提示；其他保持不變。'
+];
+const COLS = ['var(--cyan)','var(--blue)','var(--violet)','var(--pink)','var(--green)'];
+const onK = new Set();
+const renderBuilder = () => {
+  const n = onK.size, box = $('promptbox');
+  box.innerHTML = n ? [...onK].sort().map(k => `<span class="seg" style="--c:${COLS[k]}">${SEGS[k]}</span>`).join('') : '<span class="empty">整一個植物遊戲。</span>';
+  $('meter').style.width = (n / 5 * 100) + '%'; $('meterV').textContent = n + '/5';
+  const f = $('preview').querySelector('iframe');
+  f.style.filter = `blur(${(5 - n) * 3.2}px) grayscale(${(5 - n) / 5}) saturate(${.6 + n * .08})`;
+  const fog = $('fog'); fog.style.opacity = n >= 4 ? 0 : 1;
+  fog.textContent = ['🤔 AI 估緊……','🤔 小三？然後呢？','🧐 開始有啲頭緒…','🙂 差唔多啦…','',''][n];
+};
+document.querySelectorAll('.tg').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation(); const k = +b.dataset.k;
+  onK.has(k) ? onK.delete(k) : onK.add(k); b.classList.toggle('on', onK.has(k)); renderBuilder();
+}));
+const loadPreview = on => { const f = $('preview').querySelector('iframe'); if (on && !f.getAttribute('src')) f.src = encodeURI(f.dataset.src); };
+
+/* ---------- vs key highlight ---------- */
+document.querySelectorAll('.keys span').forEach(s => s.addEventListener('click', e => {
+  e.stopPropagation(); const el = document.querySelector(`#goodtxt .e[data-k="${s.dataset.k}"]`);
+  el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400);
+}));
+
+/* ---------- traps ---------- */
+document.querySelectorAll('.trap').forEach(t => t.addEventListener('click', e => { e.stopPropagation(); t.classList.toggle('flip'); }));
+
+/* ---------- reveal pics ---------- */
+document.querySelectorAll('[data-reveal]').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation(); ['pic1','pic2'].forEach(id => $(id).style.display = id === b.dataset.reveal ? '' : 'none'); $('reveal').classList.add('on');
+}));
+$('reveal').addEventListener('click', () => $('reveal').classList.remove('on'));
+
+/* ---------- copy template ---------- */
+document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async e => {
+  e.stopPropagation(); const txt = b.parentElement.querySelector('.tpl').textContent;
+  try { await navigator.clipboard.writeText(txt); b.textContent = '✅ 已複製'; } catch (_) { b.textContent = '請手動複製'; }
+  setTimeout(() => b.textContent = '📋 複製模板', 1800);
+}));
+
+/* ---------- timer ---------- */
+let tLeft = 0, tRun = false, tInt = null;
+const tShow = () => { const m = Math.floor(Math.max(0, tLeft) / 60), s = Math.max(0, tLeft) % 60; $('tt').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); $('timer').classList.toggle('done', tLeft <= 0); };
+const chime = () => { try { const ac = new (window.AudioContext || window.webkitAudioContext)(); [0, .25, .5].forEach((d, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = [784, 988, 1175][i]; g.gain.setValueAtTime(0, ac.currentTime + d); g.gain.linearRampToValueAtTime(.25, ac.currentTime + d + .02); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d + .8); o.connect(g).connect(ac.destination); o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .9); }); } catch (_) {} };
+const tStart = sec => { tLeft = sec; tRun = true; $('timer').classList.add('on'); $('tpause').textContent = '⏸'; tShow(); clearInterval(tInt); tInt = setInterval(() => { if (!tRun) return; tLeft--; tShow(); if (tLeft === 0) chime(); }, 1000); };
+document.querySelectorAll('[data-timer]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); tStart(+b.dataset.timer); }));
+$('tpause').onclick = () => { tRun = !tRun; $('tpause').textContent = tRun ? '⏸' : '▶'; };
+$('tplus').onclick = () => { tLeft = Math.max(0, tLeft) + 60; tShow(); };
+$('tclose').onclick = () => { clearInterval(tInt); tRun = false; $('timer').classList.remove('on'); };
+
+/* ---------- overview ---------- */
+const ov = $('ov');
+slides.forEach((s, i) => { const b = document.createElement('button'); b.innerHTML = `<small>${i + 1}</small>${s.dataset.title || ''}`; b.onclick = () => { go(i, 0); toggleOv(false); }; ov.appendChild(b); });
+const toggleOv = on => { $('overview').classList.toggle('on', on); ov.querySelectorAll('button').forEach((b, i) => b.classList.toggle('cur', i === cur)); };
+
+/* ---------- navigation ---------- */
+const frags = s => [...s.querySelectorAll('.f')];
+const enter = (s, on) => {
+  if (s.hasAttribute('data-bars')) runBars(s, on);
+  if (s.hasAttribute('data-dots')) runDots(on);
+  if (s.hasAttribute('data-chat')) runChat(on);
+  if (s.hasAttribute('data-wall')) { loadWall(on); if (on) setTimeout(fitFrames, 50); }
+  if (s.hasAttribute('data-builder') && on) { loadPreview(true); setTimeout(fitFrames, 50); renderBuilder(); }
+  if (!on) s.querySelectorAll('.trap.flip').forEach(t => t.classList.remove('flip'));
+};
+function go(i, fragState) {
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  const prev = cur; cur = i;
+  slides.forEach((s, k) => { s.classList.toggle('on', k === i); s.classList.toggle('past', k < i); });
+  const fs = frags(slides[i]); fs.forEach(f => f.classList.toggle('in', fragState === 'all'));
+  if (prev !== i) enter(slides[prev], false);
+  enter(slides[i], true);
+  $('progress').style.width = ((i + 1) / slides.length * 100) + '%';
+  $('pageno').textContent = (i + 1) + ' / ' + slides.length;
+  try { history.replaceState(null, '', '#' + (i + 1)); } catch (_) {}
+}
+const next = () => { const f = frags(slides[cur]).find(x => !x.classList.contains('in')); if (f) f.classList.add('in'); else if (cur < slides.length - 1) go(cur + 1, 0); };
+const prev = () => { const fs = frags(slides[cur]).filter(x => x.classList.contains('in')); if (fs.length) fs[fs.length - 1].classList.remove('in'); else if (cur > 0) go(cur - 1, 'all'); };
+const overlayOpen = () => $('viewer').classList.contains('on') || $('reveal').classList.contains('on');
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  if (e.key === 'Escape') { if ($('viewer').classList.contains('on')) $('vclose').click(); $('reveal').classList.remove('on'); toggleOv(false); return; }
+  if (overlayOpen()) return;
+  if (['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(e.key)) { e.preventDefault(); next(); }
+  else if (['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.key === 'o' || e.key === 'O') toggleOv(!$('overview').classList.contains('on'));
+  else if (e.key === 'f' || e.key === 'F') fsToggle();
+  else if (e.key === 'Home') go(0, 0); else if (e.key === 'End') go(slides.length - 1, 'all');
+});
+$('navr').onclick = next; $('navl').onclick = prev;
+const fsToggle = () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen && document.exitFullscreen(); };
+$('bfs').onclick = fsToggle; $('bov').onclick = () => toggleOv(true);
+let tx = null; document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => { if (tx === null || overlayOpen()) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 60) (dx < 0 ? next : prev)(); tx = null; });
+window.addEventListener('resize', fitFrames);
+
+/* ---------- starfield ---------- */
+const cv = $('stars'), cx = cv.getContext('2d'); let W, H, stars = [], mx = .5, my = .5;
+const resize = () => { W = cv.width = innerWidth * devicePixelRatio; H = cv.height = innerHeight * devicePixelRatio; stars = Array.from({ length: 140 }, () => ({ x: Math.random() * W, y: Math.random() * H, z: Math.random() * .8 + .2, p: Math.random() * 6.28 })); };
+addEventListener('resize', resize); resize();
+addEventListener('pointermove', e => { mx = e.clientX / innerWidth; my = e.clientY / innerHeight; });
+const draw = t => { cx.clearRect(0, 0, W, H); for (const s of stars) { const ox = (mx - .5) * 40 * s.z * devicePixelRatio, oy = (my - .5) * 40 * s.z * devicePixelRatio; cx.globalAlpha = .25 + .55 * s.z * (.6 + .4 * Math.sin(t / 900 + s.p)); cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(s.x + ox, s.y + oy, s.z * 1.6 * devicePixelRatio, 0, 6.29); cx.fill(); } requestAnimationFrame(draw); };
+requestAnimationFrame(draw);
+
+addEventListener('hashchange', () => { const n = parseInt(location.hash.slice(1), 10); if (Number.isFinite(n) && n - 1 !== cur) go(n - 1, 0); });
+const start = parseInt(location.hash.slice(1), 10);
+go(Number.isFinite(start) ? start - 1 : 0, 0);
+})();
+</script>
+</body>
+</html>

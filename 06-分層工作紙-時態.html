@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mixed Tenses 分層工作紙</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+  --t-present:#2F6FED; --t-pc:#D6457A; --t-past:#7A56D8; --t-will:#1E9E6A; --t-pf:#D9622B;
+}
+*{box-sizing:border-box}
+html{font-size:clamp(24px,1.3vw,30px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;-webkit-text-size-adjust:100%}
+.app{min-height:100vh;display:flex;flex-direction:column;padding:.6rem clamp(12px,2vw,36px) 1.6rem}
+button{font-family:inherit}
+.btn{min-height:64px;padding:0 1.05rem;border:0;border-radius:16px;background:var(--primary);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 5px 0 rgba(31,42,68,.22);touch-action:manipulation;display:inline-flex;align-items:center;justify-content:center;gap:.4rem}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(31,42,68,.22)}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:0 5px 0 rgba(31,42,68,.1)}
+.btn.good{background:var(--good)}
+.btn.hintc{background:var(--hint);color:#4A3200}
+.btn[disabled]{opacity:.45;pointer-events:none}
+header.top{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.6rem}
+.chip{background:var(--primary-soft);color:var(--primary);font-weight:800;padding:.25rem .8rem;border-radius:999px;font-size:1rem;white-space:nowrap}
+.top h1{margin:0;font-size:1.3rem;flex:1;min-width:10rem}
+.top .rt{display:flex;gap:.6rem}
+.bar{display:flex;gap:.7rem;flex-wrap:wrap;align-items:stretch;margin-bottom:.7rem}
+.tab{flex:1 1 11rem;min-height:72px;border:3px solid var(--line);background:#fff;border-radius:18px;font-size:1.05rem;font-weight:800;color:var(--ink);cursor:pointer;box-shadow:0 5px 0 rgba(31,42,68,.08);padding:.2rem .6rem;touch-action:manipulation;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
+.tab small{font-size:.8rem;font-weight:600;color:var(--ink-2)}
+.tab.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.tab.on small{color:#DCE7FF}
+.tab .badge{font-size:.8rem;background:var(--good);color:#fff;border-radius:999px;padding:0 .5rem;margin-top:.1rem}
+.notes{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:.9rem 1.2rem;margin-bottom:.8rem;border:3px dashed var(--primary)}
+.notes h3{margin:.1rem 0 .4rem;font-size:1.1rem}
+.notes .row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem}
+.notes .nl{border:2px solid var(--line);border-radius:16px;padding:.6rem .8rem;font-size:.85rem;line-height:1.4}
+.notes .nl.on{border-color:var(--primary);background:var(--primary-soft)}
+.notes .nl b{font-size:.95rem}
+.meter{letter-spacing:.15em;color:var(--primary);font-size:1rem}
+.notes p{margin:.3rem 0;font-size:.9rem}
+.mini{background:var(--primary-soft);color:var(--ink);border-radius:14px;padding:.35rem .8rem;margin-bottom:.8rem;font-size:.85rem}
+.mini .meter{margin-right:.4rem}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:1rem;align-items:start}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem 1.2rem}
+.story h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.story svg{width:100%;height:auto;display:block;border-radius:16px;border:3px solid var(--ink);background:#FDE9C9}
+.story p{margin:.6rem 0 0;font-size:1rem;line-height:1.6}
+.tw{background:none;padding:0 .15rem;border-radius:6px;font-weight:800}
+.tw-present{background:#DCE7FF;color:#1B4FBF}.tw-pc{background:#FDE0EB;color:#B02C5C}.tw-past{background:#E9E1FB;color:#5B38B8}.tw-will{background:#D7F3E6;color:#137A50}.tw-pf{background:#FFE5D6;color:#AE4513}
+.tw-plain{background:var(--hint-soft);box-shadow:inset 0 -3px 0 var(--hint)}
+.cheat{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem;margin-bottom:.8rem}
+.cheat div{border-radius:12px;padding:.3rem .45rem;font-size:.75rem;line-height:1.25;border:2px solid transparent}
+.cheat b{display:block;font-size:.8rem}
+.cheat .c-present{background:#DCE7FF;border-color:var(--t-present)}.cheat .c-pc{background:#FDE0EB;border-color:var(--t-pc)}.cheat .c-past{background:#E9E1FB;border-color:var(--t-past)}.cheat .c-will{background:#D7F3E6;border-color:var(--t-will)}.cheat .c-pf{background:#FFE5D6;border-color:var(--t-pf)}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:.6rem;flex-wrap:wrap}
+.dots{display:flex;gap:.4rem}
+.dots i{width:.8rem;height:.8rem;border-radius:50%;background:var(--line);display:block}
+.dots i.cur{background:var(--primary);transform:scale(1.3)}.dots i.g{background:var(--good)}.dots i.h{background:var(--hint)}
+.qno{font-weight:800;color:var(--ink-2)}
+.qtext{font-size:1.4rem;line-height:1.7;font-weight:600;margin:.4rem 0 .8rem}
+.blank{display:inline-block;min-width:5.5rem;border-bottom:4px solid var(--ink);text-align:center;color:var(--good);font-weight:800;padding:0 .3rem}
+.blank.empty{color:transparent}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.4rem 0 .8rem}
+.opt{min-height:80px;font-size:1.25rem;font-weight:800;border-radius:18px;border:3px solid var(--primary);background:var(--primary-soft);color:var(--ink);cursor:pointer;box-shadow:0 5px 0 rgba(31,42,68,.12);touch-action:manipulation}
+.opt:active{transform:translateY(4px);box-shadow:none}
+.opt.tried{background:var(--hint-soft);border-color:var(--hint);opacity:.7;pointer-events:none}
+.opt.right{background:var(--good-soft);border-color:var(--good);animation:pop .5s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
+.inp{font:inherit;font-size:1.2rem;font-weight:700;min-height:64px;width:100%;border:3px solid var(--line);border-radius:16px;padding:.3rem .9rem;color:var(--ink);background:#fff}
+.inp:focus{outline:none;border-color:var(--primary)}
+.inp.inl{width:11rem;display:inline-block;vertical-align:middle;min-height:58px;margin:0 .2rem}
+textarea.inp{min-height:110px;resize:vertical;line-height:1.4}
+.actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.7rem}
+.fb{border-radius:18px;padding:.7rem 1rem;margin-top:.8rem;font-size:1rem;line-height:1.5}
+.fb.good{background:var(--good-soft);border:3px solid var(--good);animation:pop .5s}
+.fb.hint{background:var(--hint-soft);border:3px solid var(--hint)}
+.fb b{font-weight:800}
+.tchip{display:inline-block;border-radius:999px;color:#fff;font-weight:800;font-size:.8rem;padding:0 .6rem;margin-right:.3rem}
+.tchip.present{background:var(--t-present)}.tchip.pc{background:var(--t-pc)}.tchip.past{background:var(--t-past)}.tchip.will{background:var(--t-will)}.tchip.pf{background:var(--t-pf)}
+.wrong{color:#B3261E;text-decoration:underline wavy #E9A23B;text-underline-offset:6px;font-weight:800}
+.task{background:var(--accent-soft);border-radius:14px;padding:.4rem .8rem;font-size:.9rem;margin-bottom:.5rem;font-weight:700}
+.finish{text-align:center;padding:.6rem 0}
+.finish .big{font-size:2.6rem;font-weight:900;color:var(--primary);line-height:1.1}
+.finish .stars{font-size:2.2rem;margin:.2rem 0}
+.finish p{margin:.4rem 0 .8rem}
+.finish .actions{justify-content:center}
+footer.ft{margin-top:auto;padding-top:1rem;text-align:right;font-size:.7rem;color:var(--ink-2)}
+.modal{position:fixed;inset:0;background:rgba(31,42,68,.55);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}
+.modal[hidden]{display:none}
+.mbox{background:#fff;border-radius:26px;padding:1.2rem 1.5rem;max-width:34rem;width:100%;box-shadow:var(--shadow);max-height:94vh;overflow:auto}
+.mbox h2{margin:.1rem 0 .6rem;font-size:1.3rem}
+.chk{display:flex;flex-direction:column;gap:.5rem;margin:.4rem 0 .8rem}
+.chk label{display:flex;align-items:center;gap:.7rem;min-height:64px;border:3px solid var(--line);border-radius:16px;padding:0 1rem;font-size:1.05rem;font-weight:700;cursor:pointer}
+.chk input{width:30px;height:30px;accent-color:var(--primary);flex:none}
+.chk label.sel{border-color:var(--primary);background:var(--primary-soft)}
+.mbox .hintline{font-size:.8rem;color:var(--ink-2);margin:.2rem 0 .6rem}
+#printArea{display:none}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .notes .row{grid-template-columns:1fr}
+  .cheat{grid-template-columns:1fr 1fr}
+  .opts{grid-template-columns:1fr}
+  .inp.inl{width:100%;display:block;margin:.3rem 0}
+}
+@media print{
+  @page{size:A4;margin:11mm}
+  html{font-size:12pt}
+  body{background:#fff;color:#000}
+  .app,.modal{display:none!important}
+  #printArea{display:block;font-family:var(--font);color:#000}
+  .sheet{break-after:page;page-break-after:always;font-size:11.5pt;line-height:1.35}
+  .sheet:last-child{break-after:auto;page-break-after:auto}
+  .ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5pt solid #000;padding-bottom:2mm}
+  .ph h1{margin:0;font-size:17pt}
+  .ph .lv{font-size:13pt;font-weight:800;border:2pt solid #000;border-radius:3mm;padding:.5mm 3mm}
+  .ph .key{font-size:11pt;font-weight:800;background:#000;color:#fff;padding:.5mm 3mm;border-radius:3mm;margin-left:3mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pinfo{display:flex;gap:6mm;margin:3mm 0;font-size:11pt}
+  .pinfo span{flex:1;border-bottom:1pt solid #000;white-space:nowrap;overflow:hidden}
+  .pinfo span.sc{flex:0 0 28mm}
+  .pstory{display:flex;gap:4mm;border:1.5pt solid #000;border-radius:3mm;padding:2.5mm;margin-bottom:3mm;break-inside:avoid}
+  .pstory svg{width:58mm;flex:none;height:auto;filter:grayscale(1) contrast(1.15);border:1.5pt solid #000;border-radius:2mm}
+  .pstory h2{margin:0 0 1mm;font-size:12.5pt}
+  .pstory p{margin:0;font-size:10.5pt;line-height:1.45}
+  .pstory .tw{background:none;color:#000;font-weight:800;text-decoration:underline;padding:0}
+  .pins{font-weight:800;margin:2mm 0 1.5mm;font-size:11.5pt}
+  .pins small{font-weight:500;font-size:9.5pt;margin-left:2mm}
+  .pcheat{display:grid;grid-template-columns:repeat(5,1fr);gap:1.5mm;margin-bottom:2mm;font-size:8pt;line-height:1.2}
+  .pcheat div{border:1pt solid #000;border-radius:1.5mm;padding:1mm 1.5mm}
+  .pcheat b{display:block;font-size:8.5pt}
+  ol.pq{margin:0;padding-left:7mm}
+  ol.pq li{padding:1.2mm 0 1.4mm;break-inside:avoid;line-height:1.7}
+  ol.pq .tw{background:none;color:#000;text-decoration:underline;font-weight:700;padding:0}
+  .po{margin-top:.5mm}
+  .po span{display:inline-block;padding:0 2.5mm;margin:0 1mm;border:1pt solid transparent;border-radius:6mm}
+  .po span.ok{border:1.8pt solid #000;font-weight:800}
+  .ln{display:inline-block;min-width:32mm;border-bottom:1pt solid #000;vertical-align:baseline}
+  .fillans{font-weight:800;text-decoration:underline;padding:0 1mm}
+  .wl{display:block;border-bottom:1pt solid #000;height:8mm}
+  .wl.w{margin-top:0}
+  .wrong{color:#000;text-decoration:underline wavy #000;font-weight:800}
+  .samp{border:1.5pt solid #000;border-radius:2mm;padding:1.5mm 2.5mm;margin-top:1mm;font-weight:700}
+  .ptask{font-style:italic;font-size:10pt}
+  .pfoot{margin-top:3mm;font-size:8.5pt;text-align:right;color:#444}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <span class="chip">英文科</span>
+    <h1>Mixed Tenses 分層工作紙 · Sam's Busy Week</h1>
+    <div class="rt">
+      <button class="btn ghost" id="btnFs" type="button">⛶ 全螢幕</button>
+      <button class="btn ghost" id="btnRestart" type="button">↺ 重新開始</button>
+    </div>
+  </header>
+
+  <div class="bar" id="bar"></div>
+  <div id="notesWrap"></div>
+
+  <div class="grid">
+    <section class="card story" id="story"></section>
+    <section class="card" id="qcard"></section>
+  </div>
+  <footer class="ft">AI 輔助備課工作坊 · 示範教具</footer>
+</div>
+
+<div class="modal" id="pm" hidden>
+  <div class="mbox" role="dialog" aria-modal="true" aria-label="列印工作紙">
+    <h2>🖨️ 列印工作紙（A4・黑白友善）</h2>
+    <div class="hintline">揀要印邊幾層，每層一頁 A4。印出嚟有姓名／班別／日期欄同作答線。</div>
+    <div class="chk" id="pmLevels">
+      <label><input type="checkbox" value="1"> ⭐ 基礎（二選一）</label>
+      <label><input type="checkbox" value="2"> ⭐⭐ 進階（填充）</label>
+      <label><input type="checkbox" value="3"> ⭐⭐⭐ 挑戰（改錯＋造句）</label>
+    </div>
+    <div class="chk" id="pmMode">
+      <label><input type="radio" name="pmode" value="stu" checked> 學生工作紙</label>
+      <label><input type="radio" name="pmode" value="ans"> 教師答案版</label>
+    </div>
+    <div class="actions">
+      <button class="btn" id="pmGo" type="button">🖨️ 列印</button>
+      <button class="btn ghost" id="pmClose" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="audio/06/voice.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ---------- 資料 ---------- */
+var TENSE={
+  present:{n:"Simple present",f:"V / V-s",t:"every day, always, usually, on Mondays"},
+  pc:{n:"Present continuous",f:"am / is / are + V-ing",t:"now, at the moment, Look!, Listen!"},
+  past:{n:"Simple past",f:"V-ed / irregular",t:"yesterday, last week, ago"},
+  will:{n:"Simple future",f:"will + V",t:"tomorrow, next week, soon"},
+  pf:{n:"Present perfect",f:"has / have + V-ed",t:"already, just, ever, never, yet"}
+};
+var TKEYS=["present","pc","past","will","pf"];
+
+var STORY="Sam is a Primary 6 student. [[Every day|present]], he gets up at seven o'clock and walks to school. [[Yesterday|past]], he played football with his friends. [[Right now|pc]], he is doing his homework. He has [[already|pf]] finished his art project. [[Tomorrow|will]], he will visit his grandma.";
+
+var D1=[
+ {s:"[[Every day|present]], Sam ___ up at 7 o'clock.",o:["get","gets"],a:1,k:"present",h:"Look for the time word: 'every day' → simple present (a habit). Sam = he, so add -s: gets."},
+ {s:"[[Yesterday|past]], Sam ___ football with his friends.",o:["plays","played"],a:1,k:"past",h:"Look for the time word: 'yesterday' → past tense. Add -ed: played."},
+ {s:"Look! Sam ___ his homework [[now|pc]].",o:["does","is doing"],a:1,k:"pc",h:"Look for the time word: 'now' (and 'Look!') → it is happening at this moment → is + V-ing."},
+ {s:"[[Tomorrow|will]], Sam ___ his grandma.",o:["will visit","visited"],a:0,k:"will",h:"Look for the time word: 'tomorrow' → future → will + base verb: will visit."},
+ {s:"Sam ___ his art project [[already|pf]].",o:["has finished","finishes"],a:0,k:"pf",h:"Look for the time word: 'already' → present perfect → has / have + past participle: has finished."},
+ {s:"Sam's mum ___ dinner at 6 o'clock [[every evening|present]].",o:["cooks","is cooking"],a:0,k:"present",h:"Look for the time word: 'every evening' → simple present (a habit). Mum = she, so add -s: cooks."},
+ {s:"[[Last Sunday|past]], they ___ to the park.",o:["go","went"],a:1,k:"past",h:"Look for the time word: 'last Sunday' → past tense. 'go' is irregular: went."},
+ {s:"Sam and Tom ___ basketball [[at the moment|pc]].",o:["play","are playing"],a:1,k:"pc",h:"Look for the time word: 'at the moment' → happening now → are + V-ing: are playing."}
+];
+var D2=[
+ {s:"Sam ___ (walk) to school [[every morning|present]].",a:["walks"],k:"present",h:"Time word: 'every morning' → simple present. Sam = he → walk + s."},
+ {s:"[[Last Saturday|past]], he ___ (buy) a new book.",a:["bought"],k:"past",h:"Time word: 'last Saturday' → past. 'buy' is irregular: bought."},
+ {s:"Listen! Sam ___ (sing) in the music room [[now|pc]].",a:["is singing","'s singing"],k:"pc",h:"Time word: 'now' / 'Listen!' → present continuous: is + V-ing."},
+ {s:"Sam ___ (go) to the library [[tomorrow|will]].",a:["will go","'ll go","is going to go"],k:"will",h:"Time word: 'tomorrow' → future: will + base verb."},
+ {s:"Sam ___ (finish) his homework [[already|pf]].",a:["has finished","'s finished"],k:"pf",h:"Time word: 'already' → present perfect: has + past participle."},
+ {s:"[[Yesterday|past]], it ___ (rain) all day.",a:["rained"],k:"past",h:"Time word: 'yesterday' → past tense: rain + ed."},
+ {s:"Sam and Tom ___ (play) basketball [[every Friday|present]].",a:["play"],k:"present",h:"Time word: 'every Friday' → simple present. Sam and Tom = they → no -s."},
+ {s:"Sam ___ (be) twelve years old [[next month|will]].",a:["will be","'ll be","is going to be"],k:"will",h:"Time word: 'next month' → future: will + be."}
+];
+var D3E=[
+ {s:"Yesterday, Sam {{go}} to the zoo.",a:["went"],k:"past",h:"'Yesterday' → past tense. 'go' is irregular: went."},
+ {s:"Look! The cat {{sleeps}} on the sofa.",a:["is sleeping","'s sleeping"],k:"pc",h:"'Look!' → happening now → is + V-ing."},
+ {s:"Sam {{plays}} tennis tomorrow.",a:["will play","'ll play","is going to play"],k:"will",h:"'Tomorrow' → future → will + base verb."},
+ {s:"Sam {{finish}} his homework already.",a:["has finished","'s finished"],k:"pf",h:"'Already' → present perfect → has + past participle."},
+ {s:"Every morning, he {{is brushing}} his teeth.",a:["brushes"],k:"present",h:"'Every morning' → a habit → simple present. He → brush + es."}
+];
+var PAST_IRR="went|was|were|had|did|bought|saw|ate|got|made|took|came|gave|ran|wrote|met|sang|swam|drew|said|told|found|left|felt|knew|thought|read|won|lost|sat|stood|rode|flew";
+var D3S=[
+ {task:"用 simple past 同 “last weekend” 寫一句關於 Sam 嘅句子。",kw:"last weekend",k:"past",re:new RegExp("\\b(\\w+ed|"+PAST_IRR+")\\b","i"),reMsg:"要用過去式（例如 went / played）",sample:"Last weekend, Sam went to the beach with his family."},
+ {task:"用 will 同 “tomorrow” 寫一句關於 Sam 嘅句子。",kw:"tomorrow",k:"will",re:/\bwill\s+[a-z]+/i,reMsg:"要用 will + 動詞原形",sample:"Tomorrow, Sam will visit his grandma."},
+ {task:"用 present continuous 同 “at the moment” 寫一句關於 Sam 嘅句子。",kw:"at the moment",k:"pc",re:/\b(am|is|are)\s+\w+ing\b/i,reMsg:"要用 am / is / are + V-ing",sample:"At the moment, Sam is doing his homework."}
+];
+var LV={
+ 1:{star:"⭐",name:"基礎",sub:"二選一",sup:3,n:8},
+ 2:{star:"⭐⭐",name:"進階",sub:"自己填寫",sup:2,n:8},
+ 3:{star:"⭐⭐⭐",name:"挑戰",sub:"改錯＋造句",sup:1,n:8}
+};
+var NOTES={
+ 1:["支援：多","二選一，只需要辨認；時間詞按時態用顏色標高亮；時態提示表長期展示；答錯即時講明「睇邊個時間詞 → 邊個時態」。"],
+ 2:["支援：中","要自己寫出動詞形式（括號畀原形）；時間詞仍然高亮，但唔標時態顏色；時態提示表可以自己按開；答錯畀一次提示，第二次先睇答案。"],
+ 3:["支援：少","改錯＋用指定時態自己造句；冇高亮、冇提示表，只靠自己判斷時間詞；造句只檢查格式（大楷、標點、時間詞、時態結構），再同示範答案自行對比。"]
+};
+
+/* ---------- 狀態 ---------- */
+var S;
+function fresh(){
+  S={cur:1,notes:false,cheat:false,lv:{}};
+  for(var L=1;L<=3;L++){S.lv[L]={i:0,done:false,q:[]};for(var j=0;j<8;j++)S.lv[L].q.push({att:0,st:"",pts:0,val:""});}
+}
+fresh();
+
+/* ---------- 小工具 ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function tw(s,mode){
+  return s.replace(/\[\[(.+?)\|(\w+)\]\]/g,function(m,t,k){
+    if(mode==="none")return t;
+    if(mode==="plain")return '<mark class="tw tw-plain">'+t+'</mark>';
+    return '<mark class="tw tw-'+k+'">'+t+'</mark>';
+  });
+}
+function plainText(s){return s.replace(/\[\[(.+?)\|\w+\]\]/g,"$1").replace(/\{\{(.+?)\}\}/g,"$1");}
+function norm(s){return String(s).toLowerCase().replace(/[‘’]/g,"'").replace(/[.!?,;]+$/,"").replace(/\s+/g," ").trim();}
+function fmtScore(x){return (Math.round(x*2)/2).toString().replace(/\.5$/,".5");}
+function modeFor(L){return L===1?"color":(L===2?"plain":"none");}
+
+/* ---------- 聲音 / TTS ---------- */
+var actx=null;
+function ding(ok){
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    if(!actx)actx=new AC();
+    var t=actx.currentTime;
+    var f=ok?[880,1318]:[330];
+    f.forEach(function(fr,i){
+      var o=actx.createOscillator(),g=actx.createGain();
+      o.type="sine";o.frequency.value=fr;
+      g.gain.setValueAtTime(0.0001,t+i*0.12);
+      g.gain.exponentialRampToValueAtTime(0.18,t+i*0.12+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.12+0.5);
+      o.connect(g);g.connect(actx.destination);
+      o.start(t+i*0.12);o.stop(t+i*0.12+0.55);
+    });
+  }catch(e){}
+}
+function pickVoice(lang){
+  try{
+    var vs=window.speechSynthesis.getVoices()||[];
+    var ex=null,st=null;
+    for(var i=0;i<vs.length;i++){
+      if(vs[i].lang===lang||vs[i].lang.replace("_","-")===lang){ex=vs[i];break;}
+      if(!st&&vs[i].lang.toLowerCase().indexOf(lang.slice(0,2).toLowerCase())===0)st=vs[i];
+    }
+    return ex||st||null;
+  }catch(e){return null;}
+}
+function ttsFallback(text,opt){
+  try{
+    if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){if(opt&&opt.onend)opt.onend();return;}
+    var u=new SpeechSynthesisUtterance(text);u.lang="en-GB";u.rate=(opt&&opt.rate)?0.9*opt.rate:0.9;
+    var v=pickVoice("en-GB");if(v)u.voice=v;
+    if(opt&&opt.onend)u.onend=opt.onend;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+var VOICE=(function(){
+  var cur=null;
+  var nm=function(s){return String(s).replace(/\s+/g,"");};
+  var lookup=function(t){return (window.VOICE_LINES||{})[nm(t)];};
+  function stop(){if(cur){cur.onended=null;cur.pause();cur=null;}try{window.speechSynthesis.cancel();}catch(e){}}
+  function speak(text,opt){
+    opt=opt||{};stop();
+    var src=lookup(text);
+    if(src){
+      try{
+        var a=new Audio(src);cur=a;
+        a.playbackRate=opt.rate||1;a.preservesPitch=true;
+        a.onended=function(){if(cur===a)cur=null;if(opt.onend)opt.onend();};
+        a.onerror=function(){cur=null;ttsFallback(text,opt);};
+        var p=a.play();if(p&&p.catch)p.catch(function(){cur=null;ttsFallback(text,opt);});
+      }catch(e){ttsFallback(text,opt);}
+      return;
+    }
+    ttsFallback(text,opt);
+  }
+  return {speak:speak,stop:stop,has:function(t){return !!lookup(t);}};
+})();
+function speak(text){VOICE.speak(text);}
+
+/* ---------- 插圖 ---------- */
+function svgStory(){
+  return '<svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sam doing homework at his desk" stroke-linejoin="round" stroke-linecap="round">'
+  +'<rect width="480" height="360" fill="#FDE9C9"/>'
+  +'<rect y="292" width="480" height="68" fill="#E7C79A" stroke="#1F2A44" stroke-width="4"/>'
+  /* window */
+  +'<rect x="22" y="26" width="112" height="100" rx="10" fill="#CFE8FF" stroke="#1F2A44" stroke-width="5"/>'
+  +'<line x1="78" y1="26" x2="78" y2="126" stroke="#1F2A44" stroke-width="4"/><line x1="22" y1="76" x2="134" y2="76" stroke="#1F2A44" stroke-width="4"/>'
+  +'<circle cx="50" cy="52" r="15" fill="#FFD54A" stroke="#1F2A44" stroke-width="3.5"/>'
+  +'<path d="M92 108 q0-14 14-14 q4-10 16-6 q10 0 10 12 z" fill="#fff" stroke="#1F2A44" stroke-width="3"/>'
+  /* clock 7:00 */
+  +'<circle cx="208" cy="56" r="30" fill="#fff" stroke="#1F2A44" stroke-width="5"/>'
+  +'<line x1="208" y1="30" x2="208" y2="35" stroke="#1F2A44" stroke-width="3"/><line x1="208" y1="77" x2="208" y2="82" stroke="#1F2A44" stroke-width="3"/><line x1="182" y1="56" x2="187" y2="56" stroke="#1F2A44" stroke-width="3"/><line x1="229" y1="56" x2="234" y2="56" stroke="#1F2A44" stroke-width="3"/>'
+  +'<line x1="208" y1="56" x2="208" y2="36" stroke="#1F2A44" stroke-width="4"/><line x1="208" y1="56" x2="198" y2="73" stroke="#E8618C" stroke-width="5"/><circle cx="208" cy="56" r="3.5" fill="#1F2A44"/>'
+  /* calendar */
+  +'<rect x="334" y="22" width="126" height="106" rx="9" fill="#fff" stroke="#1F2A44" stroke-width="5"/>'
+  +'<rect x="334" y="22" width="126" height="26" rx="9" fill="#E8618C" stroke="#1F2A44" stroke-width="5"/>'
+  +'<text x="397" y="42" text-anchor="middle" font-size="16" font-weight="800" fill="#fff" font-family="sans-serif">My Week</text>'
+  +'<g stroke="#1F2A44" stroke-width="3" fill="#fff"><rect x="344" y="62" width="22" height="22" rx="4"/><rect x="371" y="62" width="22" height="22" rx="4"/><rect x="398" y="62" width="22" height="22" rx="4" fill="#FFD54A"/><rect x="425" y="62" width="22" height="22" rx="4"/><rect x="344" y="92" width="22" height="22" rx="4"/><rect x="371" y="92" width="22" height="22" rx="4"/><rect x="398" y="92" width="22" height="22" rx="4"/></g>'
+  +'<path d="M349 73 l6 6 l10-12" fill="none" stroke="#1E9E6A" stroke-width="4"/>'
+  +'<path d="M376 73 l6 6 l10-12" fill="none" stroke="#1E9E6A" stroke-width="4"/>'
+  +'<path d="M429 73 l14 0 M436 66 l0 14" fill="none" stroke="#1F2A44" stroke-width="3" opacity="0"/>'
+  /* thought bubble */
+  +'<circle cx="190" cy="150" r="6" fill="#fff" stroke="#1F2A44" stroke-width="3"/><circle cx="210" cy="138" r="9" fill="#fff" stroke="#1F2A44" stroke-width="3"/>'
+  +'<ellipse cx="82" cy="190" rx="68" ry="44" fill="#fff" stroke="#1F2A44" stroke-width="4"/>'
+  +'<path d="M50 200 l0 -18 l22 -16 l22 16 l0 18 z" fill="#FFD9B3" stroke="#1F2A44" stroke-width="3.5"/>'
+  +'<path d="M44 184 l28 -22 l28 22 z" fill="#E8618C" stroke="#1F2A44" stroke-width="3.5"/>'
+  +'<rect x="66" y="188" width="12" height="12" fill="#fff" stroke="#1F2A44" stroke-width="3"/>'
+  +'<path d="M108 178 q-8 -12 -14 -2 q-6 10 14 22 q20 -12 14 -22 q-6 -10 -14 2 z" fill="#E8618C" stroke="#1F2A44" stroke-width="3" transform="translate(0,-4) scale(.8) translate(26,40)"/>'
+  +'<rect x="30" y="214" width="104" height="22" rx="11" fill="#1E9E6A" stroke="#1F2A44" stroke-width="3"/><text x="82" y="231" text-anchor="middle" font-size="15" font-weight="800" fill="#fff" font-family="sans-serif">Tomorrow</text>'
+  /* chair */
+  +'<rect x="248" y="150" width="10" height="100" rx="4" fill="#9B6B3E" stroke="#1F2A44" stroke-width="4"/>'
+  /* boy */
+  +'<rect x="262" y="150" width="64" height="86" rx="20" fill="#2F6FED" stroke="#1F2A44" stroke-width="5"/>'
+  +'<rect x="283" y="140" width="22" height="16" fill="#FFD9B3" stroke="#1F2A44" stroke-width="4"/>'
+  +'<path d="M312 176 L336 212" stroke="#1F2A44" stroke-width="22"/><path d="M312 176 L336 212" stroke="#2F6FED" stroke-width="13"/>'
+  +'<circle cx="294" cy="116" r="34" fill="#FFD9B3" stroke="#1F2A44" stroke-width="5"/>'
+  +'<path d="M260 112 q2 -36 36 -36 q34 0 36 30 q-14 -14 -34 -12 q-22 2 -38 18 z" fill="#3B2A20" stroke="#1F2A44" stroke-width="4"/>'
+  +'<circle cx="282" cy="120" r="4" fill="#1F2A44"/><circle cx="306" cy="120" r="4" fill="#1F2A44"/>'
+  +'<path d="M282 133 q12 10 24 0" fill="none" stroke="#1F2A44" stroke-width="4"/>'
+  +'<circle cx="274" cy="130" r="5" fill="#E8618C" opacity=".55"/><circle cx="314" cy="130" r="5" fill="#E8618C" opacity=".55"/>'
+  /* desk */
+  +'<rect x="150" y="212" width="290" height="16" rx="7" fill="#C98F57" stroke="#1F2A44" stroke-width="5"/>'
+  +'<rect x="170" y="228" width="16" height="64" fill="#C98F57" stroke="#1F2A44" stroke-width="4"/><rect x="404" y="228" width="16" height="64" fill="#C98F57" stroke="#1F2A44" stroke-width="4"/>'
+  +'<path d="M300 212 l6 -14 l66 0 l6 14 z" fill="#fff" stroke="#1F2A44" stroke-width="4"/>'
+  +'<line x1="312" y1="205" x2="364" y2="205" stroke="#1F2A44" stroke-width="2.5"/>'
+  +'<line x1="334" y1="190" x2="352" y2="180" stroke="#E9A23B" stroke-width="7"/><line x1="352" y1="180" x2="357" y2="177" stroke="#1F2A44" stroke-width="5"/>'
+  +'<rect x="200" y="176" width="40" height="36" rx="4" fill="#E8618C" stroke="#1F2A44" stroke-width="4"/><rect x="204" y="166" width="40" height="10" rx="3" fill="#1E9E6A" stroke="#1F2A44" stroke-width="4"/>'
+  +'<rect x="392" y="190" width="40" height="22" rx="8" fill="#fff" stroke="#1F2A44" stroke-width="4"/>'
+  +'<rect x="298" y="150" width="46" height="22" rx="11" fill="#E9A23B" stroke="#1F2A44" stroke-width="3" opacity="0"/>'
+  +'<rect x="352" y="244" width="70" height="26" rx="13" fill="#E9A23B" stroke="#1F2A44" stroke-width="3"/><text x="387" y="263" text-anchor="middle" font-size="16" font-weight="800" fill="#1F2A44" font-family="sans-serif">Now</text>'
+  /* football */
+  +'<circle cx="78" cy="324" r="26" fill="#fff" stroke="#1F2A44" stroke-width="5"/>'
+  +'<path d="M78 308 l13 9 l-5 15 l-16 0 l-5 -15 z" fill="#1F2A44"/>'
+  +'<path d="M78 308 l0 -6 M91 317 l11 -5 M86 332 l8 10 M70 332 l-8 10 M65 317 l-11 -5" stroke="#1F2A44" stroke-width="4" fill="none"/>'
+  +'<rect x="108" y="308" width="92" height="26" rx="13" fill="#7A56D8" stroke="#1F2A44" stroke-width="3"/><text x="154" y="327" text-anchor="middle" font-size="15" font-weight="800" fill="#fff" font-family="sans-serif">Yesterday</text>'
+  /* bag */
+  +'<rect x="440" y="254" width="34" height="48" rx="12" fill="#2F6FED" stroke="#1F2A44" stroke-width="4"/><rect x="446" y="278" width="22" height="16" rx="5" fill="#9DBBFF" stroke="#1F2A44" stroke-width="3"/>'
+  +'</svg>';
+}
+
+/* ---------- 畫面 ---------- */
+function renderBar(){
+  var h="";
+  for(var L=1;L<=3;L++){
+    var on=S.cur===L,done=S.lv[L].done;
+    h+='<button type="button" class="tab'+(on?" on":"")+'" data-act="tab" data-l="'+L+'">'
+      +LV[L].star+' '+LV[L].name+'<small>'+LV[L].sub+'</small>'
+      +(done?'<span class="badge">'+fmtScore(total(L))+' / 8</span>':'')+'</button>';
+  }
+  h+='<button type="button" class="btn ghost" data-act="notes" style="flex:1 1 11rem">👩‍🏫 分層設計說明</button>';
+  h+='<button type="button" class="btn good" data-act="print" style="flex:1 1 11rem">🖨️ 列印工作紙</button>';
+  $("bar").innerHTML=h;
+}
+function meter(n){var s="";for(var i=0;i<3;i++)s+=i<n?"●":"○";return s;}
+function renderNotes(){
+  var w=$("notesWrap");if(!w)return;
+  if(S.notes){
+    var h='<div class="notes"><h3>👩‍🏫 呢份工作紙點樣「分層」？</h3>'
+      +'<p>同一個故事、同一個教學目標（Mixed Tenses），改變嘅只係「<b>支援量</b>」同「<b>產出要求</b>」：由多到少、由辨認到自己寫出嚟。</p><div class="row">';
+    for(var L=1;L<=3;L++){
+      h+='<div class="nl'+(S.cur===L?" on":"")+'"><b>'+LV[L].star+' '+LV[L].name+'</b> <span class="meter">'+meter(LV[L].sup)+'</span><br>'
+        +'<b>'+NOTES[L][0]+'。</b>'+NOTES[L][1]+'</div>';
+    }
+    h+='</div><div class="actions"><button type="button" class="btn ghost" data-act="notes">收起</button></div></div>';
+    w.innerHTML=h;
+  }else{
+    var L2=S.cur;
+    w.innerHTML='<div class="mini"><span class="meter">'+meter(LV[L2].sup)+'</span><b>'+LV[L2].star+' '+NOTES[L2][0]+'</b>　'+esc(NOTES[L2][1])+'</div>';
+  }
+}
+function renderStory(){
+  var m=S.cur===1?"color":"plain";
+  if(S.cur===3)m="none";
+  $("story").innerHTML='<h2>📖 Sam\'s Busy Week</h2>'+svgStory()+'<p>'+tw(STORY,m)+'</p><div class="actions"><button type="button" class="btn ghost" data-act="saystory">🔊 朗讀故事</button></div>';
+}
+function total(L){var t=0;S.lv[L].q.forEach(function(q){t+=q.pts;});return t;}
+
+function dotsHtml(L){
+  var h='<div class="dots">',st=S.lv[L];
+  for(var i=0;i<8;i++){
+    var q=st.q[i],c="";
+    if(q.st==="good")c="g";else if(q.st==="reveal")c="h";else if(i===st.i&&!st.done)c="cur";
+    h+='<i class="'+c+'"></i>';
+  }
+  return h+'</div>';
+}
+function cheatHtml(){
+  var h='<div class="cheat">';
+  TKEYS.forEach(function(k){h+='<div class="c-'+k+'"><b>'+TENSE[k].n+'</b>'+TENSE[k].f+'<br>'+TENSE[k].t+'</div>';});
+  return h+'</div>';
+}
+function tchip(k){return '<span class="tchip '+k+'">'+TENSE[k].n+'</span>';}
+
+function blankFor(q,txt,cls){return '<span class="blank'+(txt?"":" empty")+(cls?" "+cls:"")+'">'+esc(txt||"　")+'</span>';}
+
+function renderCard(){
+  var L=S.cur,st=S.lv[L],c=$("qcard"),h="";
+  if(st.done){c.innerHTML=finishHtml(L);return;}
+  var i=st.i,q=st.q[i];
+  h+='<div class="qhead">'+dotsHtml(L)+'<div class="qno">'+LV[L].star+' Question '+(i+1)+' / 8</div></div>';
+  if(L===1&&true)h+=cheatHtml();
+  if(L===2){
+    h+='<div class="actions" style="margin:0 0 .5rem"><button type="button" class="btn ghost" data-act="cheat" style="min-height:64px">📖 '+(S.cheat?"收起":"睇")+'時態提示表</button></div>';
+    if(S.cheat)h+=cheatHtml();
+  }
+  var done=(q.st==="good"||q.st==="reveal");
+  if(L===1){
+    var d=D1[i];
+    var fill=done?d.o[d.a]:"";
+    h+='<div class="qtext">'+tw(d.s,"color").replace("___",blankFor(q,fill))+'</div>';
+    h+='<div class="opts">';
+    d.o.forEach(function(o,k){
+      var cl="opt";
+      if(done&&k===d.a)cl+=" right";
+      else if(q.tried&&q.tried.indexOf(k)>-1)cl+=" tried";
+      h+='<button type="button" class="'+cl+'" data-act="pick" data-k="'+k+'"'+(done?" disabled":"")+'>'+esc(o)+'</button>';
+    });
+    h+='</div>';
+    if(q.st==="good")h+='<div class="fb good">✅ <b>啱！</b> '+tchip(d.k)+' '+esc(d.h)+' <button type="button" class="btn ghost" data-act="say" style="min-height:64px;margin-left:.4rem">🔊</button></div>';
+    else if(q.st==="hint")h+='<div class="fb hint">💡 <b>再諗諗～</b> '+esc(d.h)+'</div>';
+  }else if(L===2){
+    var d2=D2[i];
+    var parts=d2.s.split("___");
+    var inp='<input class="inp inl" id="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(q.val)+'"'+(done?" disabled":"")+'>';
+    h+='<div class="qtext">'+tw(parts[0],"plain")+inp+tw(parts[1]||"","plain")+'</div>';
+    h+=feedbackTyped(d2,q,L);
+    h+=actionsTyped(q,done);
+  }else{
+    if(i<5){
+      var d3=D3E[i];
+      h+='<div class="task">✏️ 呢句有錯！寫返正確嘅動詞部分（只寫劃線嗰部分）。</div>';
+      h+='<div class="qtext">'+d3.s.replace(/\{\{(.+?)\}\}/g,'<span class="wrong">$1</span>')+'</div>';
+      h+='<input class="inp" id="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Correct form…" value="'+esc(q.val)+'"'+(done?" disabled":"")+'>';
+      h+=feedbackTyped(d3,q,L);
+      h+=actionsTyped(q,done);
+    }else{
+      var s=D3S[i-5];
+      h+='<div class="task">✍️ 造句：'+esc(s.task)+'</div>';
+      h+='<textarea class="inp" id="ans" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Write your sentence…"'+(done?" disabled":"")+'>'+esc(q.val)+'</textarea>';
+      h+=feedbackSent(s,q);
+      h+=actionsTyped(q,done);
+    }
+  }
+  if(done)h+='<div class="actions"><button type="button" class="btn" data-act="next">'+(i===7?"完成 ✓":"下一題 →")+'</button></div>';
+  c.innerHTML=h;
+  var a=$("ans");if(a&&!done){try{a.focus({preventScroll:true});}catch(e){}}
+}
+function feedbackTyped(d,q,L){
+  var ans=d.a[0];
+  if(q.st==="good")return '<div class="fb good">✅ <b>啱！</b> '+tchip(d.k)+' '+esc(d.h)+' <button type="button" class="btn ghost" data-act="say" style="min-height:64px;margin-left:.4rem">🔊</button></div>';
+  if(q.st==="reveal")return '<div class="fb hint">📝 答案：<b>'+esc(ans)+'</b>　'+tchip(d.k)+' '+esc(d.h)+'</div>';
+  if(q.st==="hint")return '<div class="fb hint">💡 <b>差少少，再試下！</b> '+esc(d.h)+'</div>';
+  return "";
+}
+function feedbackSent(s,q){
+  if(q.st==="good")return '<div class="fb good">✅ <b>格式正確！</b>（只檢查格式，唔係判斷內容啱唔啱）<br>示範答案：<b>'+esc(s.sample)+'</b><br>同你寫嘅對比下，睇睇時態用得啱唔啱。 <button type="button" class="btn ghost" data-act="saysample" style="min-height:64px">🔊</button></div>';
+  if(q.st==="reveal")return '<div class="fb hint">📝 示範答案：<b>'+esc(s.sample)+'</b> <button type="button" class="btn ghost" data-act="saysample" style="min-height:64px">🔊</button></div>';
+  if(q.st==="hint")return '<div class="fb hint">💡 <b>格式要再改一改：</b><br>'+(q.msgs||[]).map(function(m){return "• "+esc(m);}).join("<br>")+'</div>';
+  return "";
+}
+function actionsTyped(q,done){
+  if(done)return "";
+  var h='<div class="actions"><button type="button" class="btn" data-act="check">✔ 檢查</button>';
+  if(q.att>=1)h+='<button type="button" class="btn hintc" data-act="reveal">💡 睇答案</button>';
+  return h+'</div>';
+}
+function finishHtml(L){
+  var t=total(L),stars=t>=7?3:(t>=5?2:1),h="";
+  h+='<div class="finish"><div class="qno">'+LV[L].star+' '+LV[L].name+' 完成！</div>';
+  h+='<div class="big">'+fmtScore(t)+' / 8</div>';
+  var s="";for(var i=0;i<3;i++)s+=i<stars?"⭐":"☆";
+  h+='<div class="stars">'+s+'</div>';
+  h+=dotsHtml(L);
+  var msg;
+  if(L<3)msg=t>=6?"好叻！你已經掌握呢一層，試下升一級挑戰？":"做得好！再練一次會更穩陣，或者直接試下一層。";
+  else msg=t>=6?"🏆 全部三層完成！你係 Mixed Tenses 高手！":"挑戰層好難，你已經好叻！再試一次睇下？";
+  h+='<p>'+msg+'</p><div class="actions">';
+  if(L<3)h+='<button type="button" class="btn" data-act="up">'+LV[L+1].star+' 升一級挑戰？</button>';
+  h+='<button type="button" class="btn ghost" data-act="redo">↺ 再做一次呢層</button>';
+  h+='<button type="button" class="btn ghost" data-act="print">🖨️ 列印</button></div></div>';
+  return h;
+}
+
+function renderAll(){renderBar();renderNotes();renderStory();renderCard();}
+
+/* ---------- 作答邏輯 ---------- */
+function curQ(){var st=S.lv[S.cur];return {st:st,q:st.q[st.i],i:st.i};}
+function onPick(k){
+  var o=curQ(),d=D1[o.i],q=o.q;
+  if(q.st==="good")return;
+  if(k===d.a){q.st="good";q.pts=q.att===0?1:0;ding(true);}
+  else{q.att++;q.st="hint";q.tried=q.tried||[];q.tried.push(k);ding(false);}
+  renderCard();
+}
+function onCheck(){
+  var L=S.cur,o=curQ(),q=o.q,a=$("ans");if(!a)return;
+  var v=a.value;q.val=v;
+  if(!norm(v)){q.att=q.att;return;}
+  if(L===3&&o.i>=5)return checkSentence(o,v);
+  var d=L===2?D2[o.i]:D3E[o.i];
+  var ok=d.a.some(function(x){return norm(x)===norm(v);});
+  if(ok){q.st="good";q.pts=q.att===0?1:0.5;ding(true);}
+  else{q.att++;ding(false);if(q.att>=2){q.st="reveal";q.pts=0;}else q.st="hint";}
+  renderCard();
+}
+function checkSentence(o,v){
+  var q=o.q,s=D3S[o.i-5],m=[],t=v.trim();
+  if(!/^[A-Z]/.test(t))m.push("句子要用大楷字母開頭");
+  if(!/[.!?]$/.test(t))m.push("句尾要加標點（. ! ?）");
+  if(t.split(/\s+/).length<4)m.push("句子至少要有 4 個字");
+  if(t.toLowerCase().indexOf(s.kw)<0)m.push("要用時間詞「"+s.kw+"」");
+  if(!s.re.test(t))m.push("時態結構："+s.reMsg);
+  if(m.length===0){q.st="good";q.pts=q.att===0?1:0.5;ding(true);}
+  else{q.att++;q.msgs=m;ding(false);if(q.att>=2){q.st="reveal";q.pts=0;}else q.st="hint";}
+  renderCard();
+}
+function onReveal(){
+  var o=curQ(),q=o.q,a=$("ans");if(a)q.val=a.value;
+  q.st="reveal";q.pts=0;renderCard();
+}
+function onNext(){
+  var st=S.lv[S.cur];
+  if(st.i<7){st.i++;}else{st.done=true;}
+  renderAll();
+  try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){}
+}
+function onSay(){
+  var L=S.cur,o=curQ(),txt="";
+  if(L===1){var d=D1[o.i];txt=plainText(d.s).replace("___",d.o[d.a]);}
+  else if(L===2){var e=D2[o.i];txt=plainText(e.s).replace("___",e.a[0]);}
+  else if(o.i<5){var f=D3E[o.i];txt=f.s.replace(/\{\{(.+?)\}\}/g,f.a[0]);}
+  if(txt)speak(txt);
+}
+
+/* ---------- 列印 ---------- */
+function twP(s,mode){
+  return s.replace(/\[\[(.+?)\|\w+\]\]/g,function(m,t){return mode==="none"?t:'<mark class="tw">'+t+'</mark>';});
+}
+function sheetHtml(L,ans){
+  var h='<section class="sheet"><div class="ph"><h1>Sam\'s Busy Week · Mixed Tenses</h1><div><span class="lv">'+LV[L].star+' '+LV[L].name+'</span>'+(ans?'<span class="key">TEACHER\'S ANSWER KEY</span>':'')+'</div></div>';
+  h+='<div class="pinfo"><span>Name: </span><span>Class: </span><span style="flex:0 0 22mm">No.: </span><span>Date: </span><span class="sc">Score: &nbsp;&nbsp;/ 8</span></div>';
+  h+='<div class="pstory">'+svgStory()+'<div><h2>Read the story.</h2><p>'+twP(STORY,L===3?"none":"u")+'</p></div></div>';
+  if(L===1){
+    h+='<div class="pins">A. Circle the correct verb form. <small>Underline = time word</small></div><div class="pcheat">';
+    TKEYS.forEach(function(k){h+='<div><b>'+TENSE[k].n+'</b>'+TENSE[k].f+'<br>'+TENSE[k].t+'</div>';});
+    h+='</div><ol class="pq">';
+    D1.forEach(function(d){
+      var s=twP(d.s,"u").replace("___",'<span class="ln" style="min-width:24mm"></span>');
+      h+='<li>'+s+'<div class="po">( '+d.o.map(function(o,k){return '<span class="'+(ans&&k===d.a?"ok":"")+'">'+o+'</span>';}).join(" / ")+' )</div></li>';
+    });
+    h+='</ol>';
+  }else if(L===2){
+    h+='<div class="pins">B. Write the correct form of the verb in brackets. <small>Underline = time word</small></div><ol class="pq">';
+    D2.forEach(function(d){
+      var p=twP(d.s,"u").split("___");
+      var mid=ans?'<span class="fillans">'+esc(d.a[0])+'</span>':'<span class="ln"></span>';
+      h+='<li>'+p[0]+mid+(p[1]||"")+'</li>';
+    });
+    h+='</ol>';
+  }else{
+    h+='<div class="pins">C. Find the mistake. Write the correct form on the line.</div><ol class="pq">';
+    D3E.forEach(function(d){
+      var s=d.s.replace(/\{\{(.+?)\}\}/g,'<span class="wrong">$1</span>');
+      h+='<li>'+s+'<br>→ '+(ans?'<span class="fillans">'+esc(d.a[0])+'</span>':'<span class="ln" style="min-width:60mm"></span>')+'</li>';
+    });
+    h+='</ol><div class="pins" style="margin-top:2.5mm">D. Write a sentence about Sam.</div><ol class="pq" start="6">';
+    D3S.forEach(function(s){
+      h+='<li><span class="ptask">'+esc(s.kw==="last weekend"?"Use simple past + “last weekend”.":(s.kw==="tomorrow"?"Use will + “tomorrow”.":"Use present continuous + “at the moment”."))+'</span>';
+      h+=ans?'<div class="samp">Sample: '+esc(s.sample)+'</div>':'<span class="wl"></span>';
+      h+='</li>';
+    });
+    h+='</ol>';
+  }
+  h+='<div class="pfoot">AI 輔助備課工作坊 · 示範教具</div></section>';
+  return h;
+}
+function doPrint(levels,ans){
+  var pa=$("printArea");if(!pa)return;
+  var h="";
+  levels.forEach(function(L){h+=sheetHtml(L,ans);});
+  if(!h)return;
+  pa.innerHTML=h;
+  closeModal();
+  setTimeout(function(){try{window.print();}catch(e){}},120);
+}
+function openModal(ans){
+  var m=$("pm");if(!m)return;
+  var cbs=m.querySelectorAll("#pmLevels input");
+  for(var i=0;i<cbs.length;i++)cbs[i].checked=(+cbs[i].value===S.cur);
+  var rs=m.querySelectorAll("#pmMode input");
+  for(var j=0;j<rs.length;j++)rs[j].checked=(rs[j].value===(ans?"ans":"stu"));
+  syncSel();
+  m.hidden=false;
+}
+function closeModal(){var m=$("pm");if(m)m.hidden=true;}
+function syncSel(){
+  var ls=document.querySelectorAll("#pm .chk label");
+  for(var i=0;i<ls.length;i++){var inp=ls[i].querySelector("input");if(inp)ls[i].classList.toggle("sel",!!inp.checked);}
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener("click",function(e){
+  var t=e.target;if(!t||!t.closest)return;
+  var b=t.closest("[data-act]");if(!b)return;
+  var act=b.getAttribute("data-act");
+  if(act==="tab"){S.cur=+b.getAttribute("data-l");renderAll();}
+  else if(act==="notes"){S.notes=!S.notes;renderNotes();}
+  else if(act==="cheat"){S.cheat=!S.cheat;renderCard();}
+  else if(act==="pick")onPick(+b.getAttribute("data-k"));
+  else if(act==="check")onCheck();
+  else if(act==="reveal")onReveal();
+  else if(act==="next")onNext();
+  else if(act==="say")onSay();
+  else if(act==="saystory")speak(plainText(STORY));
+  else if(act==="saysample"){var ss=D3S[curQ().i-5];if(ss)speak(ss.sample);}
+  else if(act==="up"){S.cur=Math.min(3,S.cur+1);renderAll();try{window.scrollTo({top:0,behavior:"smooth"});}catch(er){}}
+  else if(act==="redo"){var L=S.cur;S.lv[L]={i:0,done:false,q:[]};for(var j=0;j<8;j++)S.lv[L].q.push({att:0,st:"",pts:0,val:""});renderAll();}
+  else if(act==="print")openModal(false);
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&e.target&&e.target.id==="ans"&&e.target.tagName==="INPUT"){e.preventDefault();onCheck();}
+  if(e.key==="Escape")closeModal();
+});
+document.addEventListener("change",function(e){if(e.target&&e.target.closest&&e.target.closest("#pm"))syncSel();});
+function on(id,fn){var el=$(id);if(el)el.addEventListener("click",fn);}
+on("btnRestart",function(){fresh();renderAll();});
+on("btnFs",function(){
+  try{
+    if(!document.fullscreenElement){var r=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;if(r)r.call(document.documentElement);}
+    else{var x=document.exitFullscreen||document.webkitExitFullscreen;if(x)x.call(document);}
+  }catch(e){}
+});
+on("pmClose",closeModal);
+on("pmGo",function(){
+  var lv=[],cbs=document.querySelectorAll("#pmLevels input");
+  for(var i=0;i<cbs.length;i++)if(cbs[i].checked)lv.push(+cbs[i].value);
+  var r=document.querySelector("#pmMode input:checked");
+  doPrint(lv,!!(r&&r.value==="ans"));
+});
+on("pm",function(e){if(e.target&&e.target.id==="pm")closeModal();});
+window.addEventListener("afterprint",function(){var pa=$("printArea");if(pa)pa.innerHTML="";});
+try{if(window.speechSynthesis)window.speechSynthesis.getVoices();}catch(e){}
+
+renderAll();
+if(window.__EXPORT)window.__EXPORT({D1:D1,D2:D2,D3E:D3E,D3S:D3S,STORY:STORY,plainText:plainText});
+})();
+</script>
+</body>
+</html>

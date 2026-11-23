@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同 AI 好好溝通 · 示範教具</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 18px/1.7 var(--font)}
+.wrap{max-width:1400px;margin:0 auto;padding:clamp(24px,4vw,56px) max(16px,3vw) 80px}
+header{display:grid;gap:14px;margin-bottom:36px}
+.eyebrow{font-weight:700;color:var(--accent);letter-spacing:.08em}
+h1{margin:0;font-size:clamp(34px,5vw,64px);line-height:1.2;font-weight:900}
+h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--hint-soft) 0)}
+.lede{margin:0;max-width:46em;color:var(--ink-2);font-size:clamp(18px,1.6vw,22px)}
+
+.five{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:8px 0 44px}
+.five div{background:var(--card);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow);display:grid;gap:4px}
+.five b{font-size:28px;color:var(--primary);line-height:1}
+.five strong{font-size:20px}
+.five span{color:var(--ink-2);font-size:15px;line-height:1.5}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:22px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;display:grid;gap:14px;grid-template-rows:auto auto 1fr auto}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.num{font-weight:900;font-size:22px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.chip{font-size:15px;font-weight:700;border-radius:999px;padding:3px 12px;background:var(--primary-soft);color:var(--primary)}
+.chip.k{background:var(--hint-soft);color:#9A6412}
+.chip.g{background:#EEF0F4;color:var(--ink-2)}
+.card h2{margin:0;font-size:28px;line-height:1.3}
+blockquote{margin:0;padding:12px 16px;border-left:5px solid var(--accent);background:var(--accent-soft);border-radius:0 14px 14px 0;font-size:17px;line-height:1.6}
+blockquote small{display:block;color:var(--ink-2);font-size:13px;margin-bottom:2px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{appearance:none;border:0;cursor:pointer;font:700 18px var(--font);min-height:56px;padding:0 22px;border-radius:16px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .08s,box-shadow .08s}
+.btn.p{background:var(--primary);color:#fff;box-shadow:0 5px 0 #1E4FB8}
+.btn.s{background:var(--primary-soft);color:var(--primary);box-shadow:0 5px 0 #C3D4FA}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 transparent}
+.btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+
+dialog{border:0;border-radius:26px;padding:0;width:min(1240px,96vw);max-height:92vh;background:var(--bg);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(31,42,68,.55)}
+.dhead{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:12px;padding:20px 26px;border-bottom:2px solid var(--line);z-index:1}
+.dhead h3{margin:0;font-size:26px;flex:1}
+.dbody{padding:24px 26px 30px;display:grid;gap:20px}
+.vs{display:grid;grid-template-columns:1fr 1.7fr;gap:20px;align-items:start}
+.box{border-radius:20px;padding:18px 20px;background:var(--card);box-shadow:var(--shadow)}
+.box h4{margin:0 0 10px;font-size:20px;display:flex;align-items:center;gap:8px}
+.box.bad{border-top:8px solid var(--hint)}
+.box.good{border-top:8px solid var(--good)}
+.box.fix{border-top:8px solid var(--primary)}
+.box.use{border-top:8px solid var(--accent)}
+.txt{white-space:pre-wrap;font-size:17px;line-height:1.75}
+.bad .txt{font-size:22px;font-weight:700}
+.copy{margin-left:auto;font-size:15px;min-height:42px;padding:0 14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+footer{margin-top:48px;color:var(--ink-2);font-size:14px;text-align:right}
+@media (max-width:900px){.five{grid-template-columns:1fr 1fr}.vs,.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">AI 輔助備課與數碼教具製作 · 教師工作坊</div>
+  <h1>你哋問卷入面嘅諗法，<em>變成咗 10 個教具</em></h1>
+  <p class="lede">每一個教具，都係由一位老師喺問卷寫落嘅一句說話開始。撳「打開教具」試玩；撳「睇 Prompt」，睇吓同一個要求，<b>點樣講係無效、點樣講先有效</b>。</p>
+</header>
+
+<section class="five" aria-label="有效溝通五要素">
+  <div><b>1</b><strong>身份同對象</strong><span>我係邊科老師？學生幾年級、咩程度？</span></div>
+  <div><b>2</b><strong>目的</strong><span>學生用完要學識乜？</span></div>
+  <div><b>3</b><strong>形式</strong><span>要乜成品？白板用？幾多題？</span></div>
+  <div><b>4</b><strong>限制</strong><span>繁體、唔使登入、離線、字要大…</span></div>
+  <div><b>5</b><strong>具體回饋</strong><span>邊度唔啱？想點改？逐樣講。</span></div>
+</section>
+
+<main class="grid" id="grid"></main>
+<footer>AI 輔助備課工作坊 · 示範教具 · 所有教具均為單一 HTML 檔，唔使登入，可離線打開</footer>
+</div>
+
+<dialog id="dlg">
+  <div class="dhead"><h3 id="dt"></h3><a class="btn p" id="dopen" target="_blank">▶ 打開教具</a><button class="btn s" id="dclose">✕ 關閉</button></div>
+  <div class="dbody">
+    <blockquote id="dq"></blockquote>
+    <div class="vs">
+      <div class="box bad"><h4>❌ 無效講法</h4><div class="txt" id="dbad"></div></div>
+      <div class="box good"><h4>✅ 有效講法 <button class="btn s copy" id="dcopy">📋 複製</button></h4><div class="txt" id="dgood"></div></div>
+    </div>
+    <div class="row2">
+      <div class="box fix"><h4>🔁 第二輪：具體回饋</h4><div class="txt" id="dfix"></div></div>
+      <div class="box use"><h4>💡 課堂用法</h4><div class="txt" id="duse"></div></div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const ITEMS = [{"slug": "01-植物的組成", "num": "01", "name": "植物的組成", "subj": "常識", "grade": "小三", "kind": "學生操作", "quote": "學生按指示點選植物的各個組成部分、可以點選後看到植物成長過程動畫", "bad": "幫我做一個關於植物嘅互動遊戲畀學生玩。", "good": "```\n你係一位資深嘅網頁互動教具設計師。我係澳門一間小學嘅常識科老師，對象係小三學生（8-9歲），單元係「植物的生長及組成」。\n\n【目的】\n令學生認識植物嘅五個組成部分（根、莖、葉、花、果實）同佢哋嘅功能，並了解植物由種子長成嘅過程。\n\n【形式】\n請用 Canvas 做一個單一 HTML 檔嘅互動網頁（所有 CSS、JS、SVG 都內嵌，唔好用外部圖片、字型或 CDN），分頂部三個大分頁：\n1. 「認識」：用 SVG 畫一棵扁平、童趣、粗線條嘅植物（有根、莖、葉、花、果實，根部要用泥土橫切面睇到）。學生點每個部分，該部分會發光，彈出名稱同一句小三程度嘅功能解釋，並用 speechSynthesis（zh-HK 廣東話）讀出。\n2. 「挑戰」：系統隨機出題「請點選：葉」（同時讀出），學生點圖作答。答啱：該部分變綠色發光＋「叮」一聲（用 Web Audio 合成，唔好用音檔）。答錯：用黃色柔和提示，並畀線索（例如「葉通常係綠色、扁扁的，長喺莖上」），唔好用紅色交叉。一輪 5 題，用 5 粒星做進度，完結時顯示成績。\n3. 「成長」：播放「種子→發芽→幼苗→長葉→開花→結果」嘅動畫，SVG 逐步平滑變化，有播放／暫停掣、一條可以拖動嘅時間軸，每個階段有字幕。\n\n【限制】\n- 繁體中文（香港／澳門用字），朗讀用 zh-HK。\n- 白板使用：基本字號 24px 或以上，所有可點區域至少 64px 高，用 pointer events，唔好靠 hover，唔好用 alert()。\n- 頂部標題列：左邊「常識科」標籤＋教具名稱，右邊「全螢幕」同「重新開始」掣；右下角細字頁腳。\n- 版面固定 16:9，喺 1280×720 至 1920×1080 都要好睇；顏色用暖米色背景、白色大圓角卡片、實色按鈕＋底部厚陰影。\n- 冇聲線時唔可以 crash，唔好有 console error。\n\n【之後點樣回饋】\n我睇完第一版之後會逐項講邊度要改（字體大細、提示字句、動畫速度），請你只改我指出嘅部分，其他保持不變。\n```", "fix": "1. 「挑戰」模式答錯嘅提示太籠統。請每個部分寫一句更具體嘅線索，例如「根」要提到「喺泥土入面、幼幼長長」，「果實」要提到「入面有種子」。\n2. 「成長」動畫嘅字幕字體太細，白板後排睇唔到，請放大到至少 28px，並將每個階段嘅時間由 2 秒增加到 4 秒。\n3. 時間軸下面加六個階段掣（種子、發芽、幼苗、長葉、開花、結果），撳一下可以直接跳到該階段。", "use": "- 「認識」模式用電子白板全班一齊玩：請學生上前點植物，其他同學先估名稱同功能，再睇系統答案。\n- 「挑戰」模式分組比賽，每組輪流答一題，睇邊組攞到最多金星；答錯嘅線索可以請同學先讀出嚟再答。\n- 「成長」模式先暫停喺每個階段，問學生「下一步會發生乜事？」，估完先繼續播放；之後可叫學生用自己種嘅豆苗對照。", "ready": true}, {"slug": "02-朗讀即時回饋", "num": "02", "name": "朗讀即時回饋", "subj": "中文", "grade": "小二至小三", "kind": "學生操作", "quote": "朗讀後，系統自動給予即時回饋", "bad": "幫我做一個朗讀練習，學生讀完會有回饋。", "good": "你是一位小學中文科的教學設計助手。請為小二至小三學生（澳門學校，使用繁體中文）製作一個「朗讀即時回饋」的互動網頁，在電子白板和電腦上都能使用。\n\n目的：學生朗讀後，系統立即逐字比對，讓學生知道哪些字讀對、哪些字需要再練習。\n\n形式：\n1. 單一 HTML 檔，所有 CSS、JavaScript、插圖都內嵌，不使用任何外部資源，可離線雙擊打開。\n2. 三個關卡：第一關詞語（6 個，例如蘋果、小貓、朋友）、第二關短句（4 句）、第三關短段落（1 段，約 40 字）。內容要正面、生活化。\n3. 每題有「🔊 示範」按鈕（用 speechSynthesis，lang 為 zh-HK，找不到聲線也不能出錯）和「🎤 開始朗讀」按鈕（用 SpeechRecognition / webkitSpeechRecognition，lang 先用 yue-Hant-HK，並提供小設定按鈕切換 zh-HK / zh-TW）。\n4. 朗讀後逐字比對，忽略標點，用一個小對照表處理常見簡繁差異。讀對的字顯示綠色，漏讀或讀錯的字用黃色底（不要用紅色叉叉）。顯示準確率百分比和一句鼓勵的話，並有「再讀一次」按鈕。\n5. 錄音時要有明顯的動畫（咪高峰脈動、聲波）。\n6. 後備方案：如果瀏覽器不支援語音辨識，或出現 not-allowed、network 等錯誤，不要壞掉，要顯示清楚提示「語音辨識需要 Chrome / Edge 同網絡；可以用 http://localhost 打開」，並提供「老師評分模式」：老師直接點擊讀錯的字標成黃色，得出同樣的準確率和回饋。\n\n限制：\n- 字號至少 24px，按鈕高度至少 64px，支援觸控；不使用 alert()。\n- 頂部有標題列（科目標籤＋教具名稱，右邊有「全螢幕」和「重新開始」），右下角小字「AI 輔助備課工作坊 · 示範教具」。\n- 配色：暖米色背景、白色大圓角卡片、實色按鈕；插圖用內嵌 SVG 畫一隻可愛的小雞吉祥物，錄音時會搖擺，讀得好時會跳起來。\n\n回饋：答對用綠色加小動畫和一聲「叮」（用 Web Audio 合成，不用音檔）；讀得不理想時語氣要溫和，鼓勵學生再試。", "fix": "1. 短段落那一關的字太細，請把字號放大約 20%，行距加闊，白板後排的學生也要看得清楚。\n2. 準確率低於 60% 時，不要只說「再試一次」，請加一句具體提示，例如「先按示範，慢慢聽一次，再讀黃色的字」。\n3. 黃色的字請改成可以點一下就讀出該字的讀音，讓學生可以單獨練習。", "use": "- 老師用電子白板開啟，先按「🔊 示範」帶讀，再請學生輪流上台按「🎤 開始朗讀」，全班一起看哪些字是黃色。\n- 如果課室網絡不穩或瀏覽器不支援語音辨識，改用「老師評分模式」：學生朗讀，老師點擊讀錯的字，一樣可以得到即時回饋。\n- 讓學生比較兩次朗讀的準確率，鼓勵他們針對黃色的字練習，作為課堂上的小目標。", "ready": true}, {"slug": "03-天氣與衣物", "num": "03", "name": "天氣與衣物", "subj": "全科", "grade": "幼兒至小一", "kind": "教師操作", "quote": "觀察天氣，選衣物並練習表達。", "bad": "幫我做一個天氣同衣服嘅教具畀小朋友。", "good": "```\n你係一位澳門幼兒高班至小一嘅老師，我想你幫我寫一個「天氣與衣物」互動教具，用喺電子白板（觸控、16:9、1920×1080）上課，由老師操作、全班一齊睇。\n\n【目的】\n讓學生觀察天氣，學識按天氣揀合適嘅衣物，並練習用完整句子表達：「今日天氣＿＿，我會著＿＿同＿＿，因為＿＿。」\n\n【形式】\n單一 HTML 檔（HTML + CSS + JavaScript 全部放喺同一個檔），可以離線打開，唔好用任何外部圖片、字型或 CDN。畫面分三欄：\n1. 左邊係大窗口天氣場景（用 SVG 動畫畫）：晴天（太陽慢慢轉、白雲飄）、落雨（雨點落下、地下有水窪漣漪）、寒冷（雪花飄落、有雪人同寒風線條）、炎熱（大太陽戴太陽眼鏡、流汗、熱浪）、大風（樹搖動、樹葉同風箏飛）。窗口下面有五個大掣揀天氣，另外有一個「🎲 隨機天氣」掣。天氣轉換要平滑（淡入淡出），場景右上角顯示天氣名同氣溫。\n2. 中間係一個可愛、中性嘅 SVG 小朋友（正面全身，內裡著簡單內衣）。\n3. 右邊係衣物櫃，3 欄格仔，每件衣物有 SVG 圖示同名稱：短袖衫、長袖衫、外套、羽絨、短褲、長褲、雨褸、雨遮、太陽帽、冷帽、頸巾、涼鞋、水靴、波鞋，另加一個「全部脫低」掣。點選或者拖放到小朋友身上就會著上（用 SVG 圖層疊加，位置要啱，同一部位只可以著一件，例如揀咗羽絨就會取代外套），再點一次就脫下。\n\n底部一行有兩個大掣：\n- 「✅ 檢查」：按當前天氣判斷衣物合適與否。唔合適就顯示黃色溫和提示（例如「落雨喎，記得帶遮或者著雨褸」、「好凍喎，短褲會凍親，換長褲啦」），小朋友表情同步變化（流汗、發抖、擔心）；合適就顯示綠色鼓勵、小朋友跳一跳，並加一聲「叮」（用 Web Audio 合成，唔好用音檔）。仲未著上衣、褲或者鞋，要先提示補齊。\n- 「🗣️ 講一講」：自動生成句子框「今日天氣＿＿，我會著＿＿同＿＿，因為＿＿。」，用已穿衣物同當前天氣填好，填入嘅詞語用顏色底線標示；然後用 speechSynthesis 以 zh-HK 廣東話聲線逐句朗讀，朗讀緊嗰句高亮，小朋友嘴巴會郁；讀完提示「輪到你喇！跟住讀一次」。提供「🔊 再聽一次」同「🐢 慢速」掣。揀聲線時先揀 zh-HK，冇就用 zh 開頭，冇聲線都唔可以出錯。\n\n【限制】\n- 全部文字用繁體中文（香港／澳門用字），字號至少 24px，所有掣高度至少 64px，用 pointer events 令觸控同滑鼠都用得，唔好靠 hover，唔好用 alert()。\n- 色調：暖米色背景、白色大圓角卡片、掣有厚底影（似可以撳落去）；插圖用扁平、粗線條、圓角嘅 SVG，唔好用 emoji 做主要插圖。\n- 版面喺 1280×720 至 1920×1080 都要好睇，唔好出現橫向捲動。\n- 頂部標題列：左邊科目標籤「全科」＋教具名，右邊「⛶ 全螢幕」同「↺ 重新開始」。右下角細字「AI 輔助備課工作坊 · 示範教具」。\n- 答錯用黃色提示，唔好用大紅交叉。\n- 唔好有 console error，JS 要做 null check。\n\n【回饋】\n我之後會試用，再告訴你邊度要改。\n```", "fix": "1. 「衣物櫃啲圖示太細，坐喺課室後面睇唔清楚；請將圖示放大約 1.5 倍，名稱字體加粗。」\n2. 「檢查嘅提示一次出晒四五句，學生讀唔切；改成最多出兩句，每句唔好超過 15 個字，而且最重要嗰句擺最前。」\n3. 「講一講個句子，『因為』後面成日係『我想著得舒服』；請按已穿嗰件衣物嘅功能寫原因，例如『因為雨遮可以擋雨』。」", "use": "- **導入觀察**：老師撳「🎲 隨機天氣」，叫學生睇窗外場景同氣溫，先講「今日天氣好熱／好凍」，再叫一位同學上嚟揀衫。\n- **分組討論**：同一個天氣，叫兩組揀唔同衣物，撳「✅ 檢查」睇提示，討論點解要改（例如落雨點解要帶遮）。\n- **口語跟讀**：揀好衫後撳「🗣️ 講一講」，全班跟讀句子；撳「🐢」慢速俾初階學生跟，再邀請學生自己用句子框講一次。", "ready": true}, {"slug": "04-乘法口訣晨操", "num": "04", "name": "乘法口訣晨操", "subj": "數學", "grade": "小二至小三", "kind": "教師操作", "quote": "一個乘法口訣互動遊戲，教師每天早上運動遊戲與學生進行互動", "bad": "幫我做一個乘法口訣遊戲。", "good": "**1 身份同對象**：我係澳門一間學校嘅小二／小三數學老師，每朝早讀時間會同全班學生（約 25 人）一齊做乘法口訣晨操。我會喺電子白板（16:9、觸控）上操作，學生企喺位置用身體玩，唔使用任何裝置。\n\n**2 目的**：幫學生鞏固 2 至 9 嘅乘法口訣，同時郁動身體、醒神。\n\n**3 形式**：請用 Canvas 做一個單一 HTML 檔（所有 CSS／JS／SVG 內嵌，唔用 CDN、外部字型或圖片），繁體中文介面，扁平童趣風格（暖米色背景 #FFF8EC、白色大圓角卡片、實色按鈕有厚陰影）。\n- 開始畫面：揀乘數表（2–9，可以多選）、題數（5／10／15／20）、每題秒數（5／8／10）。\n- 每題：用超大字顯示「7 × 8 = ?」，下面有三個答案卡 A／B／C，每個答案配一個動作，並用 SVG 公仔做循環小動畫示範：A 舉高雙手、B 蹲低、C 原地跳。學生用身體做動作嚟揀答案。\n- 倒數：大圓環倒數，用 Web Audio 合成鼓聲，每秒一下，最後三秒加快（唔好用音檔）。\n- 時間到自動揭曉：正確答案卡放大變綠，顯示口訣（例如「七八五十六」），並用 speechSynthesis（lang 設 zh-HK，揀唔到就 fallback）讀出，之後提示「全班一齊讀」。\n- 干擾答案要合理：用相鄰乘法結果或者相差一個乘數（例如 7×8 嘅干擾項係 49 同 63），唔好亂寫。\n- 完場畫面：顯示今日練咗邊幾個表、共幾多題，寫「明天再挑戰」。\n- 鍵盤：空白鍵 = 下一題／暫停。\n\n**4 限制**：字號最少 24px，所有按鈕最少 64px 高，要用 pointer／touch 都得，唔好靠 hover，唔好用 alert()。頂部標題列有科目標籤「數學」同「全螢幕」「重新開始」兩個掣。答錯（冇揀到）唔好用紅色交叉，其他答案淡出就得；答啱用綠色同小動畫。要可以離線 double-click 打開，唔可以有 console error，冇語音聲線都唔可以 crash。\n\n**5 之後點樣回饋**：我睇完第一版之後會逐項講邊度要改，請每次只改我提到嘅部份，其他保持不變。", "fix": "1. 「蹲低」嘅公仔動作太細，學生坐後面睇唔清，請放大公仔，並喺動作名稱旁加一個向下箭咀。\n2. 倒數最後三秒嘅鼓聲再急促啲，同埋時間到嗰一刻加一聲「叮」。\n3. 揭曉之後，口訣用更慢嘅語速再讀一次，等學生跟得上；另外加一個「只出 6、7、8、9 嘅表」嘅快速按鈕。", "use": "- 早讀開始前揀好今日嘅乘數表同秒數（初期用 10 秒，熟咗先縮短到 5 秒），全班企起身，老師撳空白鍵（或者白板上嘅掣）開始。\n- 先示範一次三個動作，之後每題讓學生用身體揀答案，老師可以隨時暫停，叫做錯嘅同學講點樣諗出答案。\n- 揭曉後帶全班大聲讀口訣；一個星期輪流揀唔同嘅表，完場畫面睇下今日練咗乜，作為「明天再挑戰」嘅提示。", "ready": true}, {"slug": "05-音樂聽辨", "num": "05", "name": "音樂聽辨", "subj": "音樂", "grade": "小一至小三", "kind": "課題活動", "quote": "老師提問題題，學生點選圖示或動畫選項", "bad": "幫我做一個音樂遊戲，叫學生聽聲音答問題。", "good": "你係一位小學音樂科老師，我教小一至小三（6 至 9 歲），學生識字量有限，請幫我做一個課堂用嘅互動網頁教具「音樂聽辨」，會喺電子白板（觸控、16:9）上用。\n\n【目的】訓練學生辨別音樂基本要素。四類題目，可以揀單一類別或者混合：\n1. 高音／低音（小鳥 vs 大象）\n2. 快／慢（兔仔 vs 烏龜）\n3. 強／弱（獅子 vs 老鼠）\n4. 上行／下行旋律（爬樓梯向上 vs 落樓梯）\n\n【形式】\n- 單一 HTML 檔，CSS、JS、SVG 全部內嵌，唔好用外部圖片、字型或音檔，要可以離線打開。\n- 聲音全部用 Web Audio API 即時合成：oscillator ＋ gain 包絡（ADSR）＋低通濾波；旋律只用五聲音階（宮商角徵羽），音色柔和、唔好刺耳；強弱用音量差異，快慢用速度差異，高低用音域差異，上下行用五個音級進。\n- 老師撳「▶ 播放」播出一個聲音，學生聽完點選兩張大卡其中一張作答。每張卡有自己畫嘅 SVG 動物或者圖示（扁平、粗線條、童趣），播放同點選時有對應動畫：小鳥拍翼、大象搖鼻、兔仔跳、烏龜慢慢爬、獅子張口吼、老鼠發抖、小人行上／落樓梯。\n- 播放題目聲音時唔好動畫目標卡，以免提示咗答案；改用聲音跳動條顯示。\n\n【限制】\n- 全部繁體中文（香港用字），字號不小於 24px，按鈕不小於 64px 高；用 pointer／click 事件，唔好靠 hover，唔好用 alert()。\n- 顏色：暖米色背景、白色大圓角卡片、按鈕有厚底影；答錯唔好用大紅交叉，改用黃色提示。\n- 10 題一輪，右上角用星星計分（第一次答啱先有星）。另外有「老師模式」：唔計分，只有播放、「兩個一齊聽」同「揭曉答案」，方便全班一齊答。\n\n【回饋】\n- 答啱：該動物跳舞＋閃爍星星＋合成「叮」聲，並用一句講解（例如「高音，好似小鳥吱吱叫」）。\n- 答錯：卡片轉黃色＋溫和提示句，同時自動依次播放兩個對比聲音（左邊再右邊，播緊邊個邊張卡就動），可以再答。\n- 另有「再聽一次」同「讀題」（speechSynthesis，zh-HK 聲線，冇聲線都唔可以出錯）。\n- 完成十題後顯示星星成績同「再玩一輪」「揀其他類別」。", "fix": "1. 「弱」嗰個聲音喺課室太細聲，聽唔清：請將弱音量加大少少（但仍然要明顯比強音細），並喺畫面加一句「請將喇叭音量調到中等」。\n2. 小一學生未必識字，請喺每張卡嘅動物下面加一個細喇叭掣，撳一下就用廣東話讀出「高音」「小鳥」等字。\n3. 答錯之後唔好即刻自動播對比，改成出現一個黃色「聽聽比較」按鈕，由老師決定幾時播。", "use": "- 導入新課題（例如「音的高低」）時，用老師模式全班一齊聽，叫同學舉左手／右手揀答案，再揭曉；每個概念玩一至兩輪。\n- 小組活動：每組一部平板，用學生模式比賽誰先得 8 粒星以上。\n- 課後延伸：叫學生自己用拍手、嗓音模仿「小鳥聲」同「大象聲」，再同合成聲音比較。", "ready": true}, {"slug": "06-分層工作紙-時態", "num": "06", "name": "分層工作紙-時態", "subj": "英文", "grade": "小五至小六", "kind": "學生操作＋列印", "quote": "英文科 - Mixed Tenses／利用AI製作分層工作紙", "bad": "幫我做一份英文時態工作紙，分三個程度。", "good": "**1 身份同對象**：你係澳門小學英文科老師嘅教材助手。學生係小五／小六，英文程度參差，要喺電子白板同電腦用。\n\n**2 目的**：練習 Mixed Tenses（simple present、present continuous、simple past、will、present perfect），訓練學生「睇時間詞 → 揀時態」。\n\n**3 形式**：做一個單一 HTML 檔嘅互動工作紙（離線可開，唔好用 CDN 或外部圖片）。同一個主題故事「Sam's Busy Week」，附一張你自己用 SVG 畫嘅扁平童趣插圖。分三層，每層 8 題：\n- ⭐ 基礎：二選一揀正確動詞形式，時間詞用顏色（按時態分色）高亮，長期顯示時態提示表。\n- ⭐⭐ 進階：填充，括號畀原形動詞，學生自己寫；時間詞高亮但唔標時態，提示表可以自己按開。\n- ⭐⭐⭐ 挑戰：5 題改錯（只寫返劃線部分嘅正確形式）＋3 題用指定時態同時間詞自己造句；造句只做格式檢查（大楷、標點、至少 4 個字、有指定時間詞、時態結構），再顯示示範答案畀學生自己對比；冇高亮、冇提示表。\n頁面頂部可以切換三層，並有「分層設計說明」畀老師睇（支援由多到少）。另有「🖨️ 列印工作紙」掣：用 @media print 出乾淨 A4（黑白友善、有姓名／班別／日期欄、題號、作答線），可以揀印邊一層或三層，並有「教師答案版」。\n\n**4 限制**：介面用繁體中文，練習內容用英文；字號 ≥ 24px，按鈕 ≥ 64px 高，適合觸控白板；答錯用黃色提示，唔好用紅色交叉；答啱用綠色同簡單動畫；唔好用 alert()。\n\n**5 回饋方式**：答錯要即時畀提示，例如 \"Look for the time word: 'yesterday' → past tense\"；第二次仍錯先顯示答案。每層完成顯示分數同「升一級挑戰？」掣。", "fix": "- 「⭐ 基礎層嘅時間詞顏色太淺，白板後排睇唔清，請加深顏色並加粗。」\n- 「⭐⭐ 進階層答錯嘅提示太直接，第一次只提示時態名稱（例如 'past tense'），第二次先提示動詞變化。」\n- 「列印版每頁字太密，題目之間加多啲作答空間，確保一層剛好一頁 A4。」", "use": "- 同一堂入面，因應學生程度派唔同層：基礎組用 ⭐、一般組用 ⭐⭐、拔尖組用 ⭐⭐⭐，大家做同一個故事，討論時唔會「見到分別」。\n- 白板上先全班做 ⭐ 層，老師指住時間詞講解，之後學生自行升級。\n- 列印後做功課或測驗用；「教師答案版」方便老師批改，亦可以俾學生自行對答案。", "ready": true}, {"slug": "07-小水滴去旅行", "num": "07", "name": "小水滴去旅行", "subj": "幼兒", "grade": "K2至K3", "kind": "學生操作", "quote": "以AI製作動畫介紹一些較難的知識點", "bad": "幫我做一個水循環嘅動畫畀小朋友睇。", "good": "1. 身份同對象：我係澳門一間幼稚園嘅 K2–K3 老師，學生 4 至 6 歲，大部分仲未識字，會喺課室電子白板（觸控、16:9）上面一齊玩。\n2. 目的：用「水循環」做例子，教小朋友認識蒸發、凝結、降水、匯集四個步驟，最後明白水會不停轉圈圈。\n3. 形式：請用 Canvas 做一個單一 HTML 檔（所有 CSS／JS／SVG 內嵌，唔使上網都開到）。主角係一粒可愛嘅「小水滴」（SVG 畫，有大眼睛、會眨眼、會因應情境換表情）。故事分 5 幕：(1) 海面，太陽曬熱，小水滴變水蒸氣升上天（蒸發）；(2) 小水滴同其他水滴手拉手變成白雲（凝結）；(3) 雲太重，落雨（降水）；(4) 雨水流落山、入河、返大海（匯集）；(5) 完整水循環圖，四個箭咀轉圈動畫。每幕畫面全部用 SVG 動畫，色彩鮮明、動作平滑。每幕有一句好短嘅旁白字幕，並用 speechSynthesis（zh-HK 廣東話）朗讀，語氣親切，例如「好熱呀！我變得好輕，飛上天啦！」。每幕要有一個小朋友可以做嘅互動：第 1 幕點太陽令佢更猛、第 2 幕點朋友水滴叫佢哋嚟、第 3 幕點雲令佢落雨、第 4 幕拖小水滴落河、第 5 幕點每個步驟會聽到名稱。\n4. 限制：文字用繁體中文（香港／澳門用字）；字號 24px 或以上；所有按鈕同可點區域 64px 高或以上，用 pointer events，唔好靠 hover；底部有超大嘅「◀ 上一步」「下一步 ▶」掣、進度圓點同「自動播放」掣；右上角有「⛶ 全螢幕」同「↺ 重新開始」；背景暖米色、白色大圓角卡片、按鈕有厚陰影；唔可以用外部圖片、外部字型或 CDN；冇廣東話聲線時都唔可以出錯；唔好用 alert()。\n5. 之後回饋：做好之後我會試玩，請預留位置畀我講「邊一幕太快／太慢、邊個互動小朋友唔明、邊個字太細」，我會逐點叫你修改。", "fix": "1. 第 4 幕拖小水滴落河嗰度，小朋友拖錯咗位置會彈返去，但係冇提示。請喺佢拖錯時，水滴變驚訝表情，並用廣東話讀出「拖去藍色嘅河度呀」，同時喺河面加一個黃色閃動嘅圈圈指示位置。\n2. 第 2 幕朋友水滴太細粒，白板後排睇唔清。請將三粒朋友水滴放大 1.3 倍，並喺佢哋周圍加閃動虛線圈，等小朋友知道可以點。\n3. 自動播放時每一幕停留太短，請延長到約 10 秒，等旁白同小朋友互動都有時間完成。", "use": "1. 導入：先用自動播放行一轉，老師暫停喺每一幕問「小水滴而家去咗邊度？」，等小朋友用自己嘅說話答。\n2. 互動：叫小朋友輪流上白板，點太陽、點雲、拖小水滴；一粒水滴一個步驟，其他小朋友一齊讀旁白。\n3. 鞏固：去到第 5 幕，叫小朋友點每個步驟，聽名稱後模仿動作（蒸發＝手向上飄、凝結＝手牽手、降水＝手指落雨、匯集＝手流動），最後一齊「轉圈圈」做水循環。", "ready": true}, {"slug": "08-閱讀口語對答", "num": "08", "name": "閱讀口語對答", "subj": "中文", "grade": "小三至小四", "kind": "回家複習", "quote": "可讓學生回家進行複習，設計對答類的口語練習。", "bad": "幫我做一個閱讀口語練習。", "good": "你係一位懂得做互動學習工具嘅小學中文老師助手。請幫我寫一個單一 HTML 檔（所有 CSS、JS、SVG 內嵌，唔用任何外部資源，可以離線 double-click 打開），畀澳門小三、小四學生回家自己做閱讀複習。\n\n【身份同對象】學生年齡 8–10 歲，每人自己用電腦或平板，冇老師喺旁。介面文字用繁體中文，語氣溫柔、鼓勵為主。\n\n【目的】學生讀完一篇短文後，用「對答」方式練習口語表達同理解：先答事實題，再答推論題，最後答感受題，並知道自己要溫習邊一段。\n\n【形式】\n1. 自己寫一篇約 200 字、原創、溫馨嘅短文《外婆的菜園》，分 4 段顯示，每段每句獨立包 span。左邊放文章同一幅細 SVG 插圖（外婆喺菜園澆水，扁平童趣風格）。設「🔊 朗讀全文」掣，用 speechSynthesis（zh-HK 聲線）逐句朗讀，朗讀緊嗰句高亮。\n2. 右邊係「對答練習」：一隻 SVG 貓頭鷹小老師，用對話氣泡逐條發問，共 6 題（3 題事實、2 題推論、1 題感受），每題用 TTS 讀出，講嘢時貓頭鷹嘴巴郁動。\n3. 學生可以按「🎤 講答案」（SpeechRecognition，lang 'yue-Hant-HK'，失敗再試 'zh-HK'）或者打字作答。\n4. 每題預設一組關鍵詞（包括同義詞同廣東話說法）。答到關鍵詞：讚佢，並補充完整答案；答唔到：畀提示（例如「試睇返第二段，外婆種咗乜？」）同時喺文章標示對應段落，可以再試一次；第二次仍然唔啱就示範答案。\n5. 感受題冇對錯，只要答得夠長（至少 8 個字）就讚，並示範一個好答案。\n6. 完成後顯示總結：答啱幾多題（共 5 題客觀題）、建議溫習邊段，每個溫習掣可以直接朗讀嗰一段。\n\n【限制】\n- 字號 ≥ 24px，按鈕高度 ≥ 64px，觸控友善，唔用 hover，唔用 alert()。\n- 答錯唔好用紅色交叉，用黃色提示；答啱用綠色同簡單動畫，可以用 Web Audio 合成「叮」聲（唔用音檔）。\n- 語音辨識唔可用時（直接打開 file://、冇網絡、唔係 Chrome），要自動轉為打字模式，並用清楚嘅一句說明原因，唔可以出錯或者畫面卡死。\n- 朗讀揀聲線時先揀 zh-HK，冇就退而求其次揀其他中文聲線，再冇就靜音但照常運作。\n- 配色：暖米色背景、白色大圓角卡片、主色藍 #2F6FED、答啱綠 #1E9E6A、提示黃 #E9A23B。頂部有標題列同「全螢幕」「重新開始」掣。\n\n【之後點樣回饋】我會試完之後再講邊度要改（例如字太細、提示太難、關鍵詞太嚴），請你只改我指出嘅部分，唔好重寫全部。", "fix": "1. 「第 4 題推論題，學生答『因為外婆好溫柔』都被判錯，請將『溫柔』『慈祥』『唔介意』『冇鬧我』加入關鍵詞，而且簡體字輸入都要識。」\n2. 「答錯嘅提示太直接講晒答案，請改成先問一條引導問題（例如：外婆見到我整濕鞋，係嬲定係笑？），第二次先畀接近答案嘅提示。」\n3. 「貓頭鷹嘅氣泡字體再大啲，而且每題之前加返題號同題型標籤（事實題／推論題／感受題）。」", "use": "- 課堂上先師生一齊試一次，示範點樣用「聽、讀、答」；之後派連結或檔案畀學生回家複習，唔識嘅題目可以自己睇提示再試。\n- 老師只需將文章同題目、關鍵詞換成當課課文，再叫 Gemini 生成新版本，就可以做成每課一份嘅口語複習工具。\n- 學生做完總結後，老師可以請學生截圖「建議溫習」部分，下堂針對該段做補充講解。", "ready": true}, {"slug": "09-葡文情境對話", "num": "09", "name": "葡文情境對話", "subj": "葡文", "grade": "初中 A1", "kind": "教師操作", "quote": "葡文科，主要是不同類型對話（例子也不錯）", "bad": "幫我做葡文對話教具。", "good": "你係澳門一間職業技術學校嘅葡文科老師助手。我教緊初學葡文（A1）嘅中學生，請幫我用 Canvas 做一個「葡文情境對話」互動教具，喺電子白板（觸控、16:9）上由老師操作。\n\n【目的】訓練學生聽、讀同開口講日常簡單對話；對話一定要用歐洲葡萄牙語（pt-PT），唔好用巴西葡語（例如用 “Queria…, por favor”、“Quanto é?”、“tu” 形式 “Como te chamas?”）。\n\n【形式】單一 HTML 檔，離線都開到，唔用外部圖片或字型。\n1. 三個情境：Na pastelaria（餅店）、Na escola（學校認識新同學）、Na rua（問路）。每個情境用 SVG 畫一幅有兩個角色嘅插圖，講嘢嗰個角色要有簡單動畫（嘴巴開合、身體輕輕跳）。\n2. 老師撳「下一句」，對話逐句出現喺對話氣泡，每句有葡文加細字中文翻譯（可開關中文），旁邊有 🔊 掣用 speechSynthesis（lang = pt-PT）朗讀，並有「慢速」選項。\n3. 「替換詞」：對話入面有黃色高亮位置（例如 um pastel de nata / um café / uma água、數量、名字、地方、左右轉），老師點一下就輪換；句子、朗讀、中文翻譯同價錢（餅店場景要用 patacas 計總數）都要跟住變，並注意葡文陰陽性同單複數（um café／uma água、dois cafés／duas águas）。問路場景用小地圖顯示路線同目的地。\n4. 「角色扮演模式」：隱藏其中一個角色嘅句子，只顯示中文提示，學生用葡文講出嚟，老師撳「揭曉」先顯示同朗讀答案。\n5. 每個情境完結後有 3 條快速理解題（三揀一），即時回饋。\n\n【限制】字體至少 24px，所有按鈕至少 64px 高，用 pointer 事件、唔靠 hover；顏色用暖米色底、白色圓角卡片；介面用繁體中文，對話內容用 pt-PT；無聲線都唔可以出錯。\n答錯唔好用紅色交叉，用黃色同一句提示；答啱用綠色同小動畫。\n\n【之後點樣回饋】做好之後我會睇完再告訴你邊度要改，請你每次只改我指出嘅部分，其他保持不變。", "fix": "- 「餅店場景個價錢牌太細，白板後排睇唔到，請放大一倍，再用黃色粗體。」\n- 「理解題答錯嘅提示要講清楚去睇第幾句，而唔係只係寫『再試一次』。」\n- 「角色扮演模式請加一個『下一個角色』掣，等我一撳就可以轉學生扮演 A 或 B，唔使返去重新設定。」", "use": "- 先用正常模式逐句播放並朗讀，帶學生跟讀；然後撳黃色詞語替換（點咖啡變水、數量由一變三），讓學生觀察句子同價錢點變，留意 um／uma、café／cafés 嘅變化。\n- 用角色扮演模式請兩位學生分飾兩個角色，隱藏嘅一方只睇中文提示，講完由老師揭曉對答案。\n- 堂尾用理解題做快速檢測；老師亦可以請 Gemini 按同一格式再加「Na biblioteca」、「No restaurante」等新情境。", "ready": true}, {"slug": "10-地球自轉與公轉", "num": "10", "name": "地球自轉與公轉", "subj": "常識", "grade": "小五至小六", "kind": "教師示範", "quote": "地球自轉和圍繞太陽公轉", "bad": "```\n幫我做一個地球繞太陽轉的動畫。\n```", "good": "```\n我是澳門一間中小學的常識科老師，任教小五、小六。我想在電子白板（觸控、16:9）上，向全班示範「地球自轉和圍繞太陽公轉」，請幫我用 Canvas 做一個單一 HTML 檔的互動教具（所有 CSS／JS 內嵌，不要用任何外部連結，離線可開）。\n\n【目的】\n讓學生看見：1）自轉造成日夜；2）公轉加上「地軸傾斜 23.5°」造成四季和日長夜短的變化。\n\n【形式與內容】\n1. 主畫面：太陽在中間，地球沿近乎圓形的軌道公轉，用 2.5D 斜視角畫。地球有日夜分界（向太陽的一面明亮，背面較暗）。地軸傾斜 23.5°，而且傾斜方向在整個公轉過程中固定指向同一方向（這點科學上一定要正確）。\n2. 控制區：播放／暫停；速度滑桿；「自轉」開關；「公轉」開關；日期滑桿（1 至 12 月，拖動時地球移到相應位置）。\n3. 標記：在軌道上標出春分、夏至、秋分、冬至四個位置（附日期，點擊可跳到該日）。標出澳門的位置點（北緯約 22°）。拖到不同月份時，側邊資訊卡顯示澳門當時大約的季節，以及「日長夜短／日短夜長」和白晝大約幾多小時。\n4. 側邊放大圖：地球近鏡（自轉中），能看見澳門那個點由白天轉入黑夜，並顯示「一日 = 自轉一圈 ≈ 24 小時」「一年 = 公轉一圈 ≈ 365 天」。\n5. 教學提問卡：3 張可翻轉的卡（正面問題、背面答案），例如「如果地軸沒有傾斜，會不會有四季？」，並提供「地軸無傾斜」切換掣，方便做對比。\n\n【限制】\n- 對象是小學生：繁體中文（香港／澳門用字），句子短，不用太深的術語。\n- 白板友善：字體不少於 24px，按鈕不少於 64px 高，不要依賴滑鼠 hover，用 pointer events 令觸控和滑鼠都能操作。\n- 版面在 1280×720 至 1920×1080 都好看；所有插圖用內嵌 SVG／Canvas 自己畫，不用外部圖片。\n- 科學要準確：地軸傾斜方向固定、夏至時北半球向太陽傾斜；若有為了畫面而簡化的地方，請在畫面上註明「示意」。\n- 配色：暖米色背景、白色大圓角卡片、實色按鈕。\n- 不要用 alert()，不要有 console error。\n\n請先給我完整可運行的程式碼，不用逐行解釋。\n```", "fix": "1. 「地軸那條線和『北』字太細，坐在最後排的學生看不清，請加粗，並加上『23.5°』的角度弧線標示。」\n2. 「夏至時，請在資訊卡加一句『北半球向太陽傾斜，陽光較直、白晝較長』；冬至則顯示相反的說法。另外，春分和秋分要寫明『晝夜幾乎一樣長』。」\n3. 「放大圖的日夜分界太模糊，請令黑夜部分更暗；澳門的點要大一點，並顯示『白天／黑夜』標籤；速度太快時，請提示『自轉只作示意』。」", "use": "1. **先問後示範**：先問學生「為甚麼會有白天黑夜？」，開啟「自轉」、關閉「公轉」，把速度調慢，看澳門的點由白天轉入黑夜；再問「為甚麼會有四季？」，關閉自轉，拖動日期滑桿，看夏至和冬至的日長變化。\n2. **做對比實驗**：按「地軸無傾斜」，再拖動一年，讓學生發現全年日夜一樣長，再翻開提問卡 1 核對答案，建立「四季來自地軸傾斜」的概念。\n3. **破解迷思**：用提問卡 2（地球離太陽最近是夏天嗎？）和提問卡 3（澳門夏天，澳洲是甚麼季節？）討論常見迷思，再讓學生上台拖動日期驗證。", "ready": true}];
+const $ = id => document.getElementById(id);
+const esc = s => String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clean = s => String(s || '').replace(/^```\w*\n?|\n?```$/g, '').replace(/^>\s?/gm, '').trim();
+const md = s => esc(clean(s)).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+const grid = $('grid');
+ITEMS.forEach((it, i) => {
+  const el = document.createElement('article'); el.className = 'card';
+  el.innerHTML = `<div class="top"><span class="num">${it.num}</span><span class="chip">${esc(it.subj)}</span><span class="chip g">${esc(it.grade)}</span><span class="chip k">${esc(it.kind)}</span></div>
+    <h2>${esc(it.name)}</h2>
+    <blockquote><small>老師喺問卷寫：</small>「${esc(it.quote)}」</blockquote>
+    <div class="btns"><a class="btn p" href="${encodeURI(it.slug)}.html" target="_blank" ${it.ready ? '' : 'aria-disabled="true"'}>▶ 打開教具</a>
+    <button class="btn s" data-i="${i}" ${it.good ? '' : 'disabled'}>💬 睇 Prompt</button></div>`;
+  grid.appendChild(el);
+});
+let cur = null;
+grid.addEventListener('click', e => {
+  const b = e.target.closest('button[data-i]'); if (!b) return;
+  cur = ITEMS[+b.dataset.i];
+  $('dt').textContent = cur.num + ' · ' + cur.name;
+  $('dq').innerHTML = '<small>老師喺問卷寫：</small>「' + esc(cur.quote) + '」';
+  $('dbad').innerHTML = md(cur.bad); $('dgood').innerHTML = md(cur.good);
+  $('dfix').innerHTML = md(cur.fix); $('duse').innerHTML = md(cur.use);
+  $('dopen').href = encodeURI(cur.slug) + '.html';
+  $('dlg').showModal();
+});
+$('dclose').onclick = () => $('dlg').close();
+$('dlg').addEventListener('click', e => { if (e.target === $('dlg')) $('dlg').close(); });
+$('dcopy').onclick = async () => {
+  const t = clean(cur && cur.good);
+  try { await navigator.clipboard.writeText(t); $('dcopy').textContent = '✅ 已複製'; }
+  catch (_) { const r = document.createRange(); r.selectNodeContents($('dgood')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('dcopy').textContent = '已選取，按 Ctrl+C'; }
+  setTimeout(() => $('dcopy').textContent = '📋 複製', 1800);
+};
+</script>
+</body>
+</html>

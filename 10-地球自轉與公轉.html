@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>地球自轉與公轉</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:clamp(20px,1.3vw,26px);line-height:1.35;-webkit-text-size-adjust:100%}
+button{font-family:inherit}
+.app{min-height:100vh;display:flex;flex-direction:column;padding:clamp(8px,.9vw,18px);gap:clamp(8px,.8vw,14px)}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:14px;flex:0 0 auto;flex-wrap:wrap}
+.chip{background:var(--primary);color:#fff;border-radius:999px;padding:.15em .85em;font-weight:800;letter-spacing:.05em}
+h1{margin:0;font-size:1.4em;font-weight:800}
+.spacer{flex:1}
+.btn{min-height:64px;border:0;border-radius:18px;background:var(--primary);color:#fff;font-size:1em;font-weight:800;padding:0 1.1em;box-shadow:0 6px 0 rgba(31,42,68,.2);cursor:pointer;touch-action:manipulation;transition:transform .08s, box-shadow .08s, background .15s;display:inline-flex;align-items:center;justify-content:center;gap:.4em;white-space:nowrap}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(31,42,68,.2)}
+.btn.ghost{background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:0 6px 0 rgba(31,42,68,.08)}
+.btn.toggle{background:#fff;color:var(--ink-2);border:3px solid var(--line);box-shadow:0 6px 0 rgba(31,42,68,.08)}
+.btn.toggle[aria-pressed="true"]{background:var(--good);color:#fff;border-color:var(--good);box-shadow:0 6px 0 rgba(30,158,106,.35)}
+.btn.warn{background:var(--hint);color:#3a2a05;box-shadow:0 6px 0 rgba(150,95,10,.3)}
+.btn.warn[aria-pressed="true"]{background:var(--hint);}
+.btn.pink{background:var(--accent);box-shadow:0 6px 0 rgba(150,40,80,.3)}
+.btn:focus-visible{outline:4px solid var(--primary-soft);outline-offset:2px}
+
+/* layout */
+.grid{flex:1 1 0;min-height:560px;grid-template-rows:minmax(0,1fr);display:grid;grid-template-columns:minmax(0,1fr) clamp(330px,30vw,600px);gap:clamp(8px,.8vw,14px)}
+.left,.right{display:flex;flex-direction:column;gap:clamp(8px,.8vw,14px);min-width:0;min-height:0}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(10px,.9vw,16px)}
+.stage{flex:1;min-height:280px;position:relative;padding:0;overflow:hidden;background:#12204a}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.stage .tip{position:absolute;right:14px;bottom:12px;font-size:.78em;color:#cfe0ff;background:rgba(10,18,50,.55);padding:.2em .7em;border-radius:12px;pointer-events:none}
+
+/* controls */
+.controls{display:flex;flex-direction:column;gap:12px;flex:0 0 auto}
+.row-btns{display:flex;gap:12px;flex-wrap:wrap}
+.row-btns .btn{flex:1 1 110px;padding:0 .6em}
+.sliders{display:grid;grid-template-columns:1fr 1.25fr;gap:clamp(12px,1.6vw,28px)}
+.sl label,.sl .lab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:800;margin-bottom:2px}
+.sl .lab span.v{color:var(--primary);font-weight:800}
+.sl .sub{display:flex;justify-content:space-between;color:var(--ink-2);font-size:.72em;margin-top:-2px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:64px;background:transparent;margin:0;touch-action:none;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:16px;border-radius:99px;background:linear-gradient(90deg,var(--primary-soft),#c9dcff);box-shadow:inset 0 2px 3px rgba(31,42,68,.15)}
+input[type=range]::-moz-range-track{height:16px;border-radius:99px;background:linear-gradient(90deg,var(--primary-soft),#c9dcff)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:46px;height:46px;border-radius:50%;background:var(--primary);border:5px solid #fff;margin-top:-15px;box-shadow:0 4px 0 rgba(31,42,68,.25)}
+input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;background:var(--primary);border:5px solid #fff;box-shadow:0 4px 0 rgba(31,42,68,.25)}
+input[type=range]:focus-visible{outline:3px solid var(--primary-soft);border-radius:12px}
+.months{display:flex;margin-top:-8px;color:var(--ink-2);font-size:.7em}
+.months span{text-align:center;overflow:hidden;white-space:nowrap}
+
+/* right */
+.zoom{flex:0 0 auto}
+.card h2{margin:0 0 6px;font-size:1em;font-weight:800;display:flex;align-items:center;gap:.5em;flex-wrap:wrap}
+.zoomwrap{position:relative;height:clamp(170px,25vh,340px);border-radius:16px;overflow:hidden;background:#0d1838}
+.zoomwrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.status{display:inline-block;border-radius:999px;padding:.05em .75em;font-weight:800;font-size:.85em}
+.st-day{background:var(--hint-soft);color:#8a5a00}
+.st-twi{background:var(--accent-soft);color:#a3274f}
+.st-night{background:#2a3563;color:#dfe7ff}
+.clock{margin:8px 0 2px;font-weight:800;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.clock .t{color:var(--primary)}
+.hbar{position:relative;height:26px;border-radius:99px;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);background:#2a3563;overflow:visible}
+.hbar .mk{position:absolute;top:-9px;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:16px solid var(--accent);transform:translateX(-50%);filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}
+.hticks{display:flex;justify-content:space-between;color:var(--ink-2);font-size:.68em;margin-top:2px}
+.facts{display:grid;grid-template-columns:1fr;gap:6px;margin-top:6px}
+.fact{background:var(--primary-soft);border-radius:14px;padding:.3em .7em;font-weight:800;font-size:.86em;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fact small{font-size:.8em;color:var(--ink-2);font-weight:700}
+.ybar{position:relative;flex:0 0 22%;max-width:22%;height:14px;border-radius:99px;background:#fff;overflow:hidden}
+.ybar i{position:absolute;left:0;top:0;bottom:0;background:var(--good);border-radius:99px}
+
+.info{flex:1 1 0;min-height:110px;overflow:auto}
+.dateline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.big{font-size:1.5em;font-weight:900}
+.tag{border-radius:999px;padding:.05em .7em;font-weight:800;font-size:.85em;color:#fff}
+.tg-0{background:#3aa66b}.tg-1{background:#e2603a}.tg-2{background:#d28a1a}.tg-3{background:#3d78d6}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv div{background:#faf5ea;border-radius:14px;padding:.3em .7em}
+.kv dt{font-size:.72em;color:var(--ink-2);font-weight:700}
+.kv dd{margin:0;font-weight:800;font-size:.92em}
+.kv{margin:0}
+#explain{margin:8px 0 0;font-size:.88em;color:var(--ink);background:var(--hint-soft);border-radius:14px;padding:.4em .8em}
+
+footer{flex:0 0 auto;text-align:right;color:var(--ink-2);font-size:14px;padding:0 4px}
+
+/* quiz overlay */
+.overlay{position:fixed;inset:0;background:rgba(18,26,56,.62);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.qbox{background:var(--bg);border-radius:28px;width:min(1100px,96vw);max-height:96vh;overflow:auto;padding:clamp(14px,1.6vw,28px);box-shadow:0 30px 80px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:14px}
+.qtabs{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.qtabs .btn{flex:0 0 auto;min-width:130px}
+.qtabs .btn.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.flip{perspective:1400px;height:clamp(260px,38vh,400px);cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.fl .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:24px;padding:clamp(16px,2vw,36px);display:flex;flex-direction:column;justify-content:center;gap:12px;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:var(--shadow)}
+.face.f{background:var(--primary);color:#fff}
+.face.b{background:#fff;color:var(--ink);transform:rotateY(180deg);border:4px solid var(--good)}
+.face .qn{font-size:.8em;opacity:.85;font-weight:800}
+.face .qt{font-size:1.45em;font-weight:900;line-height:1.4}
+.face .at{font-size:1.02em;line-height:1.55}
+.face .flipHint{font-size:.78em;opacity:.8}
+.qact{display:flex;gap:12px;flex-wrap:wrap}
+.qact .btn{flex:1 1 200px}
+
+.toast{position:fixed;left:50%;bottom:54px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:.5em 1.1em;border-radius:16px;font-weight:800;opacity:0;pointer-events:none;transition:all .25s;z-index:80;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1000px){
+  .grid{grid-template-columns:1fr}
+  .sliders{grid-template-columns:1fr}
+  .stage{min-height:420px;flex:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <span class="chip">常識</span>
+    <h1>地球自轉與公轉</h1>
+    <div class="spacer"></div>
+    <button class="btn ghost" id="btnFs" type="button">⛶ 全螢幕</button>
+    <button class="btn ghost" id="btnReset" type="button">↺ 重新開始</button>
+  </header>
+
+  <main class="grid">
+    <section class="left">
+      <div class="card stage" id="stage">
+        <canvas id="orbit" aria-label="地球繞太陽公轉示意圖"></canvas>
+        <div class="tip">拖動地球，或點選節氣標籤，就可以改變日期</div>
+      </div>
+
+      <div class="card controls">
+        <div class="row-btns">
+          <button class="btn" id="btnPlay" type="button">⏸ 暫停</button>
+          <button class="btn toggle" id="btnSpin" type="button" aria-pressed="true">自轉：開</button>
+          <button class="btn toggle" id="btnOrbit" type="button" aria-pressed="true">公轉：開</button>
+          <button class="btn warn" id="btnTilt" type="button" aria-pressed="true">地軸：傾斜</button>
+          <button class="btn pink" id="btnQ" type="button">❓ 提問卡</button>
+        </div>
+        <div class="sliders">
+          <div class="sl">
+            <div class="lab">速度<span class="v" id="speedTxt"></span></div>
+            <input type="range" id="speed" min="0" max="100" step="1" value="70" aria-label="速度">
+            <div class="sub"><span>慢：看一日</span><span>快：看一年</span></div>
+          </div>
+          <div class="sl">
+            <div class="lab">日期<span class="v" id="dateTxt"></span></div>
+            <input type="range" id="date" min="0" max="364" step="1" value="0" aria-label="日期">
+            <div class="months" id="months"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div class="card zoom">
+        <h2>放大看：地球自轉 <span class="status st-day" id="stat">白天</span></h2>
+        <div class="zoomwrap"><canvas id="zoom" aria-label="地球近鏡"></canvas></div>
+        <div class="clock"><span>澳門時間（太陽時）</span><span class="t" id="clockTxt">--</span></div>
+        <div class="hbar" id="hbar"><div class="mk" id="hmk"></div></div>
+        <div class="hticks"><span>0</span><span>6</span><span>12</span><span>18</span><span>24 時</span></div>
+        <div class="facts">
+          <div class="fact"><span>一日 = 自轉一圈 ≈ 24 小時</span></div>
+          <div class="fact"><span>一年 = 公轉一圈 ≈ 365 天</span><div class="ybar"><i id="ybarI"></i></div></div>
+        </div>
+      </div>
+
+      <div class="card info">
+        <div class="dateline"><span class="big" id="dateBig"></span><span class="tag" id="tagS"></span></div>
+        <dl class="kv">
+          <div><dt>澳門大約是</dt><dd id="kSeason"></dd></div>
+          <div><dt>日夜長短</dt><dd id="kDay"></dd></div>
+          <div><dt>太陽直射點</dt><dd id="kDecl"></dd></div>
+          <div><dt>正午太陽高度</dt><dd id="kAlt"></dd></div>
+        </dl>
+        <p id="explain"></p>
+      </div>
+    </aside>
+  </main>
+  <footer>AI 輔助備課工作坊 · 示範教具</footer>
+</div>
+
+<div class="overlay" id="ov" role="dialog" aria-modal="true" aria-label="教學提問卡">
+  <div class="qbox">
+    <div class="qtabs" id="qtabs"></div>
+    <div class="flip" id="flip" tabindex="0">
+      <div class="in">
+        <div class="face f"><div class="qn" id="qn"></div><div class="qt" id="qt"></div><div class="flipHint">點一下卡片，翻轉看答案</div></div>
+        <div class="face b"><div class="qn" style="color:var(--good)">參考答案</div><div class="at" id="qa"></div></div>
+      </div>
+    </div>
+    <div class="qact">
+      <button class="btn" id="qFlip" type="button">🔄 翻面</button>
+      <button class="btn warn" id="qGo" type="button"></button>
+      <button class="btn ghost" id="qClose" type="button">✕ 關閉</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+var D2R=Math.PI/180, TAU=Math.PI*2;
+var FONT='"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif';
+var LAT=22.2, LON=113.55;           // 澳門
+var EPS_TILT=23.5;                   // 地軸傾角
+var YEAR=365.2422;
+var EL=26*D2R;                       // 公轉圖斜視仰角
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- 日期 / 季節 ---------- */
+var MDAYS=[31,28,31,30,31,30,31,31,30,31,30,31];
+var CUM=[0,31,59,90,120,151,181,212,243,273,304,334,365];
+var ANCH_D=[78,171,265,354,78+YEAR];   // 春分 3/20, 夏至 6/21, 秋分 9/23, 冬至 12/21
+var ANCH_L=[0,90,180,270,360];         // 太陽黃經
+var SEASON_NAMES=['春','夏','秋','冬'];
+var KEY_NAMES=['春分','夏至','秋分','冬至'];
+var KEY_DATES=['3月20日','6月21日','9月23日','12月21日'];
+function dToLam(d){
+  var dd=d<ANCH_D[0]?d+YEAR:d;
+  for(var i=0;i<4;i++){
+    if(dd>=ANCH_D[i]&&dd<ANCH_D[i+1]){
+      return ANCH_L[i]+(dd-ANCH_D[i])/(ANCH_D[i+1]-ANCH_D[i])*90;
+    }
+  }
+  return 0;
+}
+function lamToD(l){
+  l=((l%360)+360)%360;
+  var i=Math.min(3,Math.floor(l/90));
+  var d=ANCH_D[i]+(l-ANCH_L[i])/90*(ANCH_D[i+1]-ANCH_D[i]);
+  return ((d%YEAR)+YEAR)%YEAR;
+}
+function dateParts(d){
+  var idx=Math.max(0,Math.min(364,Math.floor(d)));
+  var m=0; while(m<11&&idx>=CUM[m+1]) m++;
+  return {m:m+1,day:idx-CUM[m]+1};
+}
+function dateStr(d){var p=dateParts(d);return p.m+'月'+p.day+'日';}
+function todayD(){
+  try{var n=new Date();var s=new Date(n.getFullYear(),0,1);return Math.min(364,Math.floor((n-s)/86400000));}catch(e){return 326;}
+}
+
+/* ---------- 向量 ---------- */
+function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function norm(v){var m=Math.sqrt(dot(v,v))||1;return [v[0]/m,v[1]/m,v[2]/m];}
+function wrapPi(a){a=a%TAU;if(a>Math.PI)a-=TAU;if(a<-Math.PI)a+=TAU;return a;}
+
+/* ---------- 大陸簡化輪廓（經度,緯度） ---------- */
+var LAND=[
+ // 北美
+ [-168,65.5,-166,68.5,-156,71.3,-141,69.7,-128,70.2,-115,68.5,-100,68,-95,71,-90,69,-85,69.5,-82,66,-87,64,-93,61,-94,58.5,-90,57,-85,55.2,-82,52.5,-79,51.5,-79,55,-77,58,-78,62.2,-73,62,-70,59,-65,59.5,-62,57,-58,54,-56,52,-60,50,-66,50,-70,47,-65,48.5,-64,46,-61,45.5,-66,43.8,-70,43.5,-70,41.8,-74,40.5,-75.5,38,-76,35,-78,34,-81,31.5,-80,27,-80.3,25.3,-82,26.5,-82.8,29,-85,29.7,-89,30,-90,29,-94,29.5,-97.3,27.5,-97.5,24,-97.8,22,-96,19,-94.5,18.2,-91,18.8,-90.5,21,-87,21.5,-87.5,18.5,-88.2,16,-84,15.8,-83.3,12,-83.5,10,-81,8.8,-79,9.5,-77.5,8.5,-78.5,7.2,-80.5,7.3,-83,8.3,-85.7,10,-87.5,13,-91,14,-94,16,-97,15.8,-101,17.3,-105.5,20,-105.5,23,-109.5,23,-112.3,25,-114.5,28,-117,32.5,-120.5,34.5,-122.5,37.5,-124,40.5,-124.5,43,-124,46.5,-124.7,48.3,-123,49,-127,50.7,-130,54.3,-134,57.5,-138,59.5,-144,60,-148,60,-152,59.2,-154,57,-158,56,-163,54.8,-160,58.5,-162,60,-165,61.5,-165,64],
+ // 格陵蘭
+ [-73,78.5,-60,82,-30,83.5,-20,81,-18,76,-22,70,-32,68,-41,63,-44,60,-49,61,-53,66,-55,71,-62,76],
+ // 加拿大北極島嶼
+ [-80,73.5,-72,71.5,-62,67.2,-65,63,-72,63.5,-78,65,-85,70,-90,73],
+ [-118,71,-105,73,-101,69.5,-110,68.5,-118,69],
+ [-90,76.5,-80,82.5,-62,82.5,-75,78.5,-82,76],
+ // 南美
+ [-77,8.5,-72,12,-67,10.5,-62,10.7,-57,6,-52,5,-50,0.5,-44,-2.5,-38,-4,-35,-6,-35,-9,-39,-13,-39,-18,-41,-22,-45,-23.5,-48.5,-26,-49,-29,-53,-34,-57,-35,-57,-37,-62,-39,-65,-41,-64,-43,-67,-46,-66,-48,-69,-51,-68.5,-53,-70,-55.5,-73.5,-52,-75.5,-47,-73.8,-43,-73.5,-37,-71.5,-30,-70.5,-20,-71.5,-17,-76,-14,-79,-8,-81,-5,-80.2,-2,-80,0,-78.5,2,-77.3,4],
+ // 古巴、伊斯帕尼奧拉
+ [-85,22,-82,23.2,-77,21.8,-74.2,20.2,-77.5,19.9,-80,21.5,-84.5,21.8],
+ [-74.4,18.4,-72,19.9,-68.4,18.6,-71,17.8],
+ // 非洲
+ [-17,21,-16,24,-13,27.5,-9.5,30,-9.8,32.5,-6,35.8,-2,35.2,3,36.8,10,37.2,11,35,10,33.5,15,32.3,20,32,20,30.3,25,31.7,32,31.2,34.5,28,35,24,37.2,20,39,15.5,43,12.5,44,10.5,51,11.8,51,10,48,5,42,-1,40,-5,39.5,-9,40.5,-14,35,-20,35,-24,32.5,-26,32.8,-28.5,28,-32.5,25,-34,20,-34.8,18,-32,16,-28,14.5,-22.5,12,-17,13.5,-12,12.5,-6,9,-1,9.5,3.8,6,4.3,2,6.3,-2,5,-5,5,-8,4.5,-11.5,7,-13.5,9.5,-16.8,12.5,-17.5,14.7,-16.2,19],
+ [49.5,-12,50.5,-15.5,47.5,-24.8,45,-25.5,43.5,-22,44.5,-16],
+ // 歐亞大陸
+ [-9,43,-2,43.5,-1.5,46,-4.5,48.3,-1.5,48.8,1.5,50.2,4,51.5,8,53.8,8.5,56.5,10.5,57.7,11,54,14,54,19,54.5,21,57,24,57.3,24,59.4,30,60,23,60.3,21,61,21.5,63,25,65,22,65.8,17.5,62.5,18.5,60,16.5,57,12.5,56,11,59,8,58,5.5,59.5,5,62,10,64.5,14.5,68,20,70,26,71,31,70,33,69.3,41,67.5,40,64.5,44,66,44,68.5,53,68.7,60,69.5,68,69,66,71,73,72.5,80,73,87,75,100,77,105,77.5,112,76,113,74,125,73.5,130,71,141,72.5,150,71.5,160,69.7,170,70,180,69,180,65,170,60,163,59.5,162,58,160,53,156.6,51,155.7,56,162,61.5,155,59.5,143,59.3,137,54,141,53,140.5,48,135,43.2,131,42.5,129.5,41,127.5,39.5,129.3,36.5,126.5,34.5,126.5,37.5,125,39.6,121.5,39,121.5,40.8,118,39,119.2,37,122.5,37,120,35,121.8,31,121.8,29,119.5,25.5,117,23.3,114.5,22.2,113.5,21.7,111.5,21.3,110.5,20.3,109.8,21.5,108.3,21.6,106.7,20.5,105.8,19,108.5,15.5,109.3,12,107,10.3,105,8.6,104.8,10.2,103,10.8,102,12.3,100.8,13.4,99.9,12.5,99.2,10.5,100,7.5,102,6.2,103.4,4.5,104.2,1.4,101.5,2.8,100.3,5.5,98.5,8.3,98.3,12,97.7,16,94.5,16.3,94,19,92,21.5,91,22.5,89,21.8,86.5,20,84.5,18.5,80.5,15.5,80.3,13,79.8,10.3,78,8.5,77.2,8.1,76,10,75,13,73.2,17,72.8,20.8,72.5,21.8,70,21,68.8,23.5,66.5,25.3,62,25.2,57.5,25.8,56.5,27,54,26.7,51,28,50,30,48.7,30,49.5,27.5,50.2,26.3,51.5,24.7,54,24.2,55.5,25.6,56.3,26.2,56.8,24.5,59.8,22.5,58.5,20.3,55.5,17.5,52,16,48,14,44.5,12.7,43.3,13,42.8,16,39.5,21.5,37,25,35,28,34.8,29.7,34.3,31.3,35,33,36,36,32,36.2,27.5,36.8,26.5,38.5,26.7,40,23.5,40,24.5,38,23,36.5,21,37,21,39.5,19.5,41,19,42,15.5,44,13.5,45.5,12.5,44,14,42,16,41.5,18.5,40.2,16.7,39,16,38,15.7,40,14,40.8,12,42,10.5,43.5,8.5,44.3,7,43.6,4,43.4,3,42,0.7,40.5,-0.3,39.5,0,38.7,-1,37.6,-2.2,36.7,-4.5,36.7,-5.6,36,-6.3,36.7,-7.5,37.2,-9,37,-9.3,39,-8.8,41.5],
+ // 楚科奇東段
+ [-180,69,-175,67.5,-170,66,-172,64.5,-180,65],
+ // 英國、愛爾蘭、冰島
+ [-5.5,50,1.5,51,1.7,52.8,0,53.6,-2,55.8,-1.8,57.5,-3,58.6,-5.3,58.5,-6,56.5,-5,55,-3,54.8,-3,53.5,-4.5,53.2,-5,51.7,-3,51.3],
+ [-10,51.7,-6,52,-6,54.2,-8,55.2,-10,54],
+ [-24,65.5,-22,66.4,-15,66.4,-13.5,65,-18,63.4,-22.5,63.8],
+ // 日本、台灣、海南、菲律賓、斯里蘭卡
+ [130.8,31,131.5,33.5,135,33.8,137,34.6,140,35,141,38,141.5,41,140,40,139.7,38,137.3,37,135.5,35.7,132,35.5,130.8,34],
+ [140,42,141.5,45.4,145.4,43.3,143,42],
+ [120,22.5,121.5,25.2,122,24.5,120.8,22],
+ [108.7,19.2,110.5,20,111,19.5,109.5,18.2],
+ [120,18.5,122.2,18.3,122,14,124,13,121.5,13.5,120,15],
+ [122,10,126,9.5,126,7,125,6,122,7],
+ [79.8,9.8,81.8,7.5,80.5,6,79.8,7.5],
+ // 東南亞島嶼
+ [109,1.5,111,2,113.5,4,117,7,119,5,118,1,116,-3.5,114,-4,110.5,-3,109,-0.5],
+ [95.3,5.5,98,4,104,-1,106,-3,105.8,-5.8,102,-4,98,0],
+ [105.2,-6.5,108,-6.5,112,-6.8,114.5,-7.8,110,-8.2,106,-7.2],
+ [119.5,0.5,121,1.3,125,1.5,123,0.5,121.5,-1,123,-4,121,-3,120.2,-5.5,119.5,-3.5],
+ [131,-1,135,-3.3,138,-1.7,141,-2.7,145,-4.5,147.5,-6,150,-10.5,147,-10,143.5,-9,141,-9.2,138,-8.3,137.5,-5,133,-4],
+ // 澳洲、塔斯曼尼亞、紐西蘭
+ [113.5,-22,114,-26,115,-33.5,118,-35,123,-34,126,-32.3,131,-31.5,135,-34.8,138,-35,140,-38,144,-38.5,147,-39,150,-37.5,153,-31,153.5,-27,151,-23,149,-20.5,146,-18.8,145.3,-15,143.5,-14,142.5,-10.8,141.5,-13,141,-17,139,-17.5,136.5,-15.2,135.5,-12,132,-11.5,130,-12.5,128,-14.8,125.5,-14.2,122.5,-17,121,-19.5,118.5,-20.3,116,-21],
+ [145,-40.7,148,-41,147.5,-43.3,146,-43.5],
+ [172.7,-34.5,175,-37,178,-37.7,176,-39.5,175,-41.5,173,-39.5,174.5,-36.5],
+ [172.7,-40.5,174,-41.5,171,-44.5,169,-46.5,166.5,-46,168,-44,172.5,-40.5],
+ // 南極洲
+ [180,-78,165,-77.5,160,-70.5,145,-67,135,-66,120,-66.5,100,-66,80,-68,70,-68.5,55,-66.5,40,-68.5,25,-70,10,-70.5,0,-70,-15,-72,-30,-77,-45,-78,-60,-75,-62,-70,-67,-66,-62,-64.5,-70,-70,-80,-73,-100,-74,-125,-73.5,-150,-76,-165,-78,-180,-78,-180,-90,180,-90]
+];
+var WATER=[
+ [28,43,28.5,45,31,46.5,34,45.5,36.5,45.3,38,47,40,43.5,41.5,41.5,37,41,33,42,29,41.2],   // 黑海
+ [47,45,50,46.5,53,45.5,53,42,54,37.5,50,37.3,49,40,47.5,42]                                  // 裏海
+];
+var MW=720, MH=360;
+var landMask=new Uint8Array(MW*MH);
+var rowOfZ=new Uint16Array(2048);
+(function buildMask(){
+  var i;
+  for(i=0;i<2048;i++){
+    var z=i/2047*2-1;
+    var lat=Math.asin(Math.max(-1,Math.min(1,z)))/D2R;
+    rowOfZ[i]=Math.max(0,Math.min(MH-1,Math.floor((90-lat)*2)));
+  }
+  try{
+    var c=document.createElement('canvas');c.width=MW;c.height=MH;
+    var g=c.getContext('2d'); if(!g) return;
+    g.fillStyle='#000';g.fillRect(0,0,MW,MH);
+    function poly(p){
+      g.beginPath();
+      for(var k=0;k<p.length;k+=2){
+        var x=(p[k]+180)*2,y=(90-p[k+1])*2;
+        if(k===0)g.moveTo(x,y);else g.lineTo(x,y);
+      }
+      g.closePath();g.fill();
+    }
+    g.fillStyle='#fff';LAND.forEach(poly);
+    g.fillStyle='#000';WATER.forEach(poly);
+    var data=g.getImageData(0,0,MW,MH).data;
+    for(i=0;i<MW*MH;i++) landMask[i]=data[i*4]>127?1:0;
+  }catch(e){}
+})();
+
+/* ---------- 地球像素渲染器 ---------- */
+function makeEarthRenderer(){
+  var cv=document.createElement('canvas'), g=cv.getContext('2d'), img=null, N=0;
+  return function(target,cx,cy,rad,q,basis,s,epsDeg,psi,opt){
+    if(!g) return;
+    var n=Math.max(16,Math.ceil(rad*2*q));
+    if(n!==N||!img){N=n;cv.width=n;cv.height=n;img=g.createImageData(n,n);}
+    var data=img.data, half=n/2;
+    var cE=Math.cos(epsDeg*D2R), sE=Math.sin(epsDeg*D2R);
+    var R=basis.R,U=basis.U,C=basis.C;
+    var sx=s[0],sy=s[1],sz=s[2];
+    var thr=0.9/half, aa=1.6/half;
+    var par=opt&&opt.parallel, sinPar=Math.sin(LAT*D2R);
+    var idx=0, i,j;
+    for(j=0;j<n;j++){
+      var v=-((j+0.5)-half)/half;
+      for(i=0;i<n;i++){
+        var u=((i+0.5)-half)/half;
+        var d2=u*u+v*v;
+        if(d2>=1.06){data[idx]=0;data[idx+1]=0;data[idx+2]=0;data[idx+3]=0;idx+=4;continue;}
+        var dist=Math.sqrt(d2);
+        var alpha=1;
+        if(dist>1-aa){alpha=(1-dist)/aa+0.5;if(alpha<=0){data[idx+3]=0;idx+=4;continue;}if(alpha>1)alpha=1;}
+        var w=d2<1?Math.sqrt(1-d2):0;
+        var px=u*R[0]+v*U[0]+w*C[0], py=u*R[1]+v*U[1]+w*C[1], pz=u*R[2]+v*U[2]+w*C[2];
+        var l=px*sx+py*sy+pz*sz;
+        var y2=py*cE-pz*sE, z2=py*sE+pz*cE;
+        var lon=Math.atan2(y2,px)-psi;
+        var t=lon/TAU+0.5; t=t-Math.floor(t);
+        var li=(t*MW)|0; if(li>=MW)li=MW-1;
+        var zi=((z2+1)*1023.5)|0; if(zi<0)zi=0; if(zi>2047)zi=2047;
+        var land=landMask[rowOfZ[zi]*MW+li];
+        var r,gg,b;
+        if(land){
+          if(z2>0.955||z2<-0.9){r=244;gg=250;b=255;}
+          else{
+            var az=z2<0?-z2:z2;
+            r=104+az*70;gg=186-az*10;b=96+az*20;
+            if(az<0.55&&az>0.22&&((lon*7)|0)%1===0){ /* 保持單色 */ }
+          }
+        }else{
+          if(z2>0.985||z2<-0.97){r=226;gg=240;b=252;}
+          else{r=62;gg=148;b=226;}
+        }
+        // 緯線：赤道、澳門所在緯度
+        var dz=z2<0?-z2:z2;
+        if(dz<thr){r=r*0.5+130;gg=gg*0.5+130;b=b*0.5+130;}
+        else if(par){var dd=z2-sinPar;if(dd<0)dd=-dd;if(dd<thr){r=r*0.4+232*0.6;gg=gg*0.4+97*0.6;b=b*0.4+140*0.6;}}
+        // 日夜
+        var ls=(l+0.05)/0.19; if(ls<0)ls=0; else if(ls>1)ls=1;
+        var ts=ls*ls*(3-2*ls);
+        var dayMul=0.66+0.34*(l>0?l:0);
+        var dr=r*dayMul,dg=gg*dayMul,db=b*dayMul;
+        var nr=r*0.16+10,ng=gg*0.2+16,nb=b*0.3+46;
+        var tw=1-Math.abs(l-0.02)/0.16; if(tw<0)tw=0;
+        var R2=nr+(dr-nr)*ts, G2=ng+(dg-ng)*ts, B2=nb+(db-nb)*ts;
+        R2+=tw*38;G2+=tw*14;B2-=tw*10;
+        // 大氣邊緣
+        var rim=1-w; rim=rim*rim*rim*0.55*(0.25+0.75*ts);
+        R2+=(150-R2)*rim;G2+=(200-G2)*rim;B2+=(255-B2)*rim;
+        data[idx]=R2<0?0:R2>255?255:R2;data[idx+1]=G2<0?0:G2>255?255:G2;data[idx+2]=B2<0?0:B2>255?255:B2;
+        data[idx+3]=alpha*255;
+        idx+=4;
+      }
+    }
+    g.putImageData(img,0,0);
+    target.imageSmoothingEnabled=true;
+    target.drawImage(cv,cx-rad,cy-rad,rad*2,rad*2);
+  };
+}
+var renderEarthOrbit=makeEarthRenderer();
+var renderEarthZoom=makeEarthRenderer();
+
+/* ---------- 狀態 ---------- */
+var INIT_D=todayD();
+var state={d:INIT_D,psi:1.2,playing:true,spin:true,orbit:true,speedV:70,tilt:true,eps:EPS_TILT,epsT:EPS_TILT,decor:false};
+var dirty=true, dragSlider=false, dragOrbit=false;
+function dps(v){return 0.05*Math.pow(10,3.1*v/100);} // 每秒過幾多日
+
+/* ---------- 幾何 ---------- */
+function sunVec(){
+  var ls=dToLam(state.d)*D2R;
+  return [Math.cos(ls),Math.sin(ls),0];
+}
+function macauWorld(epsDeg,psi){
+  var e=epsDeg*D2R, ph=LAT*D2R, lm=LON*D2R+psi;
+  var sx=Math.cos(ph)*Math.cos(lm), sy=Math.cos(ph)*Math.sin(lm), sz=Math.sin(ph);
+  return [sx, sy*Math.cos(e)+sz*Math.sin(e), -sy*Math.sin(e)+sz*Math.cos(e)];
+}
+function sunAz(){ // 太陽在「未自轉、已傾斜」座標系中嘅方位
+  var s=sunVec(), e=state.eps*D2R;
+  return Math.atan2(s[1]*Math.cos(e), s[0]);
+}
+function hourAngle(){return wrapPi(LON*D2R+state.psi-sunAz());}
+function geo(){
+  var lsDeg=dToLam(state.d);
+  var eps=state.eps*D2R;
+  var decl=Math.asin(Math.sin(eps)*Math.sin(lsDeg*D2R));
+  var phi=LAT*D2R;
+  var cosH=(Math.sin(-0.833*D2R)-Math.sin(phi)*Math.sin(decl))/(Math.cos(phi)*Math.cos(decl));
+  var len=cosH<=-1?24:(cosH>=1?0:2*Math.acos(cosH)/D2R/15);
+  var alt=90-Math.abs(LAT-decl/D2R);
+  return {lam:lsDeg,decl:decl/D2R,len:len,alt:alt};
+}
+function setDate(nd,keep){
+  var H=keep?hourAngle():0;
+  state.d=((nd%YEAR)+YEAR)%YEAR;
+  if(keep) state.psi=wrapPi(H+sunAz()-LON*D2R);
+  dirty=true;
+}
+
+/* ---------- 畫布設定 ---------- */
+function makeCanvas(id){
+  var cv=$(id);
+  var o={cv:cv,g:cv?cv.getContext('2d'):null,w:0,h:0,dpr:1};
+  o.resize=function(){
+    if(!cv||!o.g) return;
+    var r=cv.getBoundingClientRect();
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    var w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+    if(w===o.w&&h===o.h&&dpr===o.dpr) return;
+    o.w=w;o.h=h;o.dpr=dpr;
+    cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+    o.g.setTransform(dpr,0,0,dpr,0,0);
+    dirty=true;
+  };
+  return o;
+}
+var oc=makeCanvas('orbit'), zc=makeCanvas('zoom');
+function resizeAll(){oc.resize();zc.resize();}
+window.addEventListener('resize',resizeAll);
+if(window.ResizeObserver){
+  try{var ro=new ResizeObserver(resizeAll);if($('stage'))ro.observe($('stage'));var zw=document.querySelector('.zoomwrap');if(zw)ro.observe(zw);}catch(e){}
+}
+
+var stars=[];(function(){var s=7;function rnd(){s=(s*9301+49297)%233280;return s/233280;}for(var i=0;i<130;i++)stars.push([rnd(),rnd(),rnd()*1.4+0.4,rnd()]);})();
+
+function rr(g,x,y,w,h,r){
+  g.beginPath();g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.quadraticCurveTo(x+w,y,x+w,y+r);g.lineTo(x+w,y+h-r);g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);g.lineTo(x+r,y+h);g.quadraticCurveTo(x,y+h,x,y+h-r);g.lineTo(x,y+r);g.quadraticCurveTo(x,y,x+r,y);g.closePath();
+}
+
+/* ---------- 公轉主畫面 ---------- */
+var hits=[]; var orbitGeom={cx:0,cy:0,R:1};
+function drawOrbit(t){
+  var g=oc.g,W=oc.w,H=oc.h; if(!g||!W) return;
+  hits=[];
+  var bgG=g.createLinearGradient(0,0,0,H);bgG.addColorStop(0,'#0f1a3c');bgG.addColorStop(1,'#1c2c60');
+  g.fillStyle=bgG;g.fillRect(0,0,W,H);
+  for(var i=0;i<stars.length;i++){var st=stars[i];g.globalAlpha=0.35+0.5*st[3];g.fillStyle='#fff';g.beginPath();g.arc(st[0]*W,st[1]*H,st[2]*0.8,0,TAU);g.fill();}
+  g.globalAlpha=1;
+  var fs=Math.max(18,Math.min(28,W/44));
+  var ph=Math.max(64,fs*2.6), pw=fs*5.0;
+  var k=0.16, sinEl=Math.sin(EL), cosEl=Math.cos(EL);
+  var R=Math.min((H/2-12)/(sinEl+1.9*k),W/2-pw/2-10);
+  R=Math.max(60,R);
+  var Re=k*R;
+  var cx=W/2, cy=H/2+4;
+  orbitGeom={cx:cx,cy:cy,R:R,sinEl:sinEl};
+  var sunR=Math.max(24,Re*1.05);
+  var L=((dToLam(state.d)+180)%360)*D2R;
+  var ex=Math.cos(L), ey=Math.sin(L);
+  var E={x:cx+R*ey,y:cy+R*sinEl*ex};
+  var earthFront=ex>0;
+  g.font='800 '+fs+'px '+FONT;g.textBaseline='middle';
+
+  function orbitArc(front,alpha){
+    g.save();g.setLineDash([10,9]);g.lineWidth=2.6;g.strokeStyle='rgba(255,255,255,'+alpha+')';
+    g.beginPath();var first=true;
+    for(var a=0;a<=360;a+=3){var th=a*D2R;var x=Math.cos(th),y=Math.sin(th);
+      if((x>=0)===front){var sx=cx+R*y,sy=cy+R*sinEl*x;if(first){g.moveTo(sx,sy);first=false;}else g.lineTo(sx,sy);}else{first=true;}
+    }
+    g.stroke();g.restore();
+  }
+  function arrowAt(deg){
+    var th=deg*D2R;var x=Math.cos(th),y=Math.sin(th);
+    var px=cx+R*y,py=cy+R*sinEl*x;
+    var tx=R*Math.cos(th),ty=-R*sinEl*Math.sin(th);var m=Math.sqrt(tx*tx+ty*ty)||1;tx/=m;ty/=m;
+    g.save();g.translate(px,py);g.rotate(Math.atan2(ty,tx));g.fillStyle='rgba(255,255,255,.85)';
+    g.beginPath();g.moveTo(11,0);g.lineTo(-8,-8);g.lineTo(-8,8);g.closePath();g.fill();g.restore();
+  }
+  function drawSun(){
+    var rot=(t||0)/6000;
+    var gl=g.createRadialGradient(cx,cy,sunR*0.6,cx,cy,sunR*2.6);
+    gl.addColorStop(0,'rgba(255,214,90,.55)');gl.addColorStop(1,'rgba(255,214,90,0)');
+    g.fillStyle=gl;g.beginPath();g.arc(cx,cy,sunR*2.6,0,TAU);g.fill();
+    g.save();g.translate(cx,cy);g.rotate(rot);g.fillStyle='#FFB02E';
+    for(var r=0;r<12;r++){g.rotate(TAU/12);g.beginPath();g.moveTo(sunR*1.08,-sunR*0.15);g.lineTo(sunR*1.5,0);g.lineTo(sunR*1.08,sunR*0.15);g.closePath();g.fill();}
+    g.restore();
+    g.fillStyle='#FFD43B';g.strokeStyle='#F2931E';g.lineWidth=4;g.beginPath();g.arc(cx,cy,sunR,0,TAU);g.fill();g.stroke();
+    g.fillStyle='#fff3c4';g.beginPath();g.arc(cx-sunR*0.3,cy-sunR*0.32,sunR*0.28,0,TAU);g.fill();
+    g.fillStyle='#fff';g.font='800 '+fs+'px '+FONT;g.textAlign='right';g.strokeStyle='rgba(10,18,50,.8)';g.lineWidth=5;g.lineJoin='round';g.strokeText('太陽',cx-sunR*1.65,cy);g.fillText('太陽',cx-sunR*1.65,cy);
+  }
+  function cone(){
+    var dx=E.x-cx,dy=E.y-cy;var m=Math.sqrt(dx*dx+dy*dy)||1;var nx=-dy/m,ny=dx/m;
+    var gr=g.createLinearGradient(cx,cy,E.x,E.y);gr.addColorStop(0,'rgba(255,222,110,.22)');gr.addColorStop(1,'rgba(255,222,110,.05)');
+    g.fillStyle=gr;g.beginPath();g.moveTo(cx+nx*sunR*0.8,cy+ny*sunR*0.8);g.lineTo(E.x+nx*Re*0.95,E.y+ny*Re*0.95);g.lineTo(E.x-nx*Re*0.95,E.y-ny*Re*0.95);g.lineTo(cx-nx*sunR*0.8,cy-ny*sunR*0.8);g.closePath();g.fill();
+  }
+  function drawEarth(){
+    var e=state.eps*D2R;
+    var axX=Math.sin(e), axY=-Math.cos(e)*cosEl;           // 地軸（北端）喺畫面嘅方向 (y 向下)
+    var len=Re*1.6;
+    // 垂直參考線（黃道面法線）
+    g.save();g.setLineDash([7,7]);g.lineWidth=2;g.strokeStyle='rgba(255,255,255,.55)';
+    g.beginPath();g.moveTo(E.x,E.y+len*0.9);g.lineTo(E.x,E.y-len*1.0);g.stroke();g.restore();
+    // 地軸南端（喺地球背後）
+    g.lineCap='round';g.lineWidth=5;g.strokeStyle='#FFE08A';
+    g.beginPath();g.moveTo(E.x,E.y);g.lineTo(E.x-axX*len,E.y-axY*len);g.stroke();
+    // 地球
+    var s=sunVec();var sv=[-ex,-ey,0]; sv=[s[0],s[1],s[2]];
+    var Cb=[cosEl,0,sinEl];var dc=dot(sv,Cb);
+    var se=norm([sv[0]-0.8*dc*Cb[0],sv[1]-0.8*dc*Cb[1],sv[2]-0.8*dc*Cb[2]]);
+    var q=Math.min(oc.dpr,2)*1.0;
+    renderEarthOrbit(g,E.x,E.y,Re,q,{R:[0,1,0],U:[-sinEl,0,cosEl],C:[cosEl,0,sinEl]},se,state.eps,state.psi,null);
+    // 輪廓
+    g.lineWidth=2.5;g.strokeStyle='rgba(255,255,255,.35)';g.beginPath();g.arc(E.x,E.y,Re,0,TAU);g.stroke();
+    // 地軸北端
+    g.strokeStyle='#FFE08A';g.lineWidth=5;g.beginPath();g.moveTo(E.x,E.y);g.lineTo(E.x+axX*len,E.y+axY*len);g.stroke();
+    g.fillStyle='#FFE08A';g.beginPath();g.arc(E.x+axX*len,E.y+axY*len,6,0,TAU);g.fill();
+    g.font='800 '+(fs*0.85)+'px '+FONT;g.textAlign='center';g.fillStyle='#FFE08A';
+    g.strokeStyle='rgba(10,18,50,.85)';g.lineWidth=5;g.lineJoin='round';g.strokeText('北',E.x+axX*(len+fs*0.8),E.y+axY*(len+fs*0.8));g.fillText('北',E.x+axX*(len+fs*0.8),E.y+axY*(len+fs*0.8));
+    // 傾角弧線
+    if(state.eps>1){
+      var a0=-Math.PI/2, a1=Math.atan2(axY,axX);
+      g.lineWidth=3;g.strokeStyle='#FFB02E';g.beginPath();g.arc(E.x,E.y,len*0.78,a0,a1,false);g.stroke();
+      g.font='800 '+(fs*0.82)+'px '+FONT;g.fillStyle='#FFB02E';g.textAlign='left';
+      g.textAlign='right';g.strokeStyle='rgba(10,18,50,.85)';g.lineWidth=5;g.lineJoin='round';g.strokeText(state.eps.toFixed(1)+'°',E.x-8,E.y-len*0.95);g.fillText(state.eps.toFixed(1)+'°',E.x-8,E.y-len*0.95);
+    }
+    // 澳門點
+    var m=macauWorld(state.eps,state.psi);
+    var dep=m[0]*cosEl+m[2]*sinEl;
+    if(dep>0.02){
+      var mx=E.x+(m[1])*Re, my=E.y-(-m[0]*sinEl+m[2]*cosEl)*Re;
+      g.fillStyle='#E8618C';g.strokeStyle='#fff';g.lineWidth=2.5;g.beginPath();g.arc(mx,my,Math.max(5,Re*0.14),0,TAU);g.fill();g.stroke();
+    }
+  }
+  // 順序
+  orbitArc(false,0.35);
+  // 節氣標籤（喺地球之下）
+  var Ls=[0,90,180,270]; // 地球日心黃經：秋分、冬至、春分、夏至
+  var map=[2,3,0,1];     // 對應 KEY index
+  for(var j=0;j<4;j++){
+    var th=Ls[j]*D2R,x=Math.cos(th),y=Math.sin(th);
+    var px=cx+R*y,py=cy+R*sinEl*x;
+    var side=Math.abs(x)<0.5;
+    var py2=side?py+Re*2.0+ph/2+6:py;
+    if(!side)px=px+Re*1.7+pw/2+10;
+    var ox=side?px:px-(Re*1.7+pw/2+10);
+    var kidx=map[j];
+    var diff=Math.abs(wrapPi(L-th))/D2R;
+    var active=diff<5;
+    rr(g,px-pw/2,py2-ph/2,pw,ph,16);
+    g.fillStyle=active?'#FFF1D6':'rgba(40,56,110,.85)';g.fill();
+    g.lineWidth=3;g.strokeStyle=active?'#E9A23B':'rgba(255,255,255,.55)';g.stroke();
+    g.textAlign='center';
+    g.fillStyle=active?'#7a4b00':'#fff';g.font='900 '+fs+'px '+FONT;g.fillText(KEY_NAMES[kidx],px,py2-fs*0.55);
+    g.font='700 '+(fs*0.82)+'px '+FONT;g.fillStyle=active?'#8a5a00':'#cfe0ff';g.fillText(KEY_DATES[kidx],px,py2+fs*0.62);
+    // 軌道上小點
+    g.fillStyle=active?'#FFB02E':'rgba(255,255,255,.8)';g.beginPath();g.arc(ox,py,4,0,TAU);g.fill();
+    hits.push({x:px-pw/2-6,y:py2-ph/2-6,w:pw+12,h:ph+12,d:ANCH_D[kidx]});
+  }
+  if(!earthFront){cone();drawEarth();}
+  drawSun();
+  orbitArc(true,0.6);
+  arrowAt(40);arrowAt(220);
+  if(earthFront){cone();drawEarth();}
+
+  // 圖例
+  g.textAlign='left';g.font='700 '+(fs*0.8)+'px '+FONT;
+  var ly=H-fs*1.9;
+  g.fillStyle='#E8618C';g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(18,ly,8,0,TAU);g.fill();g.stroke();
+  g.fillStyle='#e6eeff';g.fillText('澳門（北緯約 22°）',34,ly);
+  g.fillText('白箭咀：公轉方向（由北極上方看是逆時針）',18,ly+fs*1.0);
+  g.fillStyle='rgba(255,255,255,.0)';
+}
+
+/* ---------- 近鏡畫面 ---------- */
+function zoomBasis(s){
+  var h=[s[1],-s[0],0], A=50*D2R;
+  return {R:s,U:[-h[0]*Math.sin(A),-h[1]*Math.sin(A),Math.cos(A)],C:[h[0]*Math.cos(A),h[1]*Math.cos(A),Math.sin(A)]};
+}
+function drawZoom(t){
+  var g=zc.g,W=zc.w,H=zc.h; if(!g||!W) return;
+  var bgG=g.createLinearGradient(0,0,W,0);bgG.addColorStop(0,'#0a1230');bgG.addColorStop(1,'#1a2a5c');
+  g.fillStyle=bgG;g.fillRect(0,0,W,H);
+  for(var i=0;i<40;i++){var st=stars[i];g.globalAlpha=0.5;g.fillStyle='#fff';g.beginPath();g.arc(st[0]*W,st[1]*H,st[2]*0.7,0,TAU);g.fill();}
+  g.globalAlpha=1;
+  var fs=Math.max(16,Math.min(24,W/22));
+  var s=sunVec(), B=zoomBasis(s);
+  var rad=Math.min(H*0.33,W*0.27), cx=W*0.45, cy=H*0.56;
+  // 太陽光箭咀
+  g.strokeStyle='rgba(255,214,90,.9)';g.fillStyle='rgba(255,214,90,.9)';g.lineWidth=4;g.lineCap='round';
+  for(var a=-1;a<=1;a++){
+    var y=cy+a*rad*0.55, x0=W-8, x1=cx+rad*1.28;
+    g.beginPath();g.moveTo(x0,y);g.lineTo(x1+8,y);g.stroke();
+    g.beginPath();g.moveTo(x1,y);g.lineTo(x1+14,y-8);g.lineTo(x1+14,y+8);g.closePath();g.fill();
+  }
+  g.font='800 '+fs+'px '+FONT;g.textAlign='right';g.textBaseline='middle';g.fillStyle='#FFD43B';
+  g.fillText('☀ 太陽光',W-10,cy-rad*1.02>fs?cy-rad*1.02:fs);
+  var q=Math.min(zc.dpr,1.5);
+  var maxPx=440;if(rad*2*q>maxPx)q=maxPx/(rad*2);
+  renderEarthZoom(g,cx,cy,rad,q,B,s,state.eps,state.psi,{parallel:true});
+  g.lineWidth=2;g.strokeStyle='rgba(255,255,255,.3)';g.beginPath();g.arc(cx,cy,rad,0,TAU);g.stroke();
+  // 地軸
+  var e=state.eps*D2R;
+  var axis=[0,Math.sin(e),Math.cos(e)];
+  var vx=dot(axis,B.R), vy=-dot(axis,B.U); // 畫面 y 向下
+  var vm=Math.sqrt(vx*vx+vy*vy);
+  g.strokeStyle='#FFE08A';g.lineWidth=4;
+  if(vm>0.06){
+    var ux=vx/vm,uy=vy/vm;
+    g.beginPath();g.moveTo(cx+ux*rad,cy+uy*rad);g.lineTo(cx+ux*rad*1.32,cy+uy*rad*1.32);g.stroke();
+    g.beginPath();g.moveTo(cx-ux*rad,cy-uy*rad);g.lineTo(cx-ux*rad*1.32,cy-uy*rad*1.32);g.stroke();
+    g.fillStyle='#FFE08A';g.beginPath();g.arc(cx+ux*rad*1.32,cy+uy*rad*1.32,5,0,TAU);g.fill();
+    g.font='800 '+fs+'px '+FONT;g.textAlign='center';g.fillText('北極',cx+ux*rad*1.32,Math.max(fs*0.7,cy+uy*rad*1.32+(uy<0?-fs*0.9:fs*0.9)));
+  }
+  // 北極喺面向我哋嗰面
+  var npD=dot(axis,B.C);
+  if(npD>0.05){g.fillStyle='#FFE08A';g.beginPath();g.arc(cx+vx*rad,cy+vy*rad,5,0,TAU);g.fill();}
+  // 澳門
+  var m=macauWorld(state.eps,state.psi);
+  var depth=dot(m,B.C);
+  var sinAlt=dot(m,s);
+  if(depth>0.03){
+    var mx=cx+dot(m,B.R)*rad, my=cy-dot(m,B.U)*rad;
+    var pulse=1+0.25*Math.sin((t||0)/260);
+    g.fillStyle='rgba(232,97,140,.28)';g.beginPath();g.arc(mx,my,rad*0.1*pulse+6,0,TAU);g.fill();
+    g.fillStyle='#E8618C';g.strokeStyle='#fff';g.lineWidth=3;g.beginPath();g.arc(mx,my,Math.max(6,rad*0.055),0,TAU);g.fill();g.stroke();
+    g.font='900 '+fs+'px '+FONT;
+    var lab='澳門';var tw=g.measureText(lab).width+16;
+    var lx=mx+rad*0.1+6; if(lx+tw>W-4) lx=mx-rad*0.1-6-tw;
+    rr(g,lx,my-fs*0.75,tw,fs*1.5,10);g.fillStyle='#fff';g.fill();
+    g.fillStyle='#E8618C';g.textAlign='left';g.fillText(lab,lx+8,my);
+  }
+  g.font='700 '+(fs*0.9)+'px '+FONT;g.fillStyle='#cfe0ff';g.textAlign='left';
+  g.fillText('↺ 自轉：由西向東',10,H-fs*2.0);
+  g.fillText('粉紅線 = 澳門所在緯度',10,H-fs*0.8);
+  return {sinAlt:sinAlt};
+}
+
+/* ---------- 資訊更新 ---------- */
+var cache={};
+function setTxt(id,v){if(cache[id]===v)return;cache[id]=v;var el=$(id);if(el)el.textContent=v;}
+function fmtTime(h){
+  var hh=Math.floor(h)%24, mm=Math.floor((h-Math.floor(h))*60);
+  var p=hh<5?'凌晨':hh<12?'上午':hh<13?'中午':hh<18?'下午':'晚上';
+  var h12=hh%12===0?12:hh%12;
+  return p+' '+h12+':'+(mm<10?'0':'')+mm;
+}
+function updateInfo(){
+  var G=geo();
+  var d=state.d;
+  var ds=dateStr(d);
+  setTxt('dateBig',ds);
+  setTxt('dateTxt',ds);
+  var sIdx=Math.min(3,Math.floor(G.lam/90));
+  // 節氣標記（前後約3日內）
+  var near=-1;
+  for(var k=0;k<4;k++){var dd=Math.abs(wrapPi((G.lam-k*90)*D2R))/D2R;if(dd<3)near=k;}
+  var tag=$('tagS');
+  var noTilt=state.eps<1;
+  if(tag){
+    var txt=near>=0?KEY_NAMES[near]:(SEASON_NAMES[sIdx]+'季');
+    if(noTilt)txt='沒有四季';
+    if(cache.tagTxt!==txt){cache.tagTxt=txt;tag.textContent=txt;}
+    var cls='tag tg-'+(noTilt?'2':sIdx);
+    if(cache.tagCls!==cls){cache.tagCls=cls;tag.className=cls;}
+  }
+  var len=G.len;
+  var dayTxt, kind;
+  if(len>12.4)kind='日長夜短';else if(len<11.6)kind='日短夜長';else kind='晝夜相近';
+  dayTxt=kind+'（白晝約 '+len.toFixed(1)+' 小時）';
+  setTxt('kDay',dayTxt);
+  var seasonTxt=noTilt?'沒有明顯季節':('約 '+SEASON_NAMES[sIdx]+'季');
+  setTxt('kSeason',seasonTxt);
+  var dl=G.decl;
+  var dtxt=Math.abs(dl)<0.5?'赤道上':(dl>0?'北緯 ':'南緯 ')+Math.abs(dl).toFixed(1)+'°';
+  setTxt('kDecl',dtxt);
+  setTxt('kAlt','約 '+Math.min(90,G.alt).toFixed(0)+'°');
+  var ex;
+  if(noTilt){
+    ex='地軸沒有傾斜：太陽全年都直射赤道，各地全年晝夜各約 12 小時，氣溫變化很小，不會有明顯四季。';
+  }else if(sIdx===0){
+    ex=(near===0?'春分：太陽直射赤道，晝夜幾乎一樣長。':'北半球漸漸傾向太陽，白晝越來越長，天氣漸暖。');
+  }else if(sIdx===1){
+    ex=(near===1?'夏至：北半球最向太陽傾斜，太陽最高、白晝最長（澳門約 13.4 小時）。':'北半球傾向太陽：陽光較直、白晝較長，所以較熱。');
+  }else if(sIdx===2){
+    ex=(near===2?'秋分：太陽直射赤道，晝夜幾乎一樣長。':'北半球漸漸背離太陽，白晝越來越短，天氣轉涼。');
+  }else{
+    ex=(near===3?'冬至：北半球最背向太陽，太陽最低、白晝最短（澳門約 10.7 小時）。':'北半球背向太陽：陽光較斜、白晝較短，所以較涼。');
+  }
+  setTxt('explain',ex);
+  // 年進度
+  var yi=$('ybarI');var yp=Math.round(d/YEAR*1000)/10;
+  if(yi&&cache.yp!==yp){cache.yp=yp;yi.style.width=yp+'%';}
+  // 日進度條（日出日落）
+  var a=(12-len/2)/24*100,b=(12+len/2)/24*100;
+  var hb=$('hbar');var key=a.toFixed(1)+'_'+b.toFixed(1);
+  if(hb&&cache.hbk!==key){cache.hbk=key;
+    hb.style.background='linear-gradient(90deg,#27325f 0%,#27325f '+Math.max(0,a-1.5)+'%,#ff9d5c '+a+'%,#FFD43B '+Math.min(100,a+3)+'%,#FFD43B '+Math.max(0,b-3)+'%,#ff9d5c '+b+'%,#27325f '+Math.min(100,b+1.5)+'%,#27325f 100%)';}
+  var fast=state.playing&&state.spin&&state.decor;
+  var H=hourAngle();
+  var hr=((12+H/TAU*24)%24+24)%24;
+  var mk=$('hmk');
+  var clockT=fast?'快速示意中':fmtTime(hr);
+  setTxt('clockTxt',clockT);
+  if(mk){var pos=(hr/24*100).toFixed(1);if(cache.mk!==pos){cache.mk=pos;mk.style.left=pos+'%';}mk.style.display=fast?'none':'block';}
+  return G;
+}
+function updateStatus(sinAlt){
+  var st=$('stat');if(!st) return;
+  var txt,cls;
+  if(sinAlt>0.07){txt='☀ 白天';cls='status st-day';}
+  else if(sinAlt>-0.1){txt='🌅 日出日落時分';cls='status st-twi';}
+  else{txt='🌙 黑夜';cls='status st-night';}
+  if(cache.stTxt!==txt){cache.stTxt=txt;st.textContent=txt;}
+  if(cache.stCls!==cls){cache.stCls=cls;st.className=cls;}
+}
+
+/* ---------- 控制 ---------- */
+function speedLabel(){
+  var v=dps(state.speedV);
+  var s=v<1?(v*24).toFixed(v*24<10?1:0)+' 小時／秒':(v<10?v.toFixed(1):v.toFixed(0))+' 日／秒';
+  state.decor=v>2.5;
+  return s+(state.decor?'（自轉僅示意）':'');
+}
+function syncBtns(){
+  var p=$('btnPlay');if(p)p.textContent=state.playing?'⏸ 暫停':'▶ 播放';
+  var sp=$('btnSpin');if(sp){sp.setAttribute('aria-pressed',state.spin?'true':'false');sp.textContent='自轉：'+(state.spin?'開':'關');}
+  var ob=$('btnOrbit');if(ob){ob.setAttribute('aria-pressed',state.orbit?'true':'false');ob.textContent='公轉：'+(state.orbit?'開':'關');}
+  var tl=$('btnTilt');if(tl){tl.setAttribute('aria-pressed',state.tilt?'true':'false');tl.textContent=state.tilt?'地軸：傾斜':'地軸：無傾斜';tl.className=state.tilt?'btn warn':'btn ghost';}
+  setTxt('speedTxt',speedLabel());
+  dirty=true;
+}
+function bind(id,ev,fn){var el=$(id);if(el)el.addEventListener(ev,fn);}
+bind('btnPlay','click',function(){state.playing=!state.playing;syncBtns();});
+bind('btnSpin','click',function(){state.spin=!state.spin;syncBtns();});
+bind('btnOrbit','click',function(){state.orbit=!state.orbit;syncBtns();});
+function setTilt(on){state.tilt=on;state.epsT=on?EPS_TILT:0;syncBtns();toast(on?'地軸傾斜 23.5°（真實情況）':'地軸無傾斜（對比用）');}
+bind('btnTilt','click',function(){setTilt(!state.tilt);});
+bind('speed','input',function(e){state.speedV=+e.target.value;syncBtns();});
+var dateEl=$('date');
+if(dateEl){
+  dateEl.addEventListener('pointerdown',function(){dragSlider=true;});
+  window.addEventListener('pointerup',function(){dragSlider=false;});
+  dateEl.addEventListener('input',function(e){setDate(+e.target.value,true);});
+}
+// 月份刻度
+(function(){var m=$('months');if(!m)return;for(var i=0;i<12;i++){var s=document.createElement('span');s.textContent=(i+1)+'月';s.style.flex=MDAYS[i]+' 1 0';m.appendChild(s);}})();
+
+/* ---------- 全螢幕 / 重新開始 ---------- */
+bind('btnFs','click',function(){
+  try{
+    var de=document.documentElement;
+    if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}
+    else if(de.requestFullscreen){de.requestFullscreen();}
+    else if(de.webkitRequestFullscreen){de.webkitRequestFullscreen();}
+    else toast('呢部裝置唔支援全螢幕');
+  }catch(e){toast('無法進入全螢幕');}
+});
+bind('btnReset','click',function(){
+  state.d=INIT_D;state.psi=1.2;state.playing=true;state.spin=true;state.orbit=true;state.speedV=70;state.tilt=true;state.epsT=EPS_TILT;
+  var sp=$('speed');if(sp)sp.value=70;
+  closeQ();syncBtns();toast('已重新開始');
+});
+
+/* ---------- Toast ---------- */
+var toastT=0;
+function toast(msg){var t=$('toast');if(!t)return;t.textContent=msg;t.className='toast on';clearTimeout(toastT);toastT=setTimeout(function(){t.className='toast';},2200);}
+
+/* ---------- 公轉圖互動 ---------- */
+function pointerPos(e){var r=oc.cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+function dragTo(p){
+  var G=orbitGeom;
+  var yw=(p.x-G.cx)/G.R, xw=(p.y-G.cy)/(G.R*G.sinEl);
+  if(Math.abs(yw)+Math.abs(xw)<0.15) return;
+  var L=Math.atan2(yw,xw)/D2R;
+  setDate(lamToD(L+180),true);
+}
+if(oc.cv){
+  oc.cv.addEventListener('pointerdown',function(e){
+    var p=pointerPos(e);
+    for(var i=0;i<hits.length;i++){var h=hits[i];if(p.x>=h.x&&p.x<=h.x+h.w&&p.y>=h.y&&p.y<=h.y+h.h){setDate(h.d,true);return;}}
+    dragOrbit=true;
+    try{oc.cv.setPointerCapture(e.pointerId);}catch(err){}
+    oc.cv.style.cursor='grabbing';
+    dragTo(p);
+  });
+  oc.cv.addEventListener('pointermove',function(e){if(dragOrbit)dragTo(pointerPos(e));});
+  var endDrag=function(){dragOrbit=false;oc.cv.style.cursor='grab';};
+  oc.cv.addEventListener('pointerup',endDrag);
+  oc.cv.addEventListener('pointercancel',endDrag);
+}
+
+/* ---------- 教學提問卡 ---------- */
+var QS=[
+ {q:'如果地軸沒有傾斜，會不會有四季？',
+  a:'不會有明顯的四季。地軸沒有傾斜時，太陽全年都直射赤道，各地全年晝夜長短都差不多（約各 12 小時），陽光照射的角度也不會隨季節改變。四季主要是因為地軸傾斜約 23.5°，而且傾斜方向在公轉時保持不變。',
+  btn:'🧪 切換「地軸無傾斜」來看',
+  act:function(){setTilt(false);}},
+ {q:'地球離太陽最近的時候，是不是夏天？',
+  a:'不是。地球大約在 1 月初最接近太陽（約 1.47 億公里），7 月初最遠（約 1.52 億公里），差距很小。當澳門是冬天，地球反而較近。四季主要由地軸傾斜造成，不是距離。（示範圖的軌道近乎圓形，並非按比例。）',
+  btn:'📅 跳到 1 月初',
+  act:function(){setDate(2,true);}},
+ {q:'澳門是夏天的時候，南半球（例如澳洲）是甚麼季節？為甚麼？',
+  a:'是冬天。地軸傾斜方向不變：北半球傾向太陽時，南半球剛好背向太陽，陽光較斜、白晝較短。所以澳門 6 月夏至時，澳洲悉尼正是冬至，兩邊季節相反。',
+  btn:'☀ 跳到夏至，觀察南北半球',
+  act:function(){setDate(171,true);}}
+];
+var qi=0;
+function renderQ(){
+  var t=$('qtabs');
+  if(t&&!t.children.length){
+    QS.forEach(function(_,i){var b=document.createElement('button');b.type='button';b.className='btn toggle';b.textContent='問題 '+(i+1);b.addEventListener('click',function(){qi=i;renderQ();});t.appendChild(b);});
+    var sp=document.createElement('div');sp.className='spacer';t.appendChild(sp);
+    var tt=document.createElement('div');tt.style.fontWeight='800';tt.textContent='教學提問卡';t.appendChild(tt);
+  }
+  if(t)for(var i=0;i<t.children.length-2;i++){t.children[i].className='btn toggle'+(i===qi?' on':'');}
+  var q=QS[qi];
+  setTxt2('qn','問題 '+(qi+1)+' / '+QS.length);setTxt2('qt',q.q);setTxt2('qa',q.a);setTxt2('qGo',q.btn);
+  var f=$('flip');if(f)f.className='flip';
+}
+function setTxt2(id,v){var el=$(id);if(el)el.textContent=v;}
+function openQ(){var o=$('ov');if(o)o.className='overlay on';renderQ();}
+function closeQ(){var o=$('ov');if(o)o.className='overlay';}
+function flipQ(){var f=$('flip');if(f)f.classList.toggle('fl');}
+bind('btnQ','click',openQ);
+bind('qClose','click',closeQ);
+bind('qFlip','click',flipQ);
+bind('flip','click',flipQ);
+bind('flip','keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();flipQ();}});
+bind('qGo','click',function(){QS[qi].act();closeQ();});
+bind('ov','click',function(e){if(e.target&&e.target.id==='ov')closeQ();});
+window.addEventListener('keydown',function(e){if(e.key==='Escape')closeQ();});
+
+/* ---------- 主迴圈 ---------- */
+var last=0;
+function frame(t){
+  var dt=last?Math.min(0.05,(t-last)/1000):0;last=t;
+  if(state.playing){
+    var dp=dps(state.speedV);
+    if(state.orbit){state.d=(state.d+dp*dt)%YEAR;}
+    if(state.spin){
+      if(dp>2.5)state.psi+=TAU*0.3*dt;else state.psi+=TAU*1.0027379*dp*dt;
+      state.psi=state.psi%TAU;
+    }
+    dirty=true;
+  }
+  if(Math.abs(state.eps-state.epsT)>0.005){state.eps+=(state.epsT-state.eps)*Math.min(1,dt*6);dirty=true;}
+  else if(state.eps!==state.epsT){state.eps=state.epsT;dirty=true;}
+  if(dirty){
+    dirty=false;
+    try{
+      resizeAll();
+      drawOrbit(t);
+      var z=drawZoom(t);
+      updateInfo();
+      if(z)updateStatus(z.sinAlt);
+      if(dateEl&&!dragSlider){var v=String(Math.floor(state.d));if(dateEl.value!==v)dateEl.value=v;}
+    }catch(err){/* 保持畫面運作 */}
+  }
+  window.requestAnimationFrame(frame);
+}
+// 網址參數（備課測試用，例如 #d=171&pause=1&tilt=0&q=1）
+try{
+  var hp={};(location.hash||'').replace(/^#/,'').split('&').forEach(function(x){var kv=x.split('=');if(kv[0])hp[kv[0]]=kv[1];});
+  if(hp.d!==undefined){state.d=+hp.d;}
+  if(hp.psi!==undefined){state.psi=+hp.psi;}
+  if(hp.speed!==undefined){state.speedV=+hp.speed;var spEl=$('speed');if(spEl)spEl.value=hp.speed;}
+  if(hp.tilt==='0'){state.tilt=false;state.eps=0;state.epsT=0;}
+  if(hp.pause==='1'){state.playing=false;}
+}catch(e){}
+syncBtns();
+if(dateEl)dateEl.value=String(Math.floor(state.d));
+renderQ();
+try{if(/(^|[#&])q=1/.test(location.hash)){openQ();if(/flip=1/.test(location.hash))flipQ();}}catch(e){}
+window.requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

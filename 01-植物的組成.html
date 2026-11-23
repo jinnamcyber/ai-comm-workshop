@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>植物的組成 · 互動教具</title>
+<style>
+:root{
+  --bg:#FFF8EC; --card:#FFFFFF; --ink:#1F2A44; --ink-2:#5B6478; --line:#E8DFCF;
+  --primary:#2F6FED; --primary-soft:#E3ECFF;
+  --good:#1E9E6A; --good-soft:#DDF5EA;
+  --hint:#E9A23B; --hint-soft:#FFF1D6;
+  --accent:#E8618C; --accent-soft:#FDE4EC;
+  --radius:22px; --shadow:0 6px 0 rgba(31,42,68,.08), 0 14px 30px rgba(31,42,68,.08);
+  --font:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Heiti TC",system-ui,sans-serif;
+  --u:calc(min(100vw, 177.78vh) / 100);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:#F1E7D3;font-family:var(--font);color:var(--ink);display:grid;place-items:center;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app{position:relative;width:min(100vw,177.78vh);height:min(100vh,56.25vw);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;font-size:clamp(24px,calc(var(--u)*1.45),30px);line-height:1.35}
+
+/* buttons */
+.btn{font:inherit;font-weight:700;color:var(--ink);background:#fff;border:0;border-radius:18px;min-height:64px;padding:0 1em;cursor:pointer;box-shadow:0 5px 0 rgba(31,42,68,.18);transition:transform .08s, box-shadow .08s, background .15s;display:inline-flex;align-items:center;justify-content:center;gap:.3em;white-space:nowrap;touch-action:manipulation;user-select:none}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(31,42,68,.18)}
+.btn:focus-visible,.tab:focus-visible,.stBtn:focus-visible,.chip-btn:focus-visible{outline:4px solid var(--primary);outline-offset:2px}
+.btn.primary{background:var(--primary);color:#fff;box-shadow:0 5px 0 #1D4FB5}
+.btn.primary:active{box-shadow:0 1px 0 #1D4FB5}
+.btn.good{background:var(--good);color:#fff;box-shadow:0 5px 0 #14764D}
+.btn.good:active{box-shadow:0 1px 0 #14764D}
+.btn.sq{padding:0;width:64px;font-size:1.1em}
+
+/* header */
+#top{display:flex;align-items:center;gap:.6em;padding:.3em .8em .2em;min-height:76px}
+.subj{background:var(--primary-soft);color:var(--primary);font-weight:800;border-radius:999px;padding:.15em .75em;white-space:nowrap}
+#top h1{margin:0;font-size:1.3em;white-space:nowrap}
+#top .sp{flex:1}
+
+/* tabs */
+#tabs{display:flex;gap:.6em;padding:.15em .8em .3em}
+.tab{flex:1;font:inherit;font-weight:800;font-size:1.1em;min-height:64px;border:0;border-radius:18px;background:#fff;color:var(--ink-2);cursor:pointer;box-shadow:0 5px 0 rgba(31,42,68,.12);touch-action:manipulation;transition:transform .08s, background .15s}
+.tab:active{transform:translateY(3px)}
+.tab[aria-selected="true"]{background:var(--primary);color:#fff;box-shadow:0 5px 0 #1D4FB5}
+.tab.nudge{animation:nudge 1s ease-in-out 3}
+@keyframes nudge{0%,100%{transform:scale(1)}50%{transform:scale(1.06);background:var(--hint-soft)}}
+
+/* main */
+#main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:.6em;padding:.2em .8em .9em}
+.scene{position:relative;min-height:0;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:#CBEBFF;border:4px solid #fff}
+.scene svg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+.panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:.7em .9em;display:flex;flex-direction:column;gap:.55em;min-height:0;overflow:auto}
+.big-hello{font-size:1.15em;font-weight:800;color:var(--primary);background:var(--primary-soft);border-radius:18px;padding:.6em .8em}
+.nameRow{display:flex;align-items:center;gap:.5em}
+.dot{width:1.1em;height:1.1em;border-radius:50%;flex:none;border:3px solid #fff;box-shadow:0 0 0 3px currentColor}
+.pname{font-size:2.1em;font-weight:900;line-height:1.1}
+.pfunc{font-size:1em;font-weight:600;color:var(--ink);background:#FFFBF2;border:2px dashed var(--line);border-radius:18px;padding:.5em .7em}
+.chips{display:flex;flex-wrap:wrap;gap:.4em}
+.chip-btn{font:inherit;font-weight:800;min-height:64px;padding:0 .9em;border-radius:18px;border:3px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:.25em}
+.chip-btn.seen{background:var(--good-soft);border-color:var(--good);color:#0F6B46}
+.chip-btn.cur{box-shadow:0 0 0 4px var(--hint)}
+.progress{font-weight:800;color:var(--ink-2)}
+.donebox{background:var(--good-soft);border:3px solid var(--good);border-radius:18px;padding:.5em .7em;font-weight:800;color:#0F6B46;display:flex;flex-direction:column;gap:.4em;align-items:flex-start}
+
+/* stars */
+.stars{display:flex;gap:.25em;align-items:center}
+.star{width:1.9em;height:1.9em;flex:none}
+.star path{fill:#fff;stroke:#CFC6B2;stroke-width:3;stroke-linejoin:round}
+.star.cur path{stroke:var(--primary);stroke-dasharray:6 5}
+.star.gold path{fill:#FFC83D;stroke:#E09A1B}
+.star.retry path{fill:#FFE7A6;stroke:#E9A23B}
+.star.pop{animation:starpop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes starpop{0%{transform:scale(.3) rotate(-30deg)}100%{transform:scale(1) rotate(0)}}
+.qcard{background:var(--primary-soft);border-radius:18px;padding:.5em .8em;display:flex;align-items:center;gap:.5em;flex-wrap:wrap}
+.qcard .ql{font-weight:800;color:var(--primary)}
+.qcard .qt{font-size:2.1em;font-weight:900;color:var(--ink);line-height:1.1}
+.fb{min-height:3.6em;border-radius:18px;padding:.5em .75em;font-weight:700;border:3px solid transparent;display:flex;align-items:center}
+.fb.none{background:#FFFBF2;border-color:var(--line);color:var(--ink-2)}
+.fb.good{background:var(--good-soft);border-color:var(--good);color:#0F6B46;animation:gpop .45s cubic-bezier(.3,1.6,.5,1)}
+.fb.hint{background:var(--hint-soft);border-color:var(--hint);color:#7A4B05;animation:hshake .45s ease}
+@keyframes gpop{0%{transform:scale(.92)}100%{transform:scale(1)}}
+@keyframes hshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.resbox{background:var(--good-soft);border:3px solid var(--good);border-radius:18px;padding:.6em .8em;display:flex;flex-direction:column;gap:.5em}
+.resbox .rt{font-size:1.4em;font-weight:900;color:#0F6B46}
+.row{display:flex;gap:.5em;flex-wrap:wrap}
+
+/* growth panel */
+.stepno{font-weight:800;color:var(--ink-2)}
+.stname{font-size:2.1em;font-weight:900;line-height:1.1;color:var(--accent)}
+.cap{font-size:1.08em;font-weight:700;background:#FFFBF2;border:2px dashed var(--line);border-radius:18px;padding:.55em .75em;min-height:4.4em}
+.dots{display:flex;gap:.35em}
+.dots i{width:.55em;height:.55em;border-radius:50%;background:var(--line);display:block;transition:background .2s, transform .2s}
+.dots i.on{background:var(--good)}
+.dots i.cur{background:var(--accent);transform:scale(1.5)}
+
+/* controls */
+#controls{display:flex;align-items:flex-start;gap:.7em;padding:0 .8em .9em;margin-top:-.2em}
+#controls .tl{flex:1;min-width:0;display:flex;flex-direction:column}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:56px;background:transparent;margin:0;cursor:pointer;touch-action:none;--p:0%}
+input[type=range]::-webkit-slider-runnable-track{height:20px;border-radius:10px;background:linear-gradient(to right,var(--primary) var(--p),var(--line) var(--p))}
+input[type=range]::-moz-range-track{height:20px;border-radius:10px;background:linear-gradient(to right,var(--primary) var(--p),var(--line) var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:48px;height:48px;border-radius:50%;background:#fff;border:6px solid var(--primary);margin-top:-14px;box-shadow:0 4px 0 rgba(31,42,68,.2)}
+input[type=range]::-moz-range-thumb{width:36px;height:36px;border-radius:50%;background:#fff;border:6px solid var(--primary);box-shadow:0 4px 0 rgba(31,42,68,.2)}
+input[type=range]:focus-visible{outline:4px solid var(--primary);outline-offset:4px;border-radius:12px}
+.stRow{display:grid;grid-template-columns:repeat(6,1fr);gap:.25em;margin-top:-.1em}
+.stBtn{font:inherit;font-weight:800;min-height:64px;border:0;border-radius:16px;background:#fff;color:var(--ink-2);cursor:pointer;box-shadow:0 4px 0 rgba(31,42,68,.12);touch-action:manipulation;padding:0}
+.stBtn.on{background:var(--accent-soft);color:var(--accent);box-shadow:0 4px 0 rgba(232,97,140,.4)}
+.stBtn:active{transform:translateY(3px)}
+
+#foot{position:absolute;right:14px;bottom:5px;font-size:14px;color:var(--ink-2);opacity:.85;pointer-events:none}
+
+/* SVG parts */
+.part{cursor:pointer;outline:none}
+.part *{pointer-events:none}
+.part .hit{pointer-events:all}
+.part:focus-visible .hit{stroke:var(--primary);stroke-width:4;stroke-dasharray:8 6}
+#svg.nointeract .part{cursor:default}
+#svg.nointeract .part .hit{pointer-events:none}
+.blink{animation:blink .7s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.rays{animation:spin 40s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.drop{animation:rain 1s linear infinite}
+@keyframes rain{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(270px);opacity:0}}
+#tagIn{animation:tagpop .35s cubic-bezier(.3,1.6,.5,1);transform-box:fill-box;transform-origin:center}
+@keyframes tagpop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+#tag text{font-family:var(--font);font-weight:900;font-size:34px;fill:#1F2A44}
+
+#side{min-height:0}
+@media (max-width:820px),(max-aspect-ratio:1/1){
+  body{display:block;height:auto;overflow:auto}
+  #app{width:100%;height:auto;min-height:100vh;font-size:20px;overflow:visible}
+  #top{flex-wrap:wrap}
+  #top .sp{display:none}
+  #main{grid-template-columns:1fr;grid-template-rows:auto}
+  .scene{height:auto;aspect-ratio:4/3}
+  #controls{flex-direction:column}
+  #foot{position:static;text-align:right;padding:0 14px 8px}
+  .stBtn{font-size:.8em}
+}
+@media (prefers-reduced-motion:reduce){.rays,.drop{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <span class="subj">常識科 · 小三</span>
+    <h1>植物的組成</h1>
+    <span class="sp"></span>
+    <button class="btn sq" id="btnSound" aria-label="聲音開關" title="聲音開關">🔊</button>
+    <button class="btn" id="btnFs">⛶ 全螢幕</button>
+    <button class="btn" id="btnReset">↺ 重新開始</button>
+  </header>
+  <nav id="tabs" role="tablist" aria-label="模式">
+    <button class="tab" role="tab" id="tab1" aria-selected="true" data-m="1">① 認識</button>
+    <button class="tab" role="tab" id="tab2" aria-selected="false" data-m="2">② 挑戰</button>
+    <button class="tab" role="tab" id="tab3" aria-selected="false" data-m="3">③ 成長</button>
+  </nav>
+
+  <div id="main">
+    <div class="scene">
+<svg id="svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="一棵開花結果嘅植物">
+<defs>
+  <linearGradient id="gSky" gradientUnits="userSpaceOnUse" x1="0" y1="-250" x2="0" y2="400"><stop offset="0" stop-color="#8FD0FA"/><stop offset="1" stop-color="#E9F7FF"/></linearGradient>
+  <linearGradient id="gSoil" gradientUnits="userSpaceOnUse" x1="0" y1="400" x2="0" y2="720"><stop offset="0" stop-color="#B27C48"/><stop offset="1" stop-color="#85562F"/></linearGradient>
+  <linearGradient id="gStemFill" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="392"><stop offset="0" stop-color="#F3E6BC"/><stop offset="1" stop-color="#6CCB86"/></linearGradient>
+  <linearGradient id="gStemLine" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="392"><stop offset="0" stop-color="#9A7A45"/><stop offset="1" stop-color="#2E7D4F"/></linearGradient>
+  <filter id="fGold" filterUnits="userSpaceOnUse" x="-100" y="-100" width="1000" height="800" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d"/><feGaussianBlur in="d" stdDeviation="5" result="b"/>
+    <feFlood flood-color="#FFD23F"/><feComposite in2="b" operator="in" result="g"/>
+    <feMerge><feMergeNode in="g"/><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="fGood" filterUnits="userSpaceOnUse" x="-100" y="-100" width="1000" height="800" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d"/><feGaussianBlur in="d" stdDeviation="5" result="b"/>
+    <feFlood flood-color="#2FD08A"/><feComposite in2="b" operator="in" result="g"/>
+    <feMerge><feMergeNode in="g"/><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="fHint" filterUnits="userSpaceOnUse" x="-100" y="-100" width="1000" height="800" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="d"/><feGaussianBlur in="d" stdDeviation="4" result="b"/>
+    <feFlood flood-color="#F5A83A"/><feComposite in2="b" operator="in" result="g"/>
+    <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <g id="leafShape">
+    <path d="M0,0 C14,-26 62,-34 100,-4 C104,-2 104,2 100,4 C62,34 14,26 0,0 Z" fill="#55BF78" stroke="#2E7D4F" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M3,-1 C16,-22 60,-28 96,-4 C66,-12 30,-12 3,-1Z" fill="#86DDA0" opacity=".7"/>
+    <path d="M4,0 L90,0 M30,0 L50,-12 M30,0 L50,12 M56,0 L74,-9 M56,0 L74,9" fill="none" stroke="#2E7D4F" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</defs>
+
+<!-- background (extends past viewBox so any panel shape is filled) -->
+<rect x="-2000" y="-2000" width="4800" height="2400" fill="url(#gSky)"/>
+<g id="sun" transform="translate(90 80)">
+  <g class="rays" stroke="#FFC83D" stroke-width="7" stroke-linecap="round">
+    <path d="M0,-52 V-70 M0,52 V70 M-52,0 H-70 M52,0 H70 M37,-37 L50,-50 M-37,-37 L-50,-50 M37,37 L50,50 M-37,37 L-50,50"/>
+  </g>
+  <circle r="40" fill="#FFD84D" stroke="#F2A81D" stroke-width="5"/>
+  <circle cx="-14" cy="-6" r="4.5" fill="#7A4B05"/><circle cx="14" cy="-6" r="4.5" fill="#7A4B05"/>
+  <path d="M-14,10 Q0,24 14,10" fill="none" stroke="#7A4B05" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g transform="translate(610 55) scale(.75)" fill="#fff" stroke="#D6EAF7" stroke-width="4" opacity=".95">
+  <path d="M-70,22 C-95,22 -95,-10 -66,-10 C-62,-38 -20,-44 -8,-22 C10,-40 50,-30 48,-4 C76,-6 84,22 56,22 Z"/>
+</g>
+<ellipse cx="120" cy="414" rx="240" ry="64" fill="#BDE5A5"/>
+<ellipse cx="710" cy="420" rx="270" ry="72" fill="#A5D88C"/>
+
+<!-- soil -->
+<rect x="-2000" y="400" width="4800" height="3000" fill="url(#gSoil)"/>
+<g fill="#C9A06E" stroke="#8F6234" stroke-width="3" opacity=".9">
+  <ellipse cx="105" cy="455" rx="15" ry="9"/><ellipse cx="660" cy="545" rx="18" ry="10"/><ellipse cx="260" cy="565" rx="13" ry="8"/><ellipse cx="560" cy="440" rx="11" ry="7"/>
+</g>
+<g fill="#7A4E25" opacity=".5"><circle cx="190" cy="480" r="4"/><circle cx="300" cy="440" r="3.5"/><circle cx="500" cy="500" r="4"/><circle cx="620" cy="480" r="3.5"/><circle cx="90" cy="540" r="4"/><circle cx="720" cy="440" r="4"/><circle cx="540" cy="570" r="3.5"/></g>
+<g id="worm"><path d="M590,505 q15,-20 30,0 t30,0 t30,0" fill="none" stroke="#8C4F3A" stroke-width="13" stroke-linecap="round"/><path d="M590,505 q15,-20 30,0 t30,0 t30,0" fill="none" stroke="#F4A6B5" stroke-width="8" stroke-linecap="round"/><circle cx="676" cy="506" r="3" fill="#5A2E22"/></g>
+<path id="grass" d="" fill="#5DB85A" stroke="#3E8F42" stroke-width="3" stroke-linejoin="round"/>
+
+<!-- seed -->
+<g id="gSeed" transform="translate(400 470)">
+  <g id="seedL"><path d="M0,-16 A24,16 0 0 0 0,16 Z" fill="#8C5A2B" stroke="#5C3A1A" stroke-width="4" stroke-linejoin="round"/><circle cx="-12" cy="-4" r="3" fill="#C99A62"/></g>
+  <g id="seedR"><path d="M0,-16 A24,16 0 0 1 0,16 Z" fill="#9B6733" stroke="#5C3A1A" stroke-width="4" stroke-linejoin="round"/></g>
+</g>
+
+<!-- ROOT -->
+<g class="part" id="partRoot" data-part="root" tabindex="0" role="button" aria-label="根">
+  <rect class="hit" x="320" y="404" width="160" height="190" rx="30" fill="transparent"/>
+  <g id="rootPaths"></g>
+</g>
+
+<!-- STEM -->
+<g class="part" id="partStem" data-part="stem" tabindex="0" role="button" aria-label="莖">
+  <rect class="hit" x="370" y="150" width="60" height="254" rx="14" fill="transparent"/>
+  <path id="brOut" fill="none" stroke="url(#gStemLine)" stroke-linecap="round" d=""/>
+  <path id="brIn" fill="none" stroke="url(#gStemFill)" stroke-linecap="round" d=""/>
+  <path id="stOut" fill="none" stroke="url(#gStemLine)" stroke-linecap="round" d=""/>
+  <path id="stIn" fill="none" stroke="url(#gStemFill)" stroke-linecap="round" d=""/>
+</g>
+
+<!-- LEAVES -->
+<g class="part" id="partLeaf" data-part="leaf" tabindex="0" role="button" aria-label="葉">
+  <g id="leafList"></g>
+  <g id="cotyList"></g>
+</g>
+
+<!-- grass in front of stem base -->
+<g id="grassFront" fill="#5DB85A" stroke="#3E8F42" stroke-width="3" stroke-linejoin="round" pointer-events="none">
+  <path d="M366,406 Q368,386 376,374 Q378,392 384,406Z"/><path d="M382,406 Q386,382 396,370 Q396,392 402,406Z" transform="translate(-4 0)"/>
+  <path d="M412,406 Q416,388 428,380 Q426,396 430,406Z"/><path d="M426,406 Q434,392 446,388 Q440,400 442,406Z"/>
+</g>
+
+<!-- FLOWER -->
+<g class="part" id="partFlower" data-part="flower" tabindex="0" role="button" aria-label="花">
+  <circle class="hit" id="flHit" r="76" cx="400" cy="122" fill="transparent"/>
+  <g id="siteA_fl"></g>
+  <g id="siteB_fl"></g>
+</g>
+
+<!-- FRUIT -->
+<g class="part" id="partFruit" data-part="fruit" tabindex="0" role="button" aria-label="果實">
+  <circle class="hit" id="frHit" r="50" cx="555" cy="210" fill="transparent"/>
+  <g id="siteA_fr"></g>
+  <g id="siteB_fr"></g>
+</g>
+
+<!-- rain / cloud (growth mode) -->
+<g id="rainWrap" pointer-events="none" opacity="0">
+  <g id="rain" stroke="#4FA8F0" stroke-width="5" stroke-linecap="round"></g>
+  <g transform="translate(400 70)" fill="#fff" stroke="#BFD9EC" stroke-width="4">
+    <path d="M-92,34 C-124,34 -124,-8 -86,-8 C-82,-44 -30,-52 -14,-24 C10,-48 62,-36 60,-4 C100,-8 110,34 74,34 Z"/>
+  </g>
+</g>
+
+<!-- tag -->
+<g id="tag" pointer-events="none" style="display:none"></g>
+</svg>
+    </div>
+
+    <div id="side">
+      <!-- mode 1 -->
+      <section class="panel" id="panel1" style="height:100%">
+        <div class="big-hello" id="p1Hello">👆 撳一撳植物嘅部分，睇下佢叫咩名、有咩用。</div>
+        <div id="p1Card" hidden>
+          <div class="nameRow"><span class="dot" id="p1Dot"></span><span class="pname" id="p1Name"></span></div>
+          <div class="pfunc" id="p1Func" style="margin-top:.35em"></div>
+          <div style="margin-top:.45em"><button class="btn primary" id="p1Say">🔊 再聽一次</button></div>
+        </div>
+        <div class="chips" id="p1Chips"></div>
+        <div class="progress" id="p1Prog">已認識 0 / 5</div>
+        <div class="donebox" id="p1Done" hidden>
+          <span>⭐ 五個部分都識晒喇！</span>
+          <button class="btn good" id="p1Go">去玩「挑戰」 →</button>
+        </div>
+      </section>
+
+      <!-- mode 2 -->
+      <section class="panel" id="panel2" style="height:100%" hidden>
+        <div class="stars" id="p2Stars" aria-label="進度"></div>
+        <div id="p2Quiz" style="display:flex;flex-direction:column;gap:.55em">
+          <div class="qcard"><span class="ql">撳一撳：</span><span class="qt" id="qT"></span><button class="btn primary sq" id="qSay" aria-label="再聽一次">🔊</button></div>
+          <div class="fb none" id="fb">睇清楚條題目，然後撳一撳幅圖入面嘅部分。</div>
+        </div>
+        <div class="resbox" id="p2Res" hidden>
+          <div class="rt" id="p2ResT"></div>
+          <div id="p2ResS"></div>
+          <div class="row"><button class="btn good" id="p2Again">↺ 再玩一輪</button><button class="btn" id="p2ToGrow">去睇成長動畫</button></div>
+        </div>
+      </section>
+
+      <!-- mode 3 -->
+      <section class="panel" id="panel3" style="height:100%" hidden>
+        <div class="stepno" id="p3Step"></div>
+        <div class="stname" id="p3Name"></div>
+        <div class="cap" id="p3Cap"></div>
+        <div class="dots" id="p3Dots"></div>
+        <div class="row">
+          <button class="btn primary" id="p3Say">🔊 朗讀字幕</button>
+          <button class="btn" id="p3Auto">自動朗讀：關</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="controls" hidden>
+    <button class="btn primary" id="btnPlay" style="min-width:5.2em">▶ 播放</button>
+    <div class="tl">
+      <input type="range" id="slider" min="0" max="600" step="1" value="0" aria-label="成長時間軸">
+      <div class="stRow" id="stRow"></div>
+    </div>
+  </div>
+  <div id="foot">AI 輔助備課工作坊 · 示範教具</div>
+</div>
+
+<script src="audio/01/voice.js"></script>
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var PARTS=['root','stem','leaf','flower','fruit'];
+var INFO={
+  root:{name:'根',color:'#A8703A',func:'根生喺泥土入面，會吸水同養分，仲可以抓實泥土，等棵植物企得穩。',hint:'根通常喺泥土入面，幼幼長長，好似好多條鬚咁。'},
+  stem:{name:'莖',color:'#3C9D5C',func:'莖就好似條水管，撐住葉同花，仲將水同養分由根運去植物每個位。',hint:'莖係企得直直嘅綠色「幹」，撐住葉同花，連住地下面嘅根。'},
+  leaf:{name:'葉',color:'#1E9E6A',func:'葉好似間小廚房，用陽光、水同空氣整養分，畀植物生長。',hint:'葉通常係綠色嘅、扁扁地，生喺莖上面。'},
+  flower:{name:'花',color:'#E8618C',func:'花有靚靚嘅顏色，會引蜜蜂同蝴蝶嚟，之後就會結出果實。',hint:'花有靚靚嘅顏色同花瓣，開喺植物嘅頂部。'},
+  fruit:{name:'果實',color:'#E5453C',func:'果實保護住入面嘅種子。種子跌落泥土，就可以生出新嘅植物。',hint:'果實圓粒粒，熟咗就係紅色，入面有種子。'}
+};
+var STAGES=[
+  {n:'種子',cap:'種子埋喺泥土入面，等雨水同暖暖嘅天氣嚟叫醒佢。'},
+  {n:'發芽',cap:'種子食飽水就脹起上嚟、裂開，生出根同嫩芽。'},
+  {n:'幼苗',cap:'嫩芽鑽出泥土，伸出兩塊細細嘅子葉，變成幼苗。'},
+  {n:'長葉',cap:'莖愈生愈高，長出更多綠葉，用陽光整養分。'},
+  {n:'開花',cap:'植物大個咗，頂上同旁邊都開咗靚靚嘅花。'},
+  {n:'結果',cap:'花謝咗之後，就結出果實，入面有新嘅種子。'}
+];
+var TAGPOS={root:{pt:[400,525],at:[200,532]},stem:{pt:[400,372],at:[165,376]},leaf:{pt:[322,222],at:[150,176]},flower:{pt:[440,100],at:[625,86]},fruit:{pt:[585,215],at:[685,300]}};
+
+var mode=1, soundOn=true;
+function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+function sm(x){x=clamp(x,0,1);return x*x*(3-2*x);}
+function hex2(c){return [parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)];}
+function mix(c1,c2,k){var a=hex2(c1),b=hex2(c2);return 'rgb('+Math.round(a[0]+(b[0]-a[0])*k)+','+Math.round(a[1]+(b[1]-a[1])*k)+','+Math.round(a[2]+(b[2]-a[2])*k)+')';}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function setText(id,t){var e=$(id);if(e)e.textContent=t;}
+
+/* ---------- audio ---------- */
+var actx=null;
+function getCtx(){
+  try{
+    if(!actx){var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;actx=new C();}
+    if(actx.state==='suspended'&&actx.resume)actx.resume();
+    return actx;
+  }catch(e){return null;}
+}
+function tone(freq,start,dur,vol,type){
+  var c=getCtx();if(!c)return;
+  try{
+    var o=c.createOscillator(),g=c.createGain(),t0=c.currentTime+start;
+    o.type=type||'sine';o.frequency.setValueAtTime(freq,t0);
+    g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.05);
+  }catch(e){}
+}
+function ding(){if(!soundOn)return;tone(880,0,.5,.2);tone(1318.5,.1,.6,.16);}
+function soft(){if(!soundOn)return;tone(330,0,.22,.1,'triangle');tone(262,.12,.3,.08,'triangle');}
+
+/* ---------- TTS ---------- */
+function pickVoice(lang){
+  var vs=[];try{vs=window.speechSynthesis.getVoices()||[];}catch(e){}
+  var l=String(lang).toLowerCase().replace('_','-'),i,vl;
+  for(i=0;i<vs.length;i++){vl=String(vs[i].lang||'').toLowerCase().replace('_','-');if(vl===l)return vs[i];}
+  var base=l.split('-')[0];
+  for(i=0;i<vs.length;i++){vl=String(vs[i].lang||'').toLowerCase().replace('_','-');if(vl.indexOf(base)===0)return vs[i];}
+  return null;
+}
+var speakTimer=null;
+function ttsStop(){try{if(speakTimer){clearTimeout(speakTimer);speakTimer=null;}if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){}}
+function ttsFallback(text,opt){
+  var lang='zh-HK';
+  try{
+    var ss=window.speechSynthesis;if(!ss||!window.SpeechSynthesisUtterance)return;
+    ss.cancel();
+    var u=new SpeechSynthesisUtterance(text);u.lang=lang||'zh-HK';
+    var v=pickVoice(u.lang);if(v)u.voice=v;u.rate=0.92;
+    if(speakTimer)clearTimeout(speakTimer);
+    speakTimer=setTimeout(function(){speakTimer=null;try{ss.speak(u);}catch(e){}},60);
+  }catch(e){}
+}
+var VOICE=(function(){
+  var cur=null;
+  function norm(t){return String(t).replace(/\s+/g,'');}
+  function lookup(t){try{return (window.VOICE_LINES||{})[norm(t)];}catch(e){return undefined;}}
+  function stop(){if(cur){try{cur.onended=null;cur.pause();}catch(e){}cur=null;}ttsStop();}
+  function speak(text,opt){
+    opt=opt||{};stop();
+    var src=lookup(text);
+    if(src){
+      try{
+        var a=new Audio(src);cur=a;
+        a.playbackRate=opt.rate||1;
+        a.onended=function(){if(cur===a)cur=null;if(opt.onend)opt.onend();};
+        a.onerror=function(){if(cur===a)cur=null;ttsFallback(text,opt);};
+        var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(cur===a)cur=null;ttsFallback(text,opt);});
+        return;
+      }catch(e){cur=null;}
+    }
+    ttsFallback(text,opt);
+  }
+  return {speak:speak,stop:stop};
+})();
+function stopSpeak(){VOICE.stop();}
+function speak(text){if(!soundOn)return;VOICE.speak(text);}
+try{if(window.speechSynthesis&&window.speechSynthesis.addEventListener)window.speechSynthesis.addEventListener('voiceschanged',function(){});}catch(e){}
+
+/* ---------- build SVG pieces ---------- */
+var E={};
+var LEAVES=[{h:150,s:-1,a:28,z:.95},{h:180,s:1,a:30,z:1},{h:215,s:-1,a:24,z:.95},{h:232,s:1,a:12,z:.8},{h:265,s:-1,a:35,z:.8}];
+var LEAF_D='M0,0 C14,-26 62,-34 100,-4 C104,-2 104,2 100,4 C62,34 14,26 0,0 Z';
+var ROOTS=[
+  {w:7,d:0,p:[[0,0],[5,50],[-3,112]]},
+  {w:4.5,d:.3,p:[[-1,32],[-30,38],[-58,66]]},
+  {w:4.5,d:.3,p:[[2,52],[34,58],[64,86]]},
+  {w:3.5,d:.55,p:[[-2,78],[-22,86],[-40,108]]},
+  {w:3.5,d:.55,p:[[0,90],[22,98],[36,114]]}
+];
+var BR={S:[400,195],C1:[440,196],C2:[500,176],T:[555,172]};
+var NSV='http://www.w3.org/2000/svg';
+function el(tag,attrs){var e=document.createElementNS(NSV,tag);for(var k in attrs){if(attrs.hasOwnProperty(k))e.setAttribute(k,attrs[k]);}return e;}
+
+function petalsMarkup(){
+  var s='',i;
+  for(i=0;i<6;i++){
+    s+='<g transform="rotate('+(i*60)+')"><path d="M0,-6 C-28,-18 -26,-64 0,-68 C26,-64 28,-18 0,-6Z" fill="#F77FA5" stroke="#C94775" stroke-width="4" stroke-linejoin="round"/>'
+      +'<path d="M0,-14 C-12,-22 -11,-48 0,-54 C11,-48 12,-22 0,-14Z" fill="#FFB5CD" opacity=".85"/></g>';
+  }
+  s+='<circle r="21" fill="#FFC83D" stroke="#E09A1B" stroke-width="4"/><circle cx="-6" cy="-5" r="3" fill="#E09A1B"/><circle cx="6" cy="-3" r="3" fill="#E09A1B"/><circle cx="0" cy="7" r="3" fill="#E09A1B"/>';
+  return s;
+}
+function budMarkup(){
+  return '<path d="M0,12 C-18,0 -16,-28 0,-44 C16,-28 18,0 0,12Z" fill="#6FCF8F" stroke="#2E7D4F" stroke-width="4" stroke-linejoin="round"/>'
+    +'<path d="M0,-44 C-10,-33 -13,-20 -11,-12 C-4,-18 4,-18 11,-12 C13,-20 10,-33 0,-44Z" fill="#F77FA5" stroke="#C94775" stroke-width="3" stroke-linejoin="round"/>'
+    +'<path d="M-12,10 L-26,0 M12,10 L26,0" stroke="#2E7D4F" stroke-width="4" stroke-linecap="round"/>';
+}
+function fruitMarkup(){
+  return '<ellipse class="fbody" rx="34" ry="31" fill="#E8453C" stroke="#9C2A24" stroke-width="4"/>'
+    +'<path d="M-20,-8 Q-18,-20 -6,-23" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".6"/>'
+    +'<path d="M0,-27 L7,-18 L18,-22 L11,-13 L20,-6 L8,-8 L0,0 L-8,-8 L-20,-6 L-11,-13 L-18,-22 L-7,-18Z" transform="translate(0 -6) scale(.8)" fill="#3E9B5B" stroke="#25704A" stroke-width="3" stroke-linejoin="round"/>'
+    +'<path d="M0,-28 L0,-42" stroke="#25704A" stroke-width="5" stroke-linecap="round"/>';
+}
+function buildSVG(){
+  var g='M-400,404',x;
+  for(x=-400;x<1200;x+=20){g+=' Q'+(x+10)+',384 '+(x+20)+',404';}
+  g+=' L1200,440 L-400,440Z';
+  $('grass').setAttribute('d',g);
+  var i,html='';
+  for(i=0;i<LEAVES.length;i++){
+    html+='<g id="lf'+i+'" style="display:none"><path class="hit" d="'+LEAF_D+'" fill="transparent"/><use href="#leafShape"/></g>';
+  }
+  $('leafList').innerHTML=html;
+  var cot='';
+  for(i=0;i<2;i++){cot+='<g id="cot'+i+'" style="display:none"><use href="#leafShape" opacity=".95"/></g>';}
+  $('cotyList').innerHTML=cot;
+  var s=['A','B'];
+  for(i=0;i<2;i++){
+    $('site'+s[i]+'_fl').innerHTML='<g id="bud'+s[i]+'" style="display:none">'+budMarkup()+'</g><g id="pet'+s[i]+'" style="display:none">'+petalsMarkup()+'</g>';
+    $('site'+s[i]+'_fr').innerHTML='<g id="fru'+s[i]+'" style="display:none">'+fruitMarkup()+'</g>';
+  }
+  var r=$('rootPaths');
+  ROOTS.forEach(function(rt,k){
+    r.appendChild(el('path',{id:'rO'+k,fill:'none',stroke:'#7A4E25','stroke-linecap':'round'}));
+  });
+  ROOTS.forEach(function(rt,k){
+    r.appendChild(el('path',{id:'rI'+k,fill:'none',stroke:'#F6E6BF','stroke-linecap':'round'}));
+  });
+  var rain=$('rain');
+  for(i=0;i<9;i++){
+    var d=el('path',{d:'M0,0 l-3,16','class':'drop'});
+    d.setAttribute('transform','translate('+(330+i*17)+' '+(112+(i%3)*10)+')');
+    d.style.animationDelay=(-(i*0.37)%1).toFixed(2)+'s';
+    d.style.animationDuration=(0.9+(i%3)*0.12)+'s';
+    rain.appendChild(d);
+  }
+  ['stOut','stIn','brOut','brIn','gSeed','seedL','seedR','rainWrap','flHit','frHit','tag'].forEach(function(id){E[id]=$(id);});
+  E.parts={};PARTS.forEach(function(p){E.parts[p]=$('part'+p.charAt(0).toUpperCase()+p.slice(1));});
+  E.lf=[];for(i=0;i<LEAVES.length;i++)E.lf.push($('lf'+i));
+  E.cot=[$('cot0'),$('cot1')];
+  E.site={A:{bud:$('budA'),pet:$('petA'),fru:$('fruA')},B:{bud:$('budB'),pet:$('petB'),fru:$('fruB')}};
+  E.rO=[];E.rI=[];ROOTS.forEach(function(rt,k){E.rO.push($('rO'+k));E.rI.push($('rI'+k));});
+}
+
+/* ---------- state -> drawing ---------- */
+var FULL={H:340,rs:1,seed:0,split:0,wig:0,coty:0,cloud:0,rain:0,
+  A:{bud:0,f:1,d:0,fr:0},B:{bud:0,f:0,d:0,fr:1},full:true};
+function growth(t){
+  var H;
+  if(t<1)H=0;else if(t<2)H=70*sm(t-1);else if(t<3)H=70+80*sm(t-2);else if(t<4)H=150+185*sm(t-3);else H=335+5*sm(t-4);
+  var cloud=sm(t/0.3)*(1-sm((t-1.4)/0.6));
+  return {H:H,rs:sm((t-1)/2.2),
+    seed:t<1.1?1:1-sm((t-1.1)/0.9),
+    split:sm((t-0.8)/0.5)*10,
+    wig:t<1?Math.sin(t*50)*5*sm((t-0.35)/0.4):0,
+    coty:sm((H-88)/30),
+    cloud:cloud,rain:cloud*(1-sm((t-1.1)/0.4)),
+    A:{bud:sm((t-4)/0.5),f:sm((t-4.4)/0.6),d:sm((t-5)/0.4),fr:sm((t-5.1)/0.9)},
+    B:{bud:sm((t-3.9)/0.4),f:sm((t-4)/0.55),d:sm((t-4.7)/0.4),fr:sm((t-4.85)/0.95)},
+    full:false};
+}
+function bz(p,b){return [BR.S[0]+(p[0]-BR.S[0])*b,BR.S[1]+(p[1]-BR.S[1])*b];}
+function renderSite(id,cx,cy,s){
+  var o=E.site[id];if(!o)return;
+  var showBud=s.bud>0.01&&s.f<0.3;
+  if(o.bud){
+    if(showBud){o.bud.style.display='';o.bud.setAttribute('transform','translate('+cx.toFixed(1)+' '+(cy+8).toFixed(1)+') scale('+(0.25+0.75*s.bud).toFixed(3)+')');o.bud.setAttribute('opacity',String(1-sm(s.f/0.3)));}
+    else o.bud.style.display='none';
+  }
+  if(o.pet){
+    if(s.f>0.01&&s.d<0.99){
+      o.pet.style.display='';
+      o.pet.setAttribute('transform','translate('+cx.toFixed(1)+' '+(cy+s.d*130).toFixed(1)+') rotate('+((1-s.f)*-50+s.d*60).toFixed(1)+') scale('+(0.2+0.8*s.f).toFixed(3)+')');
+      o.pet.setAttribute('opacity',String(1-sm(s.d)));
+    }else o.pet.style.display='none';
+  }
+  if(o.fru){
+    if(s.fr>0.01){
+      var k=0.18+0.82*s.fr,ripe=sm((s.fr-0.35)/0.65);
+      o.fru.style.display='';
+      o.fru.setAttribute('transform','translate('+cx.toFixed(1)+' '+(cy+8+30*k).toFixed(1)+') scale('+k.toFixed(3)+')');
+      var b=o.fru.querySelector('.fbody');if(b)b.setAttribute('fill',mix('#8FD16B','#E8453C',ripe));
+    }else o.fru.style.display='none';
+  }
+}
+function render(S){
+  var H=S.H;
+  // seed
+  if(E.gSeed){
+    if(S.seed>0.01){
+      E.gSeed.style.display='';E.gSeed.setAttribute('opacity',String(S.seed));
+      E.gSeed.setAttribute('transform','translate(400 470) rotate('+S.wig.toFixed(1)+')');
+      E.seedL.setAttribute('transform','translate('+(-S.split).toFixed(1)+' 0) rotate('+(-S.split*1.5).toFixed(1)+')');
+      E.seedR.setAttribute('transform','translate('+S.split.toFixed(1)+' 0) rotate('+(S.split*1.5).toFixed(1)+')');
+    }else E.gSeed.style.display='none';
+  }
+  // roots
+  var i;
+  for(i=0;i<ROOTS.length;i++){
+    var rt=ROOTS[i],sc=sm((S.rs-rt.d)/(1-rt.d)),oe=E.rO[i],ie=E.rI[i];
+    if(!oe||!ie)continue;
+    if(sc<0.01){oe.style.display='none';ie.style.display='none';continue;}
+    oe.style.display='';ie.style.display='';
+    var p=rt.p,x0=400+p[0][0],y0=470+p[0][1];
+    var d='M'+x0+','+y0+' Q'+(x0+(p[1][0]-p[0][0])*sc).toFixed(1)+','+(y0+(p[1][1]-p[0][1])*sc).toFixed(1)+' '+(x0+(p[2][0]-p[0][0])*sc).toFixed(1)+','+(y0+(p[2][1]-p[0][1])*sc).toFixed(1);
+    var w=rt.w*(0.5+0.5*sc);
+    oe.setAttribute('d',d);oe.setAttribute('stroke-width',(w+5).toFixed(1));
+    ie.setAttribute('d',d);ie.setAttribute('stroke-width',w.toFixed(1));
+  }
+  // stem
+  var yTop=470-H,w2=7+7*clamp(H/340,0,1);
+  if(H>1){
+    var d2='M400,470 C397,'+(470-H*0.35).toFixed(1)+' 403,'+(470-H*0.7).toFixed(1)+' 400,'+yTop.toFixed(1);
+    E.stOut.style.display='';E.stIn.style.display='';
+    E.stOut.setAttribute('d',d2);E.stIn.setAttribute('d',d2);
+    E.stOut.setAttribute('stroke-width',(w2+6).toFixed(1));E.stIn.setAttribute('stroke-width',w2.toFixed(1));
+  }else{E.stOut.style.display='none';E.stIn.style.display='none';}
+  // branch
+  var b=S.full?1:sm((H-270)/50);
+  var tip=[BR.T[0],BR.T[1]];
+  if(b>0.02){
+    var c1=bz(BR.C1,b),c2=bz(BR.C2,b);tip=bz(BR.T,b);
+    var d3='M'+BR.S[0]+','+BR.S[1]+' C'+c1[0].toFixed(1)+','+c1[1].toFixed(1)+' '+c2[0].toFixed(1)+','+c2[1].toFixed(1)+' '+tip[0].toFixed(1)+','+tip[1].toFixed(1);
+    E.brOut.style.display='';E.brIn.style.display='';
+    E.brOut.setAttribute('d',d3);E.brIn.setAttribute('d',d3);
+    var bw=w2*0.62;
+    E.brOut.setAttribute('stroke-width',(bw+6).toFixed(1));E.brIn.setAttribute('stroke-width',bw.toFixed(1));
+  }else{E.brOut.style.display='none';E.brIn.style.display='none';}
+  // leaves
+  for(i=0;i<LEAVES.length;i++){
+    var L=LEAVES[i],k=L.z*sm((H-L.h)/45),e=E.lf[i];if(!e)continue;
+    if(k<0.02){e.style.display='none';continue;}
+    e.style.display='';
+    var y=470-L.h;
+    e.setAttribute('transform',L.s===1?'translate(400 '+y+') rotate('+(-L.a)+') scale('+k.toFixed(3)+')':'translate(400 '+y+') scale('+(-k).toFixed(3)+' '+k.toFixed(3)+') rotate('+(-L.a)+')');
+  }
+  // cotyledons
+  var ck=S.coty*0.5;
+  for(i=0;i<2;i++){
+    var c=E.cot[i];if(!c)continue;
+    if(ck<0.02||S.full){c.style.display='none';continue;}
+    c.style.display='';
+    var cy=470-95;
+    c.setAttribute('transform',i===0?'translate(400 '+cy+') rotate(-18) scale('+ck.toFixed(3)+')':'translate(400 '+cy+') scale('+(-ck).toFixed(3)+' '+ck.toFixed(3)+') rotate(-18)');
+  }
+  // sites
+  var ax=400,ay=yTop-8;
+  renderSite('A',ax,ay,S.A);
+  var bx=tip[0],by=tip[1]-6;
+  renderSite('B',bx,by,S.B);
+  if(E.flHit){E.flHit.setAttribute('cx',ax);E.flHit.setAttribute('cy',ay);}
+  if(E.frHit){E.frHit.setAttribute('cx',BR.T[0]);E.frHit.setAttribute('cy',BR.T[1]+38);}
+  // weather
+  if(E.rainWrap){E.rainWrap.setAttribute('opacity',String(S.cloud));var r=$('rain');if(r)r.setAttribute('opacity',String(S.rain));}
+}
+
+/* ---------- glow / tag ---------- */
+var curGlow=null,blinkPart=null;
+function clearGlow(){PARTS.forEach(function(p){var g=E.parts[p];if(g)g.removeAttribute('filter');});curGlow=null;}
+function setGlow(p,kind){clearGlow();var g=E.parts[p];if(g){g.setAttribute('filter','url(#f'+kind+')');curGlow=p;}}
+function setBlink(p){clearBlink();var g=E.parts[p];if(g){g.classList.add('blink');blinkPart=p;}}
+function clearBlink(){PARTS.forEach(function(p){var g=E.parts[p];if(g)g.classList.remove('blink');});blinkPart=null;}
+function hideTag(){if(E.tag){E.tag.style.display='none';E.tag.innerHTML='';}}
+function showTag(p){
+  if(!E.tag)return;
+  var pos=TAGPOS[p],info=INFO[p];if(!pos||!info)return;
+  var n=info.name.length,w=34*n+44,h=58,x=pos.at[0],y=pos.at[1];
+  E.tag.innerHTML='<line x1="'+x+'" y1="'+y+'" x2="'+pos.pt[0]+'" y2="'+pos.pt[1]+'" stroke="'+info.color+'" stroke-width="5" stroke-linecap="round"/>'
+    +'<circle cx="'+pos.pt[0]+'" cy="'+pos.pt[1]+'" r="8" fill="#fff" stroke="'+info.color+'" stroke-width="5"/>'
+    +'<g id="tagIn"><rect x="'+(x-w/2)+'" y="'+(y-h/2)+'" width="'+w+'" height="'+h+'" rx="20" fill="#fff" stroke="'+info.color+'" stroke-width="5"/>'
+    +'<text x="'+x+'" y="'+(y+12)+'" text-anchor="middle">'+info.name+'</text></g>';
+  E.tag.style.display='';
+}
+
+/* ---------- mode 1 ---------- */
+var seen={},selected=null,allDoneShown=false;
+function buildChips(){
+  var c=$('p1Chips');if(!c)return;c.innerHTML='';
+  PARTS.forEach(function(p){
+    var b=document.createElement('button');b.className='chip-btn';b.id='chip_'+p;b.type='button';
+    b.innerHTML='<span class="chipmark"></span>'+INFO[p].name;
+    b.addEventListener('click',function(){onPart(p);});
+    c.appendChild(b);
+  });
+}
+function updateP1(){
+  var n=0;PARTS.forEach(function(p){
+    if(seen[p])n++;
+    var b=$('chip_'+p);if(b){b.classList.toggle('seen',!!seen[p]);b.classList.toggle('cur',selected===p);var m=b.querySelector('.chipmark');if(m)m.textContent=seen[p]?'✓':'';}
+  });
+  setText('p1Prog','已認識 '+n+' / 5');
+  var card=$('p1Card'),hello=$('p1Hello');
+  if(selected){
+    card.hidden=false;hello.hidden=true;
+    setText('p1Name',INFO[selected].name);setText('p1Func',INFO[selected].func);
+    var d=$('p1Dot');if(d)d.style.color=INFO[selected].color,d.style.background=INFO[selected].color;
+  }else{card.hidden=true;hello.hidden=false;}
+  var done=n===5;
+  $('p1Done').hidden=!done;
+  if(done&&!allDoneShown){allDoneShown=true;var t=$('tab2');if(t){t.classList.remove('nudge');void t.offsetWidth;t.classList.add('nudge');}}
+}
+function resetMode1(){seen={};selected=null;allDoneShown=false;clearGlow();hideTag();clearBlink();updateP1();}
+
+/* ---------- mode 2 ---------- */
+var Q={order:[],idx:0,tries:0,res:[],locked:false,done:false,timer:null,wrongTimer:null};
+var STAR_SVG='<svg viewBox="0 0 48 48" class="star"><path d="M24,4 L30,18 L45,19 L33.5,29 L37,44 L24,36 L11,44 L14.5,29 L3,19 L18,18Z"/></svg>';
+function clearQTimers(){if(Q.timer){clearTimeout(Q.timer);Q.timer=null;}if(Q.wrongTimer){clearTimeout(Q.wrongTimer);Q.wrongTimer=null;}}
+function renderStars(popIdx){
+  var box=$('p2Stars');if(!box)return;
+  var s='',i;
+  for(i=0;i<5;i++){
+    var cls='star';
+    if(Q.res[i]==='gold')cls+=' gold';else if(Q.res[i]==='retry')cls+=' retry';else if(i===Q.idx&&!Q.done)cls+=' cur';
+    if(i===popIdx)cls+=' pop';
+    s+=STAR_SVG.replace('class="star"','class="'+cls+'"');
+  }
+  box.innerHTML=s;
+}
+function setFb(kind,text){var f=$('fb');if(!f)return;f.className='fb '+kind;f.textContent=text;}
+function startRound(){
+  clearQTimers();stopSpeak();
+  Q.order=shuffle(PARTS.slice());Q.idx=0;Q.tries=0;Q.res=[];Q.locked=false;Q.done=false;
+  clearGlow();clearBlink();hideTag();
+  $('p2Res').hidden=true;$('p2Quiz').style.display='flex';
+  renderStars();askQ();
+}
+function askQ(){
+  var p=Q.order[Q.idx];if(!p)return;
+  Q.tries=0;Q.locked=false;
+  setText('qT',INFO[p].name);
+  setFb('none','睇清楚條題目，然後撳一撳幅圖入面嘅部分。');
+  renderStars();
+  speak('你撳一撳'+INFO[p].name+'吖。');
+}
+function nextQ(){
+  clearGlow();clearBlink();
+  Q.idx++;
+  if(Q.idx>=5){finishRound();}else askQ();
+}
+function finishRound(){
+  Q.done=true;renderStars();
+  var gold=0;Q.res.forEach(function(r){if(r==='gold')gold++;});
+  $('p2Quiz').style.display='none';$('p2Res').hidden=false;
+  setText('p2ResT','⭐ 完成！'+gold+' 粒金星');
+  var msg=gold===5?'全部一次就答啱，你係植物小專家！':(gold>=3?'好叻呀！有啲部分再睇多次就更掂喇。':'做得好！試下再玩一輪，仲可以返去「認識」睇多次。');
+  setText('p2ResS',msg);
+  speak(gold===5?'好叻呀，全部一次就答啱！':'做完啦，好叻呀！');
+}
+function onChallenge(name){
+  if(Q.done||Q.locked)return;
+  var target=Q.order[Q.idx];if(!target)return;
+  if(name===target){
+    Q.locked=true;ding();clearBlink();setGlow(name,'Good');
+    Q.res[Q.idx]=Q.tries===0?'gold':'retry';
+    renderStars(Q.idx);
+    setFb('good','✔ 答啱啦！呢個就係「'+INFO[name].name+'」。');
+    speak('答啱啦，呢個就係'+INFO[name].name);
+    if(Q.timer)clearTimeout(Q.timer);
+    Q.timer=setTimeout(function(){Q.timer=null;nextQ();},2300);
+  }else{
+    Q.tries++;soft();
+    setGlow(name,'Hint');
+    var wp=name;
+    if(Q.wrongTimer)clearTimeout(Q.wrongTimer);
+    Q.wrongTimer=setTimeout(function(){Q.wrongTimer=null;if(curGlow===wp&&!Q.locked)clearGlow();},1200);
+    setFb('hint','你撳咗「'+INFO[name].name+'」喎。唔緊要，再試吓！提示：'+INFO[target].hint);
+    speak('唔係喎，再試吓。'+INFO[target].hint);
+    if(Q.tries>=2)setBlink(target);
+  }
+}
+
+/* ---------- mode 3 ---------- */
+var T=0,playing=false,lastTs=0,raf=0,lastStage=-1,autoRead=false,STAGE_SEC=3.6;
+function buildStageUI(){
+  var row=$('stRow');if(!row)return;row.innerHTML='';
+  STAGES.forEach(function(s,i){
+    var b=document.createElement('button');b.type='button';b.className='stBtn';b.id='stb'+i;b.textContent=s.n;
+    b.addEventListener('click',function(){pauseGrow();setT(i+0.95,true);});
+    row.appendChild(b);
+  });
+  var d=$('p3Dots');if(d){d.innerHTML='';STAGES.forEach(function(){d.appendChild(document.createElement('i'));});}
+}
+function stageOf(t){return Math.min(5,Math.floor(t+1e-9));}
+function updateStageUI(force,fromUser){
+  var st=stageOf(T);
+  var sl=$('slider');
+  if(sl){sl.value=String(Math.round(T*100));sl.style.setProperty('--p',(T/6*100).toFixed(1)+'%');}
+  if(st===lastStage&&!force)return;
+  var changed=st!==lastStage;lastStage=st;
+  setText('p3Step','第 '+(st+1)+' 步 / 共 6 步');
+  setText('p3Name',STAGES[st].n);
+  setText('p3Cap',STAGES[st].cap);
+  var dots=$('p3Dots');
+  if(dots){for(var i=0;i<dots.children.length;i++){dots.children[i].className=i<st?'on':(i===st?'cur':'');}}
+  STAGES.forEach(function(s,i){var b=$('stb'+i);if(b)b.classList.toggle('on',i===st);});
+  if(changed&&autoRead&&mode===3)speak(STAGES[st].n+'。'+STAGES[st].cap);
+}
+function setT(v,force){
+  T=clamp(v,0,6);
+  render(growth(T));
+  updateStageUI(!!force);
+  updatePlayBtn();
+}
+function updatePlayBtn(){
+  var b=$('btnPlay');if(!b)return;
+  b.textContent=playing?'⏸ 暫停':(T>=6?'↺ 重播':'▶ 播放');
+}
+function tick(ts){
+  if(!playing)return;
+  var dt=Math.min(0.1,(ts-lastTs)/1000);lastTs=ts;
+  T=Math.min(6,T+dt/STAGE_SEC);
+  render(growth(T));updateStageUI(false);
+  if(T>=6){playing=false;updatePlayBtn();return;}
+  raf=requestAnimationFrame(tick);
+}
+function playGrow(){
+  if(T>=6)T=0;
+  playing=true;lastTs=performance.now();updatePlayBtn();
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);
+}
+function pauseGrow(){playing=false;cancelAnimationFrame(raf);updatePlayBtn();}
+
+/* ---------- mode switching ---------- */
+function setMode(m){
+  mode=m;
+  stopSpeak();clearQTimers();pauseGrow();clearGlow();clearBlink();hideTag();
+  [1,2,3].forEach(function(i){
+    var t=$('tab'+i);if(t){t.setAttribute('aria-selected',i===m?'true':'false');}
+    var p=$('panel'+i);if(p)p.hidden=i!==m;
+  });
+  $('controls').hidden=m!==3;
+  var svg=$('svg');if(svg)svg.classList.toggle('nointeract',m===3);
+  if(m===1){render(FULL);selected=null;updateP1();}
+  else if(m===2){render(FULL);startRound();}
+  else{lastStage=-1;setT(T,true);}
+}
+function resetCurrent(){
+  stopSpeak();
+  if(mode===1){resetMode1();}
+  else if(mode===2){startRound();}
+  else{pauseGrow();T=0;lastStage=-1;setT(0,true);}
+}
+
+/* ---------- interactions ---------- */
+function onPart(name){
+  if(!INFO[name])return;
+  if(mode===1){
+    selected=name;seen[name]=true;
+    setGlow(name,'Gold');showTag(name);
+    updateP1();
+    speak(INFO[name].name+'。'+INFO[name].func);
+  }else if(mode===2){
+    onChallenge(name);
+  }
+}
+function wire(){
+  PARTS.forEach(function(p){
+    var g=E.parts[p];if(!g)return;
+    g.addEventListener('pointerdown',function(ev){
+      if(mode===3)return;
+      if(ev.pointerType==='mouse'&&ev.button!==0)return;
+      ev.preventDefault();
+      getCtx();
+      onPart(p);
+    });
+    g.addEventListener('keydown',function(ev){
+      if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();if(mode!==3)onPart(p);}
+    });
+  });
+  [1,2,3].forEach(function(i){var t=$('tab'+i);if(t)t.addEventListener('click',function(){getCtx();setMode(i);});});
+  $('btnReset').addEventListener('click',resetCurrent);
+  $('btnFs').addEventListener('click',toggleFS);
+  $('btnSound').addEventListener('click',function(){
+    soundOn=!soundOn;$('btnSound').textContent=soundOn?'🔊':'🔇';
+    if(!soundOn)stopSpeak();
+  });
+  $('p1Say').addEventListener('click',function(){if(selected)speak(INFO[selected].name+'。'+INFO[selected].func);});
+  $('p1Go').addEventListener('click',function(){setMode(2);});
+  $('qSay').addEventListener('click',function(){var p=Q.order[Q.idx];if(p&&!Q.done)speak('你撳一撳'+INFO[p].name+'吖。');});
+  $('p2Again').addEventListener('click',startRound);
+  $('p2ToGrow').addEventListener('click',function(){setMode(3);});
+  $('p3Say').addEventListener('click',function(){speak(STAGES[stageOf(T)].n+'。'+STAGES[stageOf(T)].cap);});
+  $('p3Auto').addEventListener('click',function(){
+    autoRead=!autoRead;setText('p3Auto','自動朗讀：'+(autoRead?'開':'關'));
+    if(autoRead)speak(STAGES[stageOf(T)].n+'。'+STAGES[stageOf(T)].cap);else stopSpeak();
+  });
+  $('btnPlay').addEventListener('click',function(){getCtx();if(playing)pauseGrow();else playGrow();});
+  var sl=$('slider');
+  sl.addEventListener('pointerdown',function(){if(playing)pauseGrow();});
+  sl.addEventListener('input',function(){if(playing)pauseGrow();setT(parseInt(sl.value,10)/100,false);});
+  document.addEventListener('fullscreenchange',fsLabel);
+  document.addEventListener('webkitfullscreenchange',fsLabel);
+}
+function fsLabel(){
+  var on=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  setText('btnFs',on?'⛶ 退出全螢幕':'⛶ 全螢幕');
+}
+function toggleFS(){
+  try{
+    var d=document,el=d.documentElement;
+    if(d.fullscreenElement||d.webkitFullscreenElement){
+      var x=d.exitFullscreen||d.webkitExitFullscreen;if(x){var r1=x.call(d);if(r1&&r1.catch)r1.catch(function(){});}
+    }else{
+      var f=el.requestFullscreen||el.webkitRequestFullscreen;if(f){var r=f.call(el);if(r&&r.catch)r.catch(function(){});}
+    }
+  }catch(e){}
+}
+
+function init(){
+  buildSVG();buildChips();buildStageUI();wire();
+  setMode(1);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+</body>
+</html>

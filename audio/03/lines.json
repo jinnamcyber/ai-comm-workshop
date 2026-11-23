@@ -1,0 +1,260 @@
+[
+ {
+  "text": "今日天氣好晴朗呀，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "今日天氣落緊雨呀，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "今日天氣好凍呀，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "今日天氣好熱呀，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "今日天氣好大風呀，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "我會著",
+  "voice": "zh-HK-HiuGaaiNeural",
+  "say": "我會着"
+ },
+ {
+  "text": "仲會",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "我會",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "同",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "因為",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "我想著得舒服啲。",
+  "voice": "zh-HK-HiuGaaiNeural",
+  "say": "我想着得舒服啲。"
+ },
+ {
+  "text": "戴太陽帽",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "戴冷帽",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "圍頸巾",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "短袖衫",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長袖衫",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "外套",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "羽絨",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨褸",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "短褲",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長褲",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "涼鞋",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "水靴",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "波鞋",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "拎雨遮",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "太陽帽可以擋住太陽，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "太陽帽可以擋住太陽。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨遮可以遮太陽，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨遮可以遮太陽。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "短袖衫著得涼快啲，",
+  "voice": "zh-HK-HiuGaaiNeural",
+  "say": "短袖衫着得涼快啲，"
+ },
+ {
+  "text": "短袖衫著得涼快啲。",
+  "voice": "zh-HK-HiuGaaiNeural",
+  "say": "短袖衫着得涼快啲。"
+ },
+ {
+  "text": "短褲著得涼快啲，",
+  "voice": "zh-HK-HiuGaaiNeural",
+  "say": "短褲着得涼快啲，"
+ },
+ {
+  "text": "短褲著得涼快啲。",
+  "voice": "zh-HK-HiuGaaiNeural",
+  "say": "短褲着得涼快啲。"
+ },
+ {
+  "text": "涼鞋好透氣，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "涼鞋好透氣。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨遮可以擋雨，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨遮可以擋雨。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨褸唔會濕身，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨褸唔會濕身。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "水靴踩水都唔怕濕，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "水靴踩水都唔怕濕。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "羽絨好暖，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "羽絨好暖。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "外套可以保暖，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "外套可以保暖。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "冷帽可以保暖，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "冷帽可以保暖。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "頸巾可以保暖，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "頸巾可以保暖。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長袖衫暖啲，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長袖衫暖啲。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長褲暖啲，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長褲暖啲。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "外套可以擋風，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "外套可以擋風。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "羽絨可以擋風，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "羽絨可以擋風。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨褸可以擋風，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "雨褸可以擋風。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長袖衫可以擋風，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "長袖衫可以擋風。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "頸巾可以擋風，",
+  "voice": "zh-HK-HiuGaaiNeural"
+ },
+ {
+  "text": "頸巾可以擋風。",
+  "voice": "zh-HK-HiuGaaiNeural"
+ }
+]
