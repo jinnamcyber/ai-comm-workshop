@@ -178,6 +178,8 @@ p{margin:0}
 .tile{position:relative;border-radius:1em;overflow:hidden;cursor:pointer;background:#FFF8EC;aspect-ratio:16/10;border:1px solid var(--line);transition:transform .35s cubic-bezier(.3,1.4,.5,1),box-shadow .35s}
 .tile:hover{transform:translateY(-.6vh) scale(1.04);box-shadow:0 2vh 5vh rgba(0,0,0,.45);z-index:2}
 .tile iframe{position:absolute;left:0;top:0;width:1600px;height:1000px;border:0;transform-origin:0 0;pointer-events:none}
+.tile .cp{position:absolute;top:.5em;right:.5em;z-index:3;display:flex;align-items:center;gap:.35em;padding:.35em .8em;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:rgba(11,16,40,.78);color:#fff;font:700 .8em inherit;cursor:pointer;backdrop-filter:blur(6px)}
+.tile .cp:hover{background:var(--primary,#6E9BFF)}
 .tile .cap{position:absolute;left:0;right:0;bottom:0;padding:1.6em .8em .6em;background:linear-gradient(transparent,rgba(11,16,40,.92));font-size:1.05em;font-weight:800}
 .tile .cap small{display:block;font-weight:500;color:var(--ink-2);font-size:.85em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .ph{position:absolute;inset:0;display:grid;place-items:center;color:#5B6478;font-size:1.2em}
@@ -480,7 +482,7 @@ p{margin:0}
 </div>
 
 <div class="viewer" id="viewer">
-  <header><h3 id="vt"></h3><q id="vq"></q><a class="btn ghost" id="vopen" target="_blank" style="text-decoration:none"><svg class="i"><use href="#ic-ext"/></svg> 新分頁</a><button class="btn" id="vclose"><svg class="i"><use href="#ic-x"/></svg> 關閉</button></header>
+  <header><h3 id="vt"></h3><q id="vq"></q><button class="btn ghost" id="vcp" type="button"><svg class="i"><use href="#ic-clipboard"/></svg> 複製 Prompt</button><a class="btn ghost" id="vopen" target="_blank" style="text-decoration:none"><svg class="i"><use href="#ic-ext"/></svg> 新分頁</a><button class="btn" id="vclose"><svg class="i"><use href="#ic-x"/></svg> 關閉</button></header>
   <iframe id="vframe" title="教具" allow="microphone; autoplay"></iframe>
 </div>
 
@@ -492,6 +494,7 @@ p{margin:0}
 <div class="progress" id="progress"></div>
 <div class="hud"><span id="pageno">1 / 18</span><button id="bov"><svg class="i"><use href="#ic-grid"/></svg> 總覽</button><button id="bfs"><svg class="i"><use href="#ic-expand"/></svg> 全螢幕</button></div>
 
+<script src="prompts.js"></script>
 <script>
 (() => {
 const $ = id => document.getElementById(id);
@@ -516,7 +519,7 @@ const TOOLS = [
 const wall = $('wall');
 TOOLS.forEach(([slug, meta, q], i) => {
   const t = document.createElement('div'); t.className = 'tile'; t.dataset.i = i;
-  t.innerHTML = `<div class="ph">載入中…</div><iframe tabindex="-1" title="${slug}"></iframe><div class="cap">${slug.slice(3)}<small>${meta}</small></div>`;
+  t.innerHTML = `<div class="ph">載入中…</div><iframe tabindex="-1" title="${slug}"></iframe><button class="cp" type="button" data-cp="${slug}"><svg class="i"><use href="#ic-clipboard"/></svg> 複製 Prompt</button><div class="cap">${slug.slice(3)}<small>${meta}</small></div>`;
   wall.appendChild(t);
 });
 const fitFrames = () => {
@@ -528,9 +531,18 @@ const loadWall = on => wall.querySelectorAll('.tile').forEach((t, i) => {
   if (on && !f.src) { f.src = encodeURI(TOOLS[i][0] + '.html'); f.onload = () => { const p = t.querySelector('.ph'); if (p) p.remove(); }; }
   if (!on && f.src) { f.removeAttribute('src'); f.src = ''; f.removeAttribute('src'); }
 });
+const copyPrompt = async (slug, btn) => {
+  const P = (window.TOOL_PROMPTS || {})[slug]; if (!P || !P.good) { return; }
+  const txt = P.good.replace(/\*\*/g, ''), old = btn.innerHTML;
+  try { await navigator.clipboard.writeText(txt); btn.innerHTML = IC.check + ' 已複製'; } catch (_) { btn.textContent = '請用新分頁再複製'; }
+  setTimeout(() => btn.innerHTML = old, 1800);
+};
+let vslug = '';
+$('vcp').onclick = () => copyPrompt(vslug, $('vcp'));
 wall.addEventListener('click', e => {
+  const cp = e.target.closest('.cp'); if (cp) { e.stopPropagation(); copyPrompt(cp.dataset.cp, cp); return; }
   const t = e.target.closest('.tile'); if (!t) return;
-  const [slug, meta, q] = TOOLS[+t.dataset.i];
+  const [slug, meta, q] = TOOLS[+t.dataset.i]; vslug = slug;
   $('vt').textContent = slug.slice(3) + ' · ' + meta; $('vq').textContent = q;
   $('vframe').src = encodeURI(slug + '.html'); $('vopen').href = encodeURI(slug + '.html');
   $('viewer').classList.add('on'); loadWall(false);

@@ -132,11 +132,16 @@ ITEMS.forEach((it, i) => {
     <h2>${esc(it.name)}</h2>
     <blockquote><small>老師喺問卷寫：</small>「${esc(it.quote)}」</blockquote>
     <div class="btns"><a class="btn p" href="${encodeURI(it.slug)}.html" target="_blank" ${it.ready ? '' : 'aria-disabled="true"'}>▶ 打開教具</a>
-    <button class="btn s" data-i="${i}" ${it.good ? '' : 'disabled'}>💬 睇 Prompt</button></div>`;
+    <button class="btn s" data-i="${i}" ${it.good ? '' : 'disabled'}>💬 睇 Prompt</button>
+    <button class="btn s" data-c="${i}" ${it.good ? '' : 'disabled'}>📋 複製 Prompt</button></div>`;
   grid.appendChild(el);
 });
 let cur = null;
 grid.addEventListener('click', e => {
+  const cb = e.target.closest('button[data-c]');
+  if (cb) { const it = ITEMS[+cb.dataset.c]; const old = cb.textContent;
+    navigator.clipboard.writeText(clean(it.good)).then(() => { cb.textContent = '✅ 已複製'; }, () => { cb.textContent = '請開「睇 Prompt」再複製'; });
+    setTimeout(() => cb.textContent = old, 1800); return; }
   const b = e.target.closest('button[data-i]'); if (!b) return;
   cur = ITEMS[+b.dataset.i];
   $('dt').textContent = cur.num + ' · ' + cur.name;
