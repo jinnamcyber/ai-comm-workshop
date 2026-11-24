@@ -403,7 +403,7 @@ p{margin:0}
   <div class="tiers">
     <div class="glass tier" style="--c:var(--green)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg> 初階 · 複製例子</span><h3>五揀一，直接複製</h3>
       <p>喺 Notion 頁揀同你科目最近嘅一個，原樣貼入 Gemini Canvas：</p>
-      <p>常識：植物的組成<br>數學：乘法口訣晨操<br>音樂：音樂聽辨<br>英文：Mixed Tenses 工作紙<br>葡文：情境對話</p>
+      <p>常識：地球自轉與公轉<br>數學：乘法口訣晨操<br>幼兒：天氣與衣物<br>英文：Mixed Tenses 工作紙<br>葡文：情境對話</p>
       <p><b style="color:var(--ink)">任務：</b>試玩，再貼上例子附嘅<span class="hl">第二輪回饋</span>。</p></div>
     <div class="glass tier" style="--c:var(--blue)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg> 中階 · 結構＋自己課題</span><h3>用五要素自己寫</h3>
       <div class="tpl">【身份同對象】我係＿＿學校＿年級＿＿科老師，學生（年齡、程度）。
@@ -524,7 +524,7 @@ const fitFrames = () => {
 };
 const loadWall = on => wall.querySelectorAll('.tile').forEach((t, i) => {
   const f = t.querySelector('iframe');
-  if (on && !f.src) { f.src = encodeURI(TOOLS[i][0] + '.html'); f.onload = () => { const p = t.querySelector('.ph'); if (p) p.remove(); }; }
+  if (on && !f.src) { f.src = encodeURI(TOOLS[i][0] + '.html'); f.onload = () => { const p = t.querySelector('.ph'); if (p) p.remove(); try { f.contentWindow.speechSynthesis.cancel(); } catch (_) {} }; }
   if (!on && f.src) { f.removeAttribute('src'); f.src = ''; f.removeAttribute('src'); }
 });
 const copyPrompt = async (slug, btn) => {

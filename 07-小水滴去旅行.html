@@ -776,7 +776,7 @@ function go(i){
     later(MINT[i],function(){md=true;adv();});
     later(SC[i].dur+6000,function(){nd=true;md=true;adv();});
   }
-  speak(SC[i].nar,onend?{onend:onend}:undefined);
+  if(!quiet)speak(SC[i].nar,onend?{onend:onend}:undefined);
 }
 function setAuto(on){
   auto=on;
@@ -808,7 +808,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='ArrowRight')go(cur+1);else if(e.key==='ArrowLeft')go(cur-1);
 });
 document.addEventListener('pointerdown',function(){ensureAudio();},{once:true});
-go(0);
+var quiet=true;go(0);quiet=false;
 })();
 </script>
 <script src="prompts.js"></script>
