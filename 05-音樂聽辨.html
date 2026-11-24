@@ -159,6 +159,19 @@ h1{margin:0;font-size:1.25em;white-space:nowrap}
   .top{flex-wrap:wrap}
   :root{--u:1.6vw}
 }
+/* MacBook Air / 短螢幕 + 複製 Prompt 按鈕留位 */
+.bottom{padding-right:190px}
+.foot{display:none}
+@media (max-height:760px){
+  body{font-size:max(22px,calc(var(--u)*1.45))}
+  .btn,.badge,.modebtn,.fb{min-height:52px}
+  .btn.big{min-height:max(52px,calc(var(--u)*5.2))}
+  .result h2{font-size:1.6em}.stars{font-size:2.6em}
+  .setup{gap:calc(var(--u)*1)}
+  .card{border-width:4px;padding:calc(var(--u)*.6)}
+  .card .lab{font-size:1.6em}
+}
+@media (max-width:900px){.bottom{padding-right:0;padding-bottom:64px;flex-wrap:wrap}.top{flex-wrap:wrap}h1{white-space:normal}}
 @media (prefers-reduced-motion:reduce){
   .card.good .art svg{animation:none}
 }
@@ -178,7 +191,7 @@ h1{margin:0;font-size:1.25em;white-space:nowrap}
 </div>
 <div class="foot">AI 輔助備課工作坊 · 示範教具</div>
 
-<script src="audio/05/voice.js"></script>
+<script src="audio/05/voice.js?v=3"></script>
 <script>
 (function(){
 'use strict';
@@ -675,5 +688,7 @@ try{if(window.speechSynthesis&&window.speechSynthesis.getVoices)window.speechSyn
 renderSetup();
 })();
 </script>
+<script src="prompts.js"></script>
+<script src="tool-extras.js"></script>
 </body>
 </html>

@@ -101,6 +101,17 @@ footer.ft{margin-top:auto;padding-top:1rem;text-align:right;font-size:.7rem;colo
 .chk label.sel{border-color:var(--primary);background:var(--primary-soft)}
 .mbox .hintline{font-size:.8rem;color:var(--ink-2);margin:.2rem 0 .6rem}
 #printArea{display:none}
+/* MacBook Air / 短螢幕 + 複製 Prompt 按鈕留位 */
+.app{padding-bottom:5rem}
+@media (max-height:800px) and (min-width:901px){
+  html{font-size:20px}
+  .btn{min-height:52px}
+  .tab{min-height:56px}
+  .opt{min-height:64px}
+  .inp{min-height:54px}
+  .top h1{font-size:1.2rem}
+}
+@media (max-width:1100px){html{font-size:20px}}
 @media (max-width:900px){
   .grid{grid-template-columns:1fr}
   .notes .row{grid-template-columns:1fr}
@@ -193,7 +204,7 @@ footer.ft{margin-top:auto;padding-top:1rem;text-align:right;font-size:.7rem;colo
 
 <div id="printArea"></div>
 
-<script src="audio/06/voice.js"></script>
+<script src="audio/06/voice.js?v=3"></script>
 <script>
 (function(){
 "use strict";
@@ -708,5 +719,7 @@ renderAll();
 if(window.__EXPORT)window.__EXPORT({D1:D1,D2:D2,D3E:D3E,D3S:D3S,STORY:STORY,plainText:plainText});
 })();
 </script>
+<script src="prompts.js"></script>
+<script src="tool-extras.js"></script>
 </body>
 </html>

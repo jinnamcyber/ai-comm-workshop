@@ -16,6 +16,9 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font)}
 body{font-size:min(1.25vw,2.2vh);-webkit-font-smoothing:antialiased}
 
+.i{width:1.1em;height:1.1em;vertical-align:-.17em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn .i{margin-right:.35em}
+
 /* ---------- aurora background ---------- */
 .aurora{position:fixed;inset:-20%;z-index:0;filter:blur(80px) saturate(1.2);opacity:.55;pointer-events:none}
 .aurora i{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:drift 26s ease-in-out infinite alternate}
@@ -83,24 +86,21 @@ p{margin:0}
 .reveal svg{width:min(70vw,110vh);height:auto;background:#FFFDF7;border-radius:2vh}
 .reveal p{font-size:1.6em;color:var(--ink-2)}
 
-/* ---------- survey charts ---------- */
-.bars{display:flex;flex-direction:column;gap:1.4vh;width:100%}
-.bar{display:grid;grid-template-columns:9em 1fr 3.4em;align-items:center;gap:1em;font-size:1.45em}
-.bar .track{height:1.25em;border-radius:1em;background:rgba(255,255,255,.07);overflow:hidden}
-.bar .fill{height:100%;width:0;border-radius:1em;background:linear-gradient(90deg,var(--blue),var(--violet));transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
-.bar.star .fill{background:linear-gradient(90deg,var(--amber),var(--pink))}
-.bar .v{font-weight:900;font-variant-numeric:tabular-nums;text-align:right}
-.bar .nm{color:var(--ink-2)}.bar.star .nm{color:var(--ink);font-weight:800}
-.dots{display:grid;grid-template-columns:repeat(21,1fr);gap:.7vw;width:100%}
-.dot{aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.08);transform:scale(.2);transition:transform .5s cubic-bezier(.3,1.6,.5,1),background .5s}
-.legend{display:grid;grid-template-columns:repeat(5,1fr);gap:1vw}
-.legend div{padding:1em;font-size:1.2em;line-height:1.45}
-.legend b{display:block;font-size:2.4em;line-height:1.1}
-.big-stat{font-size:9em;font-weight:900;line-height:1}
+/* ---------- survey highlights ---------- */
 .goal{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4vw}
 .goal div{padding:1.4em;display:flex;flex-direction:column;gap:.4em}
-.goal b{font-size:3.6em;line-height:1}
+.goal b{font-size:4.4em;line-height:1;font-variant-numeric:tabular-nums}
 .goal span{font-size:1.3em;color:var(--ink-2);line-height:1.5}
+
+/* ---------- word cloud ---------- */
+.cloud{position:relative;flex:1;min-height:0;width:100%}
+.cw{position:absolute;white-space:nowrap;font-weight:900;line-height:1.1;opacity:0;scale:.5;
+  transition:opacity .7s ease,scale .8s cubic-bezier(.3,1.5,.5,1);animation:cfloat var(--d,8s) ease-in-out infinite alternate;animation-delay:var(--dl,0s)}
+.cw.in{opacity:var(--o,1);scale:1}
+.cw.idea{cursor:pointer;text-shadow:0 .15em .8em rgba(0,0,0,.35)}
+.cw.idea:hover{scale:1.08}
+@keyframes cfloat{from{translate:0 -.18em}to{translate:.1em .18em}}
+@media (prefers-reduced-motion:reduce){.cw{animation:none}}
 
 /* ---------- quote ---------- */
 .quote{font-size:4.6em;font-weight:900;line-height:1.3;max-width:15em}
@@ -118,7 +118,7 @@ p{margin:0}
 .guesses{position:relative;height:56vh}
 .guess{position:absolute;padding:.6em 1em;border-radius:1em;font-size:1.35em;font-weight:700;background:rgba(255,193,77,.14);border:1px dashed var(--amber);color:var(--amber);opacity:0;transform:scale(.6);transition:opacity .4s,transform .5s cubic-bezier(.3,1.6,.5,1)}
 .guess.in{opacity:1;transform:scale(1)}
-.brain{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:7em}
+.brain{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:7em;color:var(--cyan);line-height:1}.brain .i{stroke-width:1.2}
 
 /* ---------- builder ---------- */
 .builder{display:grid;grid-template-columns:1fr 1.15fr;gap:2.4vw;align-items:stretch;height:70vh}
@@ -140,7 +140,7 @@ p{margin:0}
 @keyframes pop{from{background:color-mix(in srgb,var(--c) 40%,transparent)}to{background:transparent}}
 .preview{position:relative;flex:1;border-radius:1.4em;overflow:hidden;border:1px solid var(--line);background:#FFF8EC;min-height:0}
 .preview iframe{position:absolute;left:0;top:0;width:1600px;height:900px;border:0;transform-origin:0 0;pointer-events:none;transition:filter .8s}
-.fog{position:absolute;inset:0;display:grid;place-items:center;font-size:2.2em;font-weight:900;color:#0B1028;transition:opacity .8s;background:radial-gradient(circle,rgba(255,248,236,.2),rgba(255,248,236,.75))}
+.fog .i{width:1.1em;height:1.1em;margin-right:.3em}.fog{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.3em;font-size:2.2em;font-weight:900;color:#0B1028;transition:opacity .8s;background:radial-gradient(circle,rgba(255,248,236,.2),rgba(255,248,236,.75))}
 
 /* ---------- vs ---------- */
 .vs{display:grid;grid-template-columns:1fr 1.9fr;gap:2vw;align-items:stretch}
@@ -168,7 +168,7 @@ p{margin:0}
 .trap.flip{transform:rotateY(180deg)}
 .trap>div{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:1.4em;padding:1.4em;display:flex;flex-direction:column;justify-content:center;gap:.5em}
 .trap .fr{background:var(--card);border:1px solid var(--line)}
-.trap .fr b{font-size:3em;line-height:1}
+.trap .fr b{font-size:3em;line-height:1;color:var(--amber)}.trap .fr b .i{stroke-width:1.6}
 .trap .fr strong{font-size:1.7em}
 .trap .bk{background:linear-gradient(135deg,rgba(61,220,151,.22),rgba(110,155,255,.22));border:1px solid var(--green);transform:rotateY(180deg)}
 .trap .bk p{font-size:1.3em;line-height:1.6}
@@ -192,7 +192,7 @@ p{margin:0}
 /* ---------- gemini steps ---------- */
 .gsteps{display:grid;grid-template-columns:repeat(6,1fr);gap:1vw;counter-reset:s}
 .gs{padding:1.3em 1.1em;display:flex;flex-direction:column;gap:.6em;position:relative}
-.gs .ic{font-size:2.6em}
+.gs .ic{font-size:2.6em;color:var(--cyan);line-height:1}.gs .ic .i{stroke-width:1.6}
 .gs strong{font-size:1.35em}
 .gs p{font-size:1.1em;color:var(--ink-2);line-height:1.55}
 .gs::before{counter-increment:s;content:counter(s);position:absolute;top:.6em;right:.9em;font-weight:900;font-size:1.6em;color:var(--ink-3)}
@@ -228,6 +228,7 @@ p{margin:0}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="ic-think" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2 1-1.2 1.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></symbol><symbol id="ic-sparkle" viewBox="0 0 24 24"><path d="M11 3l1.9 5.3L18 10l-5.1 1.7L11 17l-1.9-5.3L4 10l5.1-1.7z"/><path d="M19 16v4M17 18h4"/></symbol><symbol id="ic-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.6 0 2.1-1.1 1.5-2.1s0-2.4 1.5-2.4h2a4 4 0 0 0 4-4C21 7 17 3 12 3z"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="7.5" r="1" fill="currentColor"/><circle cx="16" cy="10" r="1" fill="currentColor"/></symbol><symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol><symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol><symbol id="ic-xcircle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol><symbol id="ic-checkcircle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></symbol><symbol id="ic-seedling" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 15c0-3 2.5-5 6-5 0 3.5-2.5 5-6 5z"/></symbol><symbol id="ic-robot" viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 8V4"/><circle cx="12" cy="3.5" r="1"/><circle cx="9.5" cy="13" r="1.2" fill="currentColor"/><circle cx="14.5" cy="13" r="1.2" fill="currentColor"/><path d="M9.5 16.5h5M3 13v3M21 13v3"/></symbol><symbol id="ic-cloud" viewBox="0 0 24 24"><path d="M7 17a4 4 0 0 1-.6-7.9A5.5 5.5 0 0 1 17 8.6 4.2 4.2 0 0 1 17 17z"/><path d="M6 21h12"/></symbol><symbol id="ic-backpack" viewBox="0 0 24 24"><path d="M7 9a5 5 0 0 1 10 0v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 4V2M14 4V2M9 14h6"/></symbol><symbol id="ic-silent" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/><path d="M9 15.5h6"/></symbol><symbol id="ic-hide" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M6.5 10h4M13.5 10h4M9 16c1.2-.8 4.8-.8 6 0"/></symbol><symbol id="ic-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol><symbol id="ic-brain" viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 4 3 3 0 0 0 1.5 5A3 3 0 0 0 9 20a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 4 3 3 0 0 1-1.5 5A3 3 0 0 1 15 20a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/></symbol><symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol><symbol id="ic-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-9 9"/></symbol><symbol id="ic-note" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/></symbol><symbol id="ic-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol><symbol id="ic-loop" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 4v5h-5M20 12a8 8 0 0 1-14 5l-2-2M4 20v-5h5"/></symbol><symbol id="ic-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></symbol><symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol><symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol><symbol id="ic-clipboard" viewBox="0 0 24 24"><path d="M9 4h6v3H9z"/><path d="M15 5h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2"/></symbol><symbol id="ic-speaker" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></symbol><symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4v2a3 3 0 0 0 4 3M16 6h4v2a3 3 0 0 1-4 3M12 13v4M8 20h8M10 17h4"/></symbol><symbol id="ic-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4"/></symbol><symbol id="ic-printer" viewBox="0 0 24 24"><path d="M7 8V3h10v5"/><path d="M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="ic-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></symbol><symbol id="ic-folder" viewBox="0 0 24 24"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h8a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></symbol><symbol id="ic-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol><symbol id="ic-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></symbol><symbol id="ic-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol><symbol id="ic-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/></symbol><symbol id="ic-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/></symbol><symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2"/></symbol></defs></svg>
 <div class="aurora"><i></i><i></i><i></i></div>
 <canvas id="stars"></canvas>
 
@@ -241,27 +242,27 @@ p{margin:0}
   <div class="floaty">
     <img class="hero-art" src="art/deck_hero.jpg" alt="老師同 AI 小助手傾偈">
     <div class="bub t" style="left:0;top:2%;animation-delay:-1s">整個植物遊戲</div>
-    <div class="bub a" style="left:62%;top:4%;animation-delay:-3s">幾年級？🤔</div>
+    <div class="bub a" style="left:62%;top:4%;animation-delay:-3s">幾年級？<svg class="i"><use href="#ic-think"/></svg></div>
     <div class="bub a" style="left:-4%;top:40%;animation-delay:-2s">白板定手機？</div>
     <div class="bub t" style="left:4%;top:76%;animation-delay:-.5s">我係小三常識老師…</div>
-    <div class="bub a" style="left:66%;top:80%;animation-delay:-2.5s">明白晒！✨</div>
+    <div class="bub a" style="left:66%;top:80%;animation-delay:-2.5s">明白晒！<svg class="i"><use href="#ic-sparkle"/></svg></div>
   </div>
 </section>
 
 <!-- 2 BLIND DRAW -->
 <section class="slide" data-title="熱身：盲畫">
   <div class="tag">0–10 分鐘 · 熱身</div>
-  <div class="blind-head"><div class="col" style="gap:1vh"><div class="kicker">熱身遊戲</div><h2>🎨 盲畫挑戰</h2></div><img src="art/deck_blind.jpg" alt="兩位老師背對背，一個講一個畫"></div>
+  <div class="blind-head"><div class="col" style="gap:1vh"><div class="kicker">熱身遊戲</div><h2><svg class="i"><use href="#ic-palette"/></svg> 盲畫挑戰</h2></div><img src="art/deck_blind.jpg" alt="兩位老師背對背，一個講一個畫"></div>
   <div class="steps">
     <div class="glass step f"><b>1</b><strong style="font-size:1.6em">兩人一組</strong><p><strong>A</strong> 睇圖，只可以用口講。<br><strong>B</strong> 背對螢幕，照住畫。</p></div>
-    <div class="glass step f"><b>2</b><strong style="font-size:1.6em">第一輪：一句講晒</strong><p>A 只可以講<strong>一句</strong>。<br>B 唔准發問。<br>⏱ 1 分鐘</p></div>
-    <div class="glass step f"><b>3</b><strong style="font-size:1.6em">第二輪：講清楚</strong><p>A 可以講幾多都得。<br>B 可以發問、A 可以糾正。<br>⏱ 2 分鐘</p></div>
+    <div class="glass step f"><b>2</b><strong style="font-size:1.6em">第一輪：一句講晒</strong><p>A 只可以講<strong>一句</strong>。<br>B 唔准發問。<br>1 分鐘</p></div>
+    <div class="glass step f"><b>3</b><strong style="font-size:1.6em">第二輪：講清楚</strong><p>A 可以講幾多都得。<br>B 可以發問、A 可以糾正。<br>2 分鐘</p></div>
   </div>
   <div class="row f" style="gap:1em">
-    <button class="btn" data-reveal="pic1">👀 第一輪圖（只畀 A 睇）</button>
-    <button class="btn" data-reveal="pic2">👀 第二輪圖</button>
-    <button class="btn ghost" data-timer="60">⏱ 1 分鐘</button>
-    <button class="btn ghost" data-timer="120">⏱ 2 分鐘</button>
+    <button class="btn" data-reveal="pic1"><svg class="i"><use href="#ic-eye"/></svg> 第一輪圖（只畀 A 睇）</button>
+    <button class="btn" data-reveal="pic2"><svg class="i"><use href="#ic-eye"/></svg> 第二輪圖</button>
+    <button class="btn ghost" data-timer="60"><svg class="i"><use href="#ic-clock"/></svg> 1 分鐘</button>
+    <button class="btn ghost" data-timer="120"><svg class="i"><use href="#ic-clock"/></svg> 2 分鐘</button>
   </div>
 </section>
 
@@ -271,52 +272,18 @@ p{margin:0}
   <p class="quote" data-words>B 就係 AI。你講得模糊，佢就靠估；你講得清楚、肯回饋，佢就畫得準。</p>
 </section>
 
-<!-- 4 SURVEY TOOLS -->
-<section class="slide" data-title="問卷：常用工具" data-bars>
+<!-- 4 SURVEY HIGHLIGHTS -->
+<section class="slide" data-title="問卷：一眼睇晒" data-count>
   <div class="tag">10–20 分鐘 · 你哋嘅問卷</div>
-  <div class="kicker">21 位老師嘅問卷</div>
-  <h2>大家平時用緊乜 AI？</h2>
-  <div class="bars">
-    <div class="bar"><span class="nm">Canva</span><div class="track"><div class="fill" data-v="20"></div></div><span class="v" data-n="20">0</span></div>
-    <div class="bar star"><span class="nm">Google Gemini</span><div class="track"><div class="fill" data-v="17"></div></div><span class="v" data-n="17">0</span></div>
-    <div class="bar"><span class="nm">DeepSeek</span><div class="track"><div class="fill" data-v="10"></div></div><span class="v" data-n="10">0</span></div>
-    <div class="bar"><span class="nm">ChatGPT</span><div class="track"><div class="fill" data-v="7"></div></div><span class="v" data-n="7">0</span></div>
-    <div class="bar"><span class="nm">Kimi</span><div class="track"><div class="fill" data-v="4"></div></div><span class="v" data-n="4">0</span></div>
-    <div class="bar"><span class="nm">NotebookLM</span><div class="track"><div class="fill" data-v="2"></div></div><span class="v" data-n="2">0</span></div>
-    <div class="bar"><span class="nm">豆包</span><div class="track"><div class="fill" data-v="2"></div></div><span class="v" data-n="2">0</span></div>
-  </div>
-  <p class="lead f">👉 今日用 <span class="hl">Gemini Canvas</span>：大部分人已經有，寫完即刻見到成品。</p>
-</section>
-
-<!-- 5 SURVEY EXPERIENCE -->
-<section class="slide" data-title="問卷：經驗" data-dots>
-  <div class="kicker">我哋喺唔同起點</div>
-  <h2>21 位老師，五種經驗</h2>
-  <div class="dots" id="dots"></div>
-  <div class="legend">
-    <div class="glass" style="--c:#FF6F9F"><b style="color:var(--pink)">1</b>未用過 AI 備課</div>
-    <div class="glass"><b style="color:var(--amber)">4</b>用 AI 構思、改寫、整理</div>
-    <div class="glass"><b style="color:var(--blue)">8</b>用 AI 整教材，再自己修改</div>
-    <div class="glass"><b style="color:var(--violet)">4</b>整過互動教材</div>
-    <div class="glass"><b style="color:var(--green)">4</b>整過 HTML 教具</div>
-  </div>
-  <p class="lead f">今日嘅實作分三級，<span class="hl">每個人都有適合自己嘅挑戰</span>。</p>
-</section>
-
-<!-- 6 SURVEY GOALS -->
-<section class="slide" data-title="問卷：想做乜" data-bars>
-  <div class="kicker">如果今日可以完成一件作品…</div>
-  <h2>你哋最想整嘅係：</h2>
+  <div class="kicker">21 位老師交咗問卷</div>
+  <h2>大家已經行咗好遠</h2>
   <div class="goal">
-    <div class="glass f"><b class="grad">9</b><span>學生操作嘅互動活動<br>配對、排序、聽音、即時回饋</span></div>
-    <div class="glass f"><b style="color:var(--blue)">7</b><span>配合課題嘅<br>課堂活動或材料</span></div>
-    <div class="glass f"><b style="color:var(--violet)">4</b><span>教師操作嘅教具<br>互動地圖、可調數值示範</span></div>
-    <div class="glass f"><b style="color:var(--ink-2)">1</b><span>互動影片／軟件</span></div>
+    <div class="glass f"><b class="grad" data-n="20">0</b><span>位已經用 AI 備課<br>起點各有唔同，冇問題</span></div>
+    <div class="glass f"><b style="color:var(--blue)" data-n="17">0</b><span>位平時用 Gemini<br>今日就用佢嘅 Canvas</span></div>
+    <div class="glass f"><b style="color:var(--violet)" data-n="9">0</b><span>位想整學生可以玩嘅<br>互動活動</span></div>
+    <div class="glass f"><b style="color:var(--amber)" data-n="12">0</b><span>位仲未有具體諗法<br>今日就係為咗呢個</span></div>
   </div>
-  <div class="row f" style="align-items:center;gap:2vw">
-    <span class="big-stat hl">12</span>
-    <p class="lead">位老師仲未有具體諗法。<br><b style="color:var(--ink)">冇問題，今日就係為咗呢個。</b></p>
-  </div>
+  <p class="lead f"><svg class="i"><use href="#ic-arrow"/></svg> 今日用 <span class="hl">Gemini Canvas</span>：寫完即刻見到成品，實作分三級，人人都有適合自己嘅挑戰。</p>
 </section>
 
 <!-- 7 BIG IDEA -->
@@ -333,10 +300,10 @@ p{margin:0}
   <div class="chat">
     <div class="glass phone">
       <div class="msg t" id="chatQ"></div>
-      <div class="msg a f" id="chatA" style="opacity:0">好！我整咗一個植物遊戲 🌱<br><span style="color:var(--ink-3)">（簡體字、細字、要登入、手機版、問題太深…）</span></div>
+      <div class="msg a f" id="chatA" style="opacity:0">好！我整咗一個植物遊戲 <svg class="i"><use href="#ic-seedling"/></svg><br><span style="color:var(--ink-3)">（簡體字、細字、要登入、手機版、問題太深…）</span></div>
     </div>
     <div class="guesses" id="guesses">
-      <div class="brain">🤖</div>
+      <div class="brain"><svg class="i"><use href="#ic-robot"/></svg></div>
     </div>
   </div>
 </section>
@@ -357,7 +324,7 @@ p{margin:0}
       <div class="glass promptbox" id="promptbox"><span class="empty">整一個植物遊戲。</span></div>
       <div class="preview" id="preview">
         <iframe data-src="01-植物的組成.html" title="植物的組成" tabindex="-1"></iframe>
-        <div class="fog" id="fog">🤔 AI 估緊……</div>
+        <div class="fog" id="fog"><svg class="i"><use href="#ic-think"/></svg> AI 估緊……</div>
       </div>
     </div>
   </div>
@@ -367,8 +334,8 @@ p{margin:0}
 <section class="slide" data-title="無效 vs 有效">
   <div class="kicker">同一個要求，兩種講法</div>
   <div class="vs">
-    <div class="glass bad f"><h3>❌ 無效</h3><p class="bigbad">「整一個植物遊戲」</p><p class="lead" style="font-size:1.3em;margin-top:1em">AI 要自己估：年級、語言、裝置、題型、難度……</p></div>
-    <div class="glass good f"><h3>✅ 有效</h3>
+    <div class="glass bad f"><h3><svg class="i"><use href="#ic-xcircle"/></svg> 無效</h3><p class="bigbad">「整一個植物遊戲」</p><p class="lead" style="font-size:1.3em;margin-top:1em">AI 要自己估：年級、語言、裝置、題型、難度……</p></div>
+    <div class="glass good f"><h3><svg class="i"><use href="#ic-checkcircle"/></svg> 有效</h3>
       <p class="goodtxt" id="goodtxt"><span class="e" style="--c:var(--cyan)" data-k="0">我係小三常識老師，學生程度參差。</span><span class="e" style="--c:var(--blue)" data-k="1">課題係「植物的組成部分」，目標係令學生認識根、莖、葉、花、果實同佢哋嘅功能。</span><span class="e" style="--c:var(--violet)" data-k="2">請整一個 HTML 互動活動，喺電子白板用：學生按指示點選植物部分，答啱有讚，答錯有提示，最後可以睇植物成長動畫。</span><span class="e" style="--c:var(--pink)" data-k="3">用繁體中文，字要大，唔使登入，可以離線打開。</span></p>
       <div class="keys">
         <span style="--c:var(--cyan)" data-k="0">① 身份同對象</span><span style="--c:var(--blue)" data-k="1">② 目的</span><span style="--c:var(--violet)" data-k="2">③ 形式</span><span style="--c:var(--pink)" data-k="3">④ 限制</span>
@@ -382,8 +349,8 @@ p{margin:0}
   <div class="kicker">第一版唔滿意？好正常。重點係點樣講。</div>
   <h2>回饋要<span class="grad">具體</span></h2>
   <div class="fb">
-    <div class="glass bad f"><h3>❌ 無效回饋</h3><p class="say">「唔好睇，改靚啲。」</p><p class="say">「再整過。」</p><ul><li>AI 唔知邊度唔好睇</li><li>重頭整，好嘅部分都冇埋</li></ul></div>
-    <div class="glass good f"><h3>✅ 具體回饋</h3><p class="say">「字太細，坐後排睇唔到，標題同按鈕放大一倍。答錯唔好用紅色，改做黃色加提示。<span class="hl">其他保持不變。</span>」</p><ul><li><b>邊度</b>：標題、按鈕、答錯畫面</li><li><b>點解</b>：後排睇唔到</li><li><b>改做點</b>：放大一倍、黃色提示</li><li><b>保護好嘅部分</b>：其他不變</li></ul></div>
+    <div class="glass bad f"><h3><svg class="i"><use href="#ic-xcircle"/></svg> 無效回饋</h3><p class="say">「唔好睇，改靚啲。」</p><p class="say">「再整過。」</p><ul><li>AI 唔知邊度唔好睇</li><li>重頭整，好嘅部分都冇埋</li></ul></div>
+    <div class="glass good f"><h3><svg class="i"><use href="#ic-checkcircle"/></svg> 具體回饋</h3><p class="say">「字太細，坐後排睇唔到，標題同按鈕放大一倍。答錯唔好用紅色，改做黃色加提示。<span class="hl">其他保持不變。</span>」</p><ul><li><b>邊度</b>：標題、按鈕、答錯畫面</li><li><b>點解</b>：後排睇唔到</li><li><b>改做點</b>：放大一倍、黃色提示</li><li><b>保護好嘅部分</b>：其他不變</li></ul></div>
   </div>
 </section>
 
@@ -392,13 +359,21 @@ p{margin:0}
   <div class="kicker">撳卡揭曉</div>
   <h2>老師最易中嘅六個陷阱</h2>
   <div class="traps">
-    <div class="trap"><div class="fr"><b>🌫️</b><strong>太短太模糊</strong></div><div class="bk"><p>「整個英文練習」——邊個 tense？幾多題？咩程度？<br><b>→ 講清楚五要素</b></p></div></div>
-    <div class="trap"><div class="fr"><b>🎒</b><strong>一次過要晒</strong></div><div class="bk"><p>遊戲、計分、動畫、聲音一次過要，結果樣樣半桶水。<br><b>→ 先整骨架，再逐樣加</b></p></div></div>
-    <div class="trap"><div class="fr"><b>😶</b><strong>只講感覺</strong></div><div class="bk"><p>「唔夠好」「怪怪哋」——AI 唔知你指邊度。<br><b>→ 講邊度、點解、改做點</b></p></div></div>
-    <div class="trap"><div class="fr"><b>🙈</b><strong>唔檢查就用</strong></div><div class="bk"><p>AI 會講錯嘢：日數、文法、答案。<br><b>→ 老師係最後把關嘅人</b></p></div></div>
-    <div class="trap"><div class="fr"><b>🏳️</b><strong>出錯就放棄</strong></div><div class="bk"><p>話佢知錯喺邊，佢通常改得返。<br><b>→ 回饋兩三輪，好正常</b></p></div></div>
-    <div class="trap"><div class="fr"><b>🧠</b><strong>以為佢記得你</strong></div><div class="bk"><p>開新對話，佢就唔記得之前講過乜。<br><b>→ 每次重新交代背景</b></p></div></div>
+    <div class="trap"><div class="fr"><b><svg class="i"><use href="#ic-cloud"/></svg></b><strong>太短太模糊</strong></div><div class="bk"><p>「整個英文練習」——邊個 tense？幾多題？咩程度？<br><b>→ 講清楚五要素</b></p></div></div>
+    <div class="trap"><div class="fr"><b><svg class="i"><use href="#ic-backpack"/></svg></b><strong>一次過要晒</strong></div><div class="bk"><p>遊戲、計分、動畫、聲音一次過要，結果樣樣半桶水。<br><b>→ 先整骨架，再逐樣加</b></p></div></div>
+    <div class="trap"><div class="fr"><b><svg class="i"><use href="#ic-silent"/></svg></b><strong>只講感覺</strong></div><div class="bk"><p>「唔夠好」「怪怪哋」——AI 唔知你指邊度。<br><b>→ 講邊度、點解、改做點</b></p></div></div>
+    <div class="trap"><div class="fr"><b><svg class="i"><use href="#ic-hide"/></svg></b><strong>唔檢查就用</strong></div><div class="bk"><p>AI 會講錯嘢：日數、文法、答案。<br><b>→ 老師係最後把關嘅人</b></p></div></div>
+    <div class="trap"><div class="fr"><b><svg class="i"><use href="#ic-flag"/></svg></b><strong>出錯就放棄</strong></div><div class="bk"><p>話佢知錯喺邊，佢通常改得返。<br><b>→ 回饋兩三輪，好正常</b></p></div></div>
+    <div class="trap"><div class="fr"><b><svg class="i"><use href="#ic-brain"/></svg></b><strong>以為佢記得你</strong></div><div class="bk"><p>開新對話，佢就唔記得之前講過乜。<br><b>→ 每次重新交代背景</b></p></div></div>
   </div>
+</section>
+
+<!-- 12b WORD CLOUD -->
+<section class="slide" data-title="老師哋嘅 10 個諗法" data-cloud>
+  <div class="kicker">問卷入面，你哋寫低嘅諗法</div>
+  <h2>老師哋嘅 <span class="grad">10 個諗法</span></h2>
+  <div class="cloud" id="cloud"></div>
+  <p class="lead f" style="font-size:1.25em">大字係 10 個具體諗法，細字係你哋提到嘅關鍵詞。下一頁，睇佢哋變成乜。</p>
 </section>
 
 <!-- 13 SHOWCASE -->
@@ -415,14 +390,14 @@ p{margin:0}
   <div class="kicker">實作工具：Google Gemini</div>
   <h2>Gemini Canvas 六步</h2>
   <div class="gsteps">
-    <div class="glass gs f"><span class="ic">🌐</span><strong>打開 Gemini</strong><p>gemini.google.com<br>用 Google 帳戶登入</p></div>
-    <div class="glass gs f"><span class="ic">🖼️</span><strong>揀 Canvas</strong><p>輸入框下面撳「Canvas」<br>唔撳就只得一大段代碼</p></div>
-    <div class="glass gs f"><span class="ic">📝</span><strong>貼有效 prompt</strong><p>五要素：身份、目的、形式、限制</p></div>
-    <div class="glass gs f"><span class="ic">▶️</span><strong>即時試玩</strong><p>右邊即刻見成品<br>好似學生咁玩一次</p></div>
-    <div class="glass gs f"><span class="ic">🔁</span><strong>具體回饋</strong><p>邊度、點解、改做點<br>改兩三輪</p></div>
-    <div class="glass gs f"><span class="ic">💾</span><strong>存成 HTML</strong><p>下載或複製代碼存檔<br>帶返課室直接開</p></div>
+    <div class="glass gs f"><span class="ic"><svg class="i"><use href="#ic-globe"/></svg></span><strong>打開 Gemini</strong><p>gemini.google.com<br>用 Google 帳戶登入</p></div>
+    <div class="glass gs f"><span class="ic"><svg class="i"><use href="#ic-image"/></svg></span><strong>揀 Canvas</strong><p>輸入框下面撳「Canvas」<br>唔撳就只得一大段代碼</p></div>
+    <div class="glass gs f"><span class="ic"><svg class="i"><use href="#ic-note"/></svg></span><strong>貼有效 prompt</strong><p>五要素：身份、目的、形式、限制</p></div>
+    <div class="glass gs f"><span class="ic"><svg class="i"><use href="#ic-play"/></svg></span><strong>即時試玩</strong><p>右邊即刻見成品<br>好似學生咁玩一次</p></div>
+    <div class="glass gs f"><span class="ic"><svg class="i"><use href="#ic-loop"/></svg></span><strong>具體回饋</strong><p>邊度、點解、改做點<br>改兩三輪</p></div>
+    <div class="glass gs f"><span class="ic"><svg class="i"><use href="#ic-save"/></svg></span><strong>存成 HTML</strong><p>下載或複製代碼存檔<br>帶返課室直接開</p></div>
   </div>
-  <p class="glass warn f">💡 學生<b>唔使登入</b>：Gemini 係老師嘅工具；學生用嘅係你存好嘅 HTML 檔，冇電話、冇電郵都用得。</p>
+  <p class="glass warn f"><svg class="i"><use href="#ic-bulb"/></svg> 學生<b>唔使登入</b>：Gemini 係老師嘅工具；學生用嘅係你存好嘅 HTML 檔，冇電話、冇電郵都用得。</p>
 </section>
 
 <!-- 15 TIERS -->
@@ -431,21 +406,21 @@ p{margin:0}
   <div class="kicker">30 分鐘 · 揀一級開始</div>
   <h2>實作：揀你嘅挑戰</h2>
   <div class="tiers">
-    <div class="glass tier" style="--c:var(--green)"><span class="lv">⭐ 初階 · 填充模板</span><h3>填空就得</h3>
+    <div class="glass tier" style="--c:var(--green)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg> 初階 · 填充模板</span><h3>填空就得</h3>
       <div class="tpl">我係<i>＿年級＿＿科</i>老師，學生<i>（程度）</i>。課題係<i>＿＿＿</i>，目標係令學生<i>＿＿＿</i>。
 請整一個 HTML 互動<i>選擇題／配對</i>活動，喺電子白板用，共 <i>8</i> 題。答啱有讚，答錯有提示。
 用繁體中文，字要大，唔使登入，可以離線打開。</div>
-      <button class="btn ghost" data-copy="0">📋 複製模板</button></div>
-    <div class="glass tier" style="--c:var(--blue)"><span class="lv">⭐⭐ 中階 · 自己課題</span><h3>用五要素自己寫</h3>
+      <button class="btn ghost" data-copy="0"><svg class="i"><use href="#ic-clipboard"/></svg> 複製模板</button></div>
+    <div class="glass tier" style="--c:var(--blue)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg> 中階 · 自己課題</span><h3>用五要素自己寫</h3>
       <p>揀一個下星期真係要教嘅課題，用五要素寫 prompt。</p>
       <p><b style="color:var(--ink)">任務：</b>至少做 <span class="hl">兩輪具體回饋</span>，記低第一版同改完版。</p>
       <p>可以參考展示頁每個教具嘅「有效講法」。</p></div>
-    <div class="glass tier" style="--c:var(--violet)"><span class="lv">⭐⭐⭐ 進階 · 加功能</span><h3>逐樣加上去</h3>
+    <div class="glass tier" style="--c:var(--violet)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg> 進階 · 加功能</span><h3>逐樣加上去</h3>
       <p>先整骨架，再一輪加一樣：</p>
-      <p>🔊 朗讀（廣東話／英文／葡文）<br>🏆 計分同星星<br>🎚️ 可調數值嘅示範<br>🖨️ 列印版工作紙</p>
+      <p><svg class="i"><use href="#ic-speaker"/></svg> 朗讀（廣東話／英文／葡文）<br><svg class="i"><use href="#ic-trophy"/></svg> 計分同星星<br><svg class="i"><use href="#ic-sliders"/></svg> 可調數值嘅示範<br><svg class="i"><use href="#ic-printer"/></svg> 列印版工作紙</p>
       <p><b style="color:var(--ink)">挑戰：</b>每輪只要求一樣嘢。</p></div>
   </div>
-  <div class="row" style="gap:1em"><button class="btn" data-timer="1800">⏱ 開始 30 分鐘</button></div>
+  <div class="row" style="gap:1em"><button class="btn" data-timer="1800"><svg class="i"><use href="#ic-clock"/></svg> 開始 30 分鐘</button></div>
 </section>
 
 <!-- 16 SHARE -->
@@ -458,7 +433,7 @@ p{margin:0}
     <div class="glass step f"><b>2</b><strong style="font-size:1.6em">講你嘅回饋</strong><p>你講咗邊句具體回饋？<br>邊一句最有效？</p></div>
     <div class="glass step f"><b>3</b><strong style="font-size:1.6em">打開改完版</strong><p>差別喺邊？<br>聽日點樣用落堂？</p></div>
   </div>
-  <div class="row f" style="gap:1em"><button class="btn ghost" data-timer="600">⏱ 10 分鐘</button></div>
+  <div class="row f" style="gap:1em"><button class="btn ghost" data-timer="600"><svg class="i"><use href="#ic-clock"/></svg> 10 分鐘</button></div>
 </section>
 
 <!-- 17 TAKEAWAYS -->
@@ -477,8 +452,8 @@ p{margin:0}
 <section class="slide title" data-title="多謝">
   <div class="floaty"><img class="hero-art" src="art/03_sunny.jpg" alt="陽光下嘅澳門街角"></div>
   <h1 style="font-size:8em"><span class="grad">多謝！</span></h1>
-  <p class="lead">有問題，隨時問 🙌</p>
-  <div class="row" style="gap:1em"><a class="btn" href="index.html" target="_blank" style="text-decoration:none">🗂️ 打開教具展示頁</a></div>
+  <p class="lead">有問題，隨時問 <svg class="i"><use href="#ic-heart"/></svg></p>
+  <div class="row" style="gap:1em"><a class="btn" href="index.html" target="_blank" style="text-decoration:none"><svg class="i"><use href="#ic-folder"/></svg> 打開教具展示頁</a></div>
 </section>
 
 </div>
@@ -505,21 +480,23 @@ p{margin:0}
 </div>
 
 <div class="viewer" id="viewer">
-  <header><h3 id="vt"></h3><q id="vq"></q><a class="btn ghost" id="vopen" target="_blank" style="text-decoration:none">↗ 新分頁</a><button class="btn" id="vclose">✕ 關閉</button></header>
-  <iframe id="vframe" title="教具"></iframe>
+  <header><h3 id="vt"></h3><q id="vq"></q><a class="btn ghost" id="vopen" target="_blank" style="text-decoration:none"><svg class="i"><use href="#ic-ext"/></svg> 新分頁</a><button class="btn" id="vclose"><svg class="i"><use href="#ic-x"/></svg> 關閉</button></header>
+  <iframe id="vframe" title="教具" allow="microphone; autoplay"></iframe>
 </div>
 
-<div class="timer glass" id="timer"><span class="t" id="tt">00:00</span><button id="tpause">⏸</button><button id="tplus">+1′</button><button id="tclose">✕</button></div>
+<div class="timer glass" id="timer"><span class="t" id="tt">00:00</span><button id="tpause"><svg class="i"><use href="#ic-pause"/></svg></button><button id="tplus">+1′</button><button id="tclose"><svg class="i"><use href="#ic-x"/></svg></button></div>
 
 <div class="overview" id="overview"><h3>全部投影片 <small style="color:var(--ink-3);font-weight:500">（O 鍵開關）</small></h3><div class="ov" id="ov"></div></div>
 
 <div class="navzone l" id="navl" title="上一頁"></div><div class="navzone r" id="navr" title="下一頁"></div>
 <div class="progress" id="progress"></div>
-<div class="hud"><span id="pageno">1 / 18</span><button id="bov">▦ 總覽</button><button id="bfs">⛶ 全螢幕</button></div>
+<div class="hud"><span id="pageno">1 / 18</span><button id="bov"><svg class="i"><use href="#ic-grid"/></svg> 總覽</button><button id="bfs"><svg class="i"><use href="#ic-expand"/></svg> 全螢幕</button></div>
 
 <script>
 (() => {
 const $ = id => document.getElementById(id);
+const mk = n => `<svg class="i"><use href="#ic-${n}"/></svg>`;
+const IC = { pause: mk('pause'), play: mk('play'), check: mk('check'), clipboard: mk('clipboard'), think: mk('think'), search: mk('search'), smile: mk('smile') };
 const slides = [...document.querySelectorAll('.slide')];
 let cur = 0;
 
@@ -566,24 +543,53 @@ document.querySelectorAll('[data-words]').forEach(p => {
   p.innerHTML = chunks.map((c, i) => `<span class="w" style="transition-delay:${.25 + i * .32}s">${c}</span>`).join('');
 });
 
-/* ---------- dots ---------- */
-const dotWrap = $('dots');
-const DOTC = [['var(--pink)',1],['var(--amber)',4],['var(--blue)',8],['var(--violet)',4],['var(--green)',4]];
-const dotCols = DOTC.flatMap(([c, n]) => Array(n).fill(c));
-dotCols.forEach(() => { const d = document.createElement('div'); d.className = 'dot'; dotWrap.appendChild(d); });
-const runDots = on => dotWrap.querySelectorAll('.dot').forEach((d, i) => {
-  if (on) setTimeout(() => { d.style.transform = 'scale(1)'; d.style.background = dotCols[i]; }, 200 + i * 70);
-  else { d.style.transform = ''; d.style.background = ''; }
+/* ---------- count-up ---------- */
+const runCount = (s, on) => s.querySelectorAll('[data-n]').forEach((el, i) => {
+  const n = +el.dataset.n; if (!on) { el.textContent = '0'; return; }
+  setTimeout(() => { const t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }, 300 + i * 180);
 });
 
-/* ---------- bars ---------- */
-const runBars = (s, on) => s.querySelectorAll('.bar').forEach((b, i) => {
-  const f = b.querySelector('.fill'), v = b.querySelector('.v'), n = +v.dataset.n;
-  if (!on) { f.style.width = '0'; v.textContent = '0'; return; }
-  setTimeout(() => {
-    f.style.width = (n / 21 * 100) + '%';
-    const t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 1200); v.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
-  }, 250 + i * 140);
+/* ---------- word cloud ---------- */
+const IDEAS = [
+  ['植物組成',0,4.3,'var(--green)'],['朗讀回饋',1,4.1,'var(--pink)'],['天氣衣物',2,3.8,'var(--cyan)'],['乘法口訣',3,4.0,'var(--amber)'],
+  ['音樂聽辨',4,3.6,'var(--violet)'],['時態工作紙',5,3.9,'var(--blue)'],['小水滴旅行',6,3.7,'var(--cyan)'],['閱讀對答',7,3.9,'var(--amber)'],
+  ['葡文對話',8,3.6,'var(--pink)'],['地球公轉',9,4.1,'var(--green)']
+];
+const KEYS = ['即時回饋','互動','動畫','點選','配對','口語練習','複習','晨操','白板','常識','中文','英文','數學','音樂','葡文','分層','學生操作','離線','繁體','字要大','試玩','小三','幼兒','聽辨','示範','遊戲','星星','提示'];
+const KCOL = ['var(--ink-2)','var(--blue)','var(--violet)','var(--cyan)','var(--pink)','var(--green)','var(--amber)'];
+const cloud = $('cloud');
+let cloudTimers = [];
+function buildCloud(animate) {
+  cloudTimers.forEach(clearTimeout); cloudTimers = []; cloud.innerHTML = '';
+  const W = cloud.clientWidth, H = cloud.clientHeight; if (W < 50 || H < 50) return;
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const words = [...IDEAS.map(w => ({ t: w[0], i: w[1], em: w[2], c: w[3], idea: true })),
+    ...KEYS.map((k, j) => ({ t: k, em: 1.75 + (j % 5) * .28, c: KCOL[j % KCOL.length], idea: false, o: .8 }))];
+  for (let scale = 1; scale > .4; scale -= .06) {
+    cloud.innerHTML = ''; const placed = []; let ok = true; seed = 7;
+    for (const w of words) {
+      const el = document.createElement('span'); el.className = 'cw' + (w.idea ? ' idea' : '');
+      el.textContent = w.t; el.style.fontSize = (w.em * scale) + 'em'; el.style.color = w.c;
+      if (w.o) el.style.setProperty('--o', w.o);
+      if (w.idea) el.dataset.i = w.i;
+      el.style.setProperty('--d', (6 + rnd() * 5).toFixed(1) + 's'); el.style.setProperty('--dl', (-rnd() * 6).toFixed(1) + 's');
+      cloud.appendChild(el);
+      const bw = el.offsetWidth + 14, bh = el.offsetHeight + 8; let pos = null;
+      for (let a = 0, r = 0; r < Math.max(W, H); a += .3, r += .5) {
+        const x = W / 2 + Math.cos(a) * r * (W / H) - bw / 2, y = H / 2 + Math.sin(a) * r - bh / 2;
+        if (x < 0 || y < 0 || x + bw > W || y + bh > H) continue;
+        if (placed.every(q => x + bw <= q.x || q.x + q.w <= x || y + bh <= q.y || q.y + q.h <= y)) { pos = { x, y, w: bw, h: bh }; break; }
+      }
+      if (!pos) { ok = false; break; }
+      placed.push(pos); el.style.left = (pos.x + 7) + 'px'; el.style.top = (pos.y + 4) + 'px';
+    }
+    if (ok) break;
+  }
+  [...cloud.children].forEach((el, i) => { if (animate) cloudTimers.push(setTimeout(() => el.classList.add('in'), 250 + (el.classList.contains('idea') ? i * 200 : 2200 + i * 60))); else el.classList.add('in'); });
+}
+cloud.addEventListener('click', e => {
+  const el = e.target.closest('.idea'); if (!el) return; e.stopPropagation();
+  const t = wall.querySelectorAll('.tile')[+el.dataset.i]; if (t) t.click();
 });
 
 /* ---------- chat sim ---------- */
@@ -622,7 +628,7 @@ const renderBuilder = () => {
   const f = $('preview').querySelector('iframe');
   f.style.filter = `blur(${(5 - n) * 3.2}px) grayscale(${(5 - n) / 5}) saturate(${.6 + n * .08})`;
   const fog = $('fog'); fog.style.opacity = n >= 4 ? 0 : 1;
-  fog.textContent = ['🤔 AI 估緊……','🤔 小三？然後呢？','🧐 開始有啲頭緒…','🙂 差唔多啦…','',''][n];
+  fog.innerHTML = [[IC.think,'AI 估緊……'],[IC.think,'小三？然後呢？'],[IC.search,'開始有啲頭緒…'],[IC.smile,'差唔多啦…'],['',''],['','']][n].join(' ');
 };
 document.querySelectorAll('.tg').forEach(b => b.addEventListener('click', e => {
   e.stopPropagation(); const k = +b.dataset.k;
@@ -648,17 +654,17 @@ $('reveal').addEventListener('click', () => $('reveal').classList.remove('on'));
 /* ---------- copy template ---------- */
 document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async e => {
   e.stopPropagation(); const txt = b.parentElement.querySelector('.tpl').textContent;
-  try { await navigator.clipboard.writeText(txt); b.textContent = '✅ 已複製'; } catch (_) { b.textContent = '請手動複製'; }
-  setTimeout(() => b.textContent = '📋 複製模板', 1800);
+  try { await navigator.clipboard.writeText(txt); b.innerHTML = IC.check + ' 已複製'; } catch (_) { b.textContent = '請手動複製'; }
+  setTimeout(() => b.innerHTML = IC.clipboard + ' 複製模板', 1800);
 }));
 
 /* ---------- timer ---------- */
 let tLeft = 0, tRun = false, tInt = null;
 const tShow = () => { const m = Math.floor(Math.max(0, tLeft) / 60), s = Math.max(0, tLeft) % 60; $('tt').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); $('timer').classList.toggle('done', tLeft <= 0); };
 const chime = () => { try { const ac = new (window.AudioContext || window.webkitAudioContext)(); [0, .25, .5].forEach((d, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = [784, 988, 1175][i]; g.gain.setValueAtTime(0, ac.currentTime + d); g.gain.linearRampToValueAtTime(.25, ac.currentTime + d + .02); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d + .8); o.connect(g).connect(ac.destination); o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .9); }); } catch (_) {} };
-const tStart = sec => { tLeft = sec; tRun = true; $('timer').classList.add('on'); $('tpause').textContent = '⏸'; tShow(); clearInterval(tInt); tInt = setInterval(() => { if (!tRun) return; tLeft--; tShow(); if (tLeft === 0) chime(); }, 1000); };
+const tStart = sec => { tLeft = sec; tRun = true; $('timer').classList.add('on'); $('tpause').innerHTML = IC.pause; tShow(); clearInterval(tInt); tInt = setInterval(() => { if (!tRun) return; tLeft--; tShow(); if (tLeft === 0) chime(); }, 1000); };
 document.querySelectorAll('[data-timer]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); tStart(+b.dataset.timer); }));
-$('tpause').onclick = () => { tRun = !tRun; $('tpause').textContent = tRun ? '⏸' : '▶'; };
+$('tpause').onclick = () => { tRun = !tRun; $('tpause').innerHTML = tRun ? IC.pause : IC.play; };
 $('tplus').onclick = () => { tLeft = Math.max(0, tLeft) + 60; tShow(); };
 $('tclose').onclick = () => { clearInterval(tInt); tRun = false; $('timer').classList.remove('on'); };
 
@@ -670,8 +676,8 @@ const toggleOv = on => { $('overview').classList.toggle('on', on); ov.querySelec
 /* ---------- navigation ---------- */
 const frags = s => [...s.querySelectorAll('.f')];
 const enter = (s, on) => {
-  if (s.hasAttribute('data-bars')) runBars(s, on);
-  if (s.hasAttribute('data-dots')) runDots(on);
+  if (s.hasAttribute('data-count')) runCount(s, on);
+  if (s.hasAttribute('data-cloud')) { if (on) setTimeout(() => buildCloud(true), 80); else { cloudTimers.forEach(clearTimeout); cloud.innerHTML = ''; } }
   if (s.hasAttribute('data-chat')) runChat(on);
   if (s.hasAttribute('data-wall')) { loadWall(on); if (on) setTimeout(fitFrames, 50); }
   if (s.hasAttribute('data-builder') && on) { loadPreview(true); setTimeout(fitFrames, 50); renderBuilder(); }
@@ -706,7 +712,7 @@ const fsToggle = () => { if (!document.fullscreenElement) document.documentEleme
 $('bfs').onclick = fsToggle; $('bov').onclick = () => toggleOv(true);
 let tx = null; document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
 document.addEventListener('touchend', e => { if (tx === null || overlayOpen()) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 60) (dx < 0 ? next : prev)(); tx = null; });
-window.addEventListener('resize', fitFrames);
+window.addEventListener('resize', () => { fitFrames(); if (slides[cur] && slides[cur].hasAttribute('data-cloud')) buildCloud(false); });
 
 /* ---------- starfield ---------- */
 const cv = $('stars'), cx = cv.getContext('2d'); let W, H, stars = [], mx = .5, my = .5;

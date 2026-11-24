@@ -121,6 +121,43 @@ svg text{font-family:var(--font)}
   #lines{max-height:60vh;min-height:260px}
   h1 small{display:none}
 }
+
+/* ---- responsive (MacBook Air etc.) ---- */
+.cpBtn{min-height:44px!important;padding:0 14px!important;font-size:16px!important;bottom:8px!important;right:12px!important;box-shadow:0 3px 0 #1F2A44!important}
+.cpBtn svg{width:20px!important;height:20px!important}
+.app{height:100vh;height:100dvh;min-height:0;padding-bottom:58px}
+.top{flex-wrap:wrap}
+.main>*{min-width:0}
+.stage svg{max-height:100%}
+@media (max-height:820px),(max-width:1300px){
+  body{font-size:22px}
+  .app{gap:8px;padding:8px 14px 56px}
+  .btn{min-height:52px;font-size:21px;padding:0 14px;border-radius:16px}
+  .chip{font-size:20px;padding:5px 16px}
+  .tab{min-height:56px;padding:2px 6px}.tab b{font-size:21px}.tab span{font-size:17px}
+  .tip{font-size:20px}
+  .bub{padding:8px 12px}.bub .pt{font-size:clamp(24px,1.9vw,30px)}.bub .zh{font-size:21px}
+  .spk{width:52px;height:52px;font-size:24px}
+  .opt{min-height:60px;padding:6px 14px}.opt .op{font-size:clamp(24px,1.8vw,30px)}.opt small{font-size:19px}
+  .qbox .qp{font-size:clamp(24px,1.9vw,30px)}.qbox .qz{font-size:20px}
+  .fb{min-height:48px;font-size:22px}
+  .card{padding:10px}
+  .empty{font-size:24px}.empty small{font-size:19px}
+  .res{font-size:26px}.res .stars{font-size:48px}
+}
+@media (max-width:1100px){
+  .main{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+  .tb .btn{padding:0 10px;font-size:19px}
+  h1 small{display:none}
+}
+@media (max-width:900px){
+  .app{height:auto;min-height:100vh;padding-bottom:70px}
+  .main{grid-template-columns:1fr}
+  .stage{flex:none;height:62vw;max-height:55vh}
+  #lines{max-height:60vh;min-height:260px}
+  .tabs{flex-wrap:wrap}.tab{flex:1 1 30%}
+  .tb .btn{min-height:48px}
+}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
 </style>
 </head>
@@ -161,7 +198,7 @@ svg text{font-family:var(--font)}
 <div class="foot">AI 輔助備課工作坊 · 示範教具</div>
 <div id="toast"></div>
 
-<script src="audio/09/voice.js"></script>
+<script src="audio/09/voice.js?v=3"></script>
 <script>
 (function(){
 'use strict';
@@ -703,5 +740,7 @@ renderTabs();renderScene(true);renderLines();renderRp();updateUI();
 /*ENUM*/
 })();
 </script>
+<script src="prompts.js"></script>
+<script src="tool-extras.js"></script>
 </body>
 </html>

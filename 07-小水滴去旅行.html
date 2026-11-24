@@ -109,6 +109,22 @@ footer{flex:0 0 auto;text-align:right;font-size:14px;color:var(--ink-2);padding:
 .link.on{opacity:1}
 .star{transform-box:fill-box;transform-origin:center;animation:twk 1.6s ease-in-out infinite}
 @keyframes twk{0%,100%{transform:scale(.7);opacity:.6}50%{transform:scale(1.1);opacity:1}}
+/* MacBook Air / 短螢幕 + 複製 Prompt 按鈕留位 */
+footer{display:none}
+nav{padding-right:clamp(12px,2vw,32px);padding-bottom:6px}
+@media (min-width:901px){nav{padding-right:210px}}
+@media (max-height:760px){
+  header{padding-top:4px;padding-bottom:4px}
+  .btn{min-height:52px;font-size:clamp(20px,1.7vw,26px)}
+  .chip,.step{padding:5px 14px}
+  h1{font-size:clamp(24px,2.2vw,34px)}
+  #cap{font-size:clamp(22px,2.3vw,38px)}
+  .caption{padding-top:4px}
+  nav{padding-top:6px;padding-bottom:4px}
+  .dot{width:48px;height:52px}
+  main{min-height:160px}
+}
+@media (max-width:900px){nav{padding-bottom:70px}body{overflow:auto;height:auto;min-height:100dvh}main{min-height:0;container-type:normal;display:block;padding-top:8px}#stage{width:100%}}
 @media (max-width:720px){
   .chip{font-size:20px;padding:6px 12px}
   .btn{padding:0 16px}
@@ -265,7 +281,7 @@ footer{flex:0 0 auto;text-align:right;font-size:14px;color:var(--ink-2);padding:
 </nav>
 <footer>AI 輔助備課工作坊 · 示範教具</footer>
 
-<script src="audio/07/voice.js"></script>
+<script src="audio/07/voice.js?v=3"></script>
 <script>
 (function(){
 'use strict';
@@ -795,5 +811,7 @@ document.addEventListener('pointerdown',function(){ensureAudio();},{once:true});
 go(0);
 })();
 </script>
+<script src="prompts.js"></script>
+<script src="tool-extras.js"></script>
 </body>
 </html>

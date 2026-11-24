@@ -156,6 +156,46 @@ footer{text-align:right;font-size:14px;color:var(--ink-2);padding-right:6px}
   .tab small{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+
+/* ===== 響應式：MacBook Air 等較矮螢幕 ===== */
+.btn[hidden],.seg[hidden]{display:none!important}
+.app{padding-bottom:76px}
+.seg.dia button{min-width:84px}
+@media (max-height:860px) and (min-width:901px){
+  body{font-size:20px}
+  .app{padding:10px 14px 70px;gap:8px}
+  .top{gap:8px}
+  h1{font-size:clamp(24px,3.6vh,34px)}
+  .btn{min-height:48px;padding:0 20px}
+  .btn.big{min-height:56px;font-size:22px;padding:0 26px;border-radius:18px}
+  .tab{min-height:48px;padding:4px 10px}
+  .card{padding:12px 18px}
+  .main{gap:8px}
+  .seg button{min-height:44px;padding:0 14px}
+  .dot{width:16px;height:16px}
+  .targetbox{min-height:0;padding:8px 14px}
+  .target.w{font-size:clamp(48px,14vh,110px);line-height:1.3}
+  .target.s{font-size:clamp(32px,8vh,64px);line-height:1.4}
+  .target.p{font-size:clamp(22px,4.4vh,40px);line-height:1.6}
+  .wave{height:52px}
+  .heard{min-height:1.4em}
+  .tip{min-height:1.2em}
+  .mascot{width:auto;max-height:20vh}
+  .bubble{padding:8px 12px;min-height:2.4em}
+  .pct{font-size:clamp(34px,7vh,60px)}
+  .bar{height:14px;margin-top:6px}
+  .side{gap:8px}
+  .legend{font-size:.7em}
+  footer{display:none}
+}
+@media (max-width:600px){
+  .app{padding-bottom:84px}
+  .top{justify-content:center}
+  .targetbox{min-height:140px}
+  .controls .btn.big{flex:1 1 40%;font-size:20px;padding:0 12px}
+  .levels{grid-template-columns:1fr}
+  .tab{min-height:52px}
+}
 </style>
 </head>
 <body>
@@ -176,6 +216,10 @@ footer{text-align:right;font-size:14px;color:var(--ink-2);padding-right:6px}
         <div class="qmeta">
           <div class="qno" id="qno"></div>
           <div class="dots" id="dots" aria-hidden="true"></div>
+          <div class="seg dia" role="group" aria-label="朗讀語言">
+            <button type="button" id="diaYue" data-d="yue">粵語</button>
+            <button type="button" id="diaPth" data-d="pth">普通話</button>
+          </div>
           <div class="seg" role="group" aria-label="模式">
             <button type="button" id="segMic">🎤 學生朗讀</button>
             <button type="button" id="segTea">👩‍🏫 老師評分</button>
@@ -249,28 +293,12 @@ footer{text-align:right;font-size:14px;color:var(--ink-2);padding-right:6px}
 <div class="overlay" id="settings" hidden>
   <div class="panel" role="dialog" aria-label="設定">
     <h2>⚙ 設定</h2>
-    <div>
-      <div style="font-weight:700;margin-bottom:8px">語音辨識語言</div>
-      <div class="opts" id="langOpts">
-        <button type="button" class="opt" data-lang="yue-Hant-HK">廣東話 yue-Hant-HK</button>
-        <button type="button" class="opt" data-lang="zh-HK">zh-HK</button>
-        <button type="button" class="opt" data-lang="zh-TW">zh-TW</button>
-      </div>
-      <p class="note">先試 yue-Hant-HK；如果瀏覽器不支援會自動改用 zh-HK。辨識結果如果常常出錯，可以手動切換。</p>
-    </div>
-    <div>
-      <div style="font-weight:700;margin-bottom:8px">示範語速</div>
-      <div class="opts" id="rateOpts">
-        <button type="button" class="opt" data-rate="0.65">慢</button>
-        <button type="button" class="opt" data-rate="0.85">適中</button>
-        <button type="button" class="opt" data-rate="1">正常</button>
-      </div>
-    </div>
     <button class="btn big primary" id="setClose" type="button">完成</button>
   </div>
 </div>
 
-<script src="audio/02/voice.js"></script>
+<script src="audio/02/voice.js?v=3"></script>
+<script src="audio/02p/voice.js?v=3"></script>
 <script>
 (function(){
 'use strict';
@@ -326,10 +354,19 @@ function lcsMarks(T, H){
 
 /* ===== 狀態 ===== */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-var LANGS = ['zh-HK','yue-Hant-HK','zh-TW'];
+var DIA_LANGS = {yue:['zh-HK','yue-Hant-HK'], pth:['zh-TW','zh-CN']};
+var LANGS = DIA_LANGS.yue;
+function getDia(){ try{ var v = localStorage.getItem('rd_dia'); return v === 'pth' ? 'pth' : 'yue'; }catch(e){ return 'yue'; } }
+function setDia(d){
+  S.dia = d; LANGS = DIA_LANGS[d]; S.lang = LANGS[0]; langTried = {};
+  try{ localStorage.setItem('rd_dia', d); }catch(e){}
+  var a = $('diaYue'), b = $('diaPth');
+  if(a) a.className = d === 'yue' ? 'on' : ''; if(b) b.className = d === 'pth' ? 'on' : '';
+  try{ VOICE.stop(); }catch(e){}
+}
 var S = {
   level:0, idx:0, mode: SR ? 'mic' : 'teacher',
-  lang:'zh-HK', rate:0.85,
+  lang:'zh-HK', dia:'yue', rate:0.85,
   tokens:[], flags:{}, result:null, recording:false, finished:false,
   scores:[{},{},{}]
 };
@@ -387,7 +424,7 @@ function ttsFallback(text, opt){
     }
     ss.cancel();
     var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-HK'; u.rate = (opt && opt.rate) || S.rate;
+    u.lang = (S.dia === 'pth' ? 'zh-CN' : 'zh-HK'); u.rate = (opt && opt.rate) || S.rate;
     var v = pickVoice(u.lang); if(v){ u.voice = v; }
     if(opt && opt.onend){ u.onend = opt.onend; }
     ss.speak(u);
@@ -396,7 +433,7 @@ function ttsFallback(text, opt){
 var VOICE = (function(){
   var cur = null;
   var norm = function(s){ return String(s).replace(/\s+/g, ''); };
-  var lookup = function(t){ return (window.VOICE_LINES || {})[norm(t)]; };
+  var lookup = function(t){ return ((S.dia === 'pth' ? window.VOICE_LINES_P : window.VOICE_LINES) || {})[norm(t)]; };
   function stop(){
     if(cur){ cur.onended = null; try{ cur.pause(); }catch(e){} cur = null; }
     try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
@@ -522,6 +559,13 @@ function renderMeter(){
   if(bar){ bar.style.width = r.acc + '%'; bar.className = good ? 'good' : ''; }
 }
 function feedbackFor(acc){
+  if(S.dia === 'pth'){
+    if(acc >= 100) return ['太棒了！每個字都讀對了！', 'good'];
+    if(acc >= 85) return ['讀得真好！只有幾個字要再練一練。', 'good'];
+    if(acc >= 60) return ['不錯喔！黃色的字再聽一遍，然後再讀一次吧。', 'hint'];
+    if(acc >= 30) return ['慢慢來，先聽示範，再慢慢讀吧。', 'hint'];
+    return ['沒關係，我們先聽示範，再試一次吧。', 'hint'];
+  }
   if(acc >= 100) return ['好叻呀！每個字都讀啱晒！', 'good'];
   if(acc >= 85) return ['讀得好好呀！得少少字要再練一練。', 'good'];
   if(acc >= 60) return ['唔錯喎！黃色嘅字再聽多次，然後再讀一次吖。', 'hint'];
@@ -580,7 +624,22 @@ function stopRec(){
   clearRecTimer();
   try{ if(rec) rec.stop(); }catch(e){}
 }
+var micOK = false;
 function startRec(isRetryLang){
+  if(S.recording){ stopRec(); return; }
+  if(micOK || isRetryLang || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)){ return startRecCore(isRetryLang); }
+  if(!SR){ return startRecCore(false); }
+  var b = $('btnRec'); if(b){ b.disabled = true; b.textContent = '請允許咪高峰…'; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+    try{ st.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    micOK = true; if(b) b.disabled = false; renderControls(); startRecCore(false);
+  }).catch(function(err){
+    if(b) b.disabled = false; renderControls();
+    var n = err && err.name;
+    handleRecError(n === 'NotFoundError' ? 'audio-capture' : (n === 'NotAllowedError' || n === 'SecurityError' ? 'not-allowed' : String(n || 'mic')));
+  });
+}
+function startRecCore(isRetryLang){
   if(!SR){ showNotice(supportMsg(), 'warn'); setMode('teacher'); return; }
   if(S.recording){ stopRec(); return; }
   ensureAudio();
@@ -597,7 +656,9 @@ function startRec(isRetryLang){
   r.continuous = (S.level === 2);
   r.interimResults = true;
   r.maxAlternatives = 3;
+  var startDog = setTimeout(function(){ if(!S.recording){ try{ r.abort(); }catch(e){} S.recording = false; rec = null; renderControls(); handleRecError('no-start'); } }, 5000);
   r.onstart = function(){
+    clearTimeout(startDog);
     S.recording = true; setMascot('listening');
     setBubble('我聽緊，大聲啲讀吖！', '');
     var h = $('heard'); if(h) h.textContent = '';
@@ -620,7 +681,7 @@ function startRec(isRetryLang){
   };
   r.onerror = function(ev){ lastErr = (ev && ev.error) || 'error'; };
   r.onend = function(){
-    clearRecTimer();
+    clearTimeout(startDog); clearRecTimer();
     S.recording = false; rec = null; setMascot('');
     if(lastErr === 'language-not-supported'){
       var nextLang = null, q;
@@ -667,6 +728,8 @@ function handleRecError(code){
     msg = '咪高峰沒有被允許，或者這個頁面（例如 file:// 直接打開）不能使用語音辨識。請在網址列允許咪高峰；也可以用 <b>' + LOCAL + '</b> 打開。';
   } else if(code === 'network'){
     msg = '語音辨識需要網絡。請檢查網絡；語音辨識需要 Chrome / Edge 同網絡，可以用 <b>' + LOCAL + '</b> 打開。';
+  } else if(code === 'no-start'){
+    msg = '按下後瀏覽器沒有開始收音。請按網址列左邊的鎖頭或咪高峰圖示，確認「咪高峰」是「允許」，然後重新整理頁面再試。';
   } else if(code === 'audio-capture'){
     msg = '找不到咪高峰，請檢查裝置有沒有接上咪高峰。';
   } else {
@@ -768,6 +831,8 @@ on('btnRetry', 'click', function(){
   if(S.mode === 'mic'){ startRec(false); }
 });
 on('btnNext', 'click', next);
+on('diaYue', 'click', function(){ setDia('yue'); setBubble('用粵語朗讀，㩒「示範」聽一聽。', ''); });
+on('diaPth', 'click', function(){ setDia('pth'); setBubble('用普通話朗讀，點「示範」聽一聽。', ''); });
 on('segMic', 'click', function(){ setMode('mic'); });
 on('segTea', 'click', function(){ setMode('teacher'); });
 on('btnReset', 'click', resetAll);
@@ -810,10 +875,13 @@ try{
   }
 }catch(e){}
 
+setDia(getDia());
 syncSettings();
 loadItem();
 initNotices();
 })();
 </script>
+<script src="prompts.js"></script>
+<script src="tool-extras.js"></script>
 </body>
 </html>

@@ -34,7 +34,8 @@ async def main(dirs):
             mp[norm(text)] = f'audio/{d}/{h}.mp3'
             if not os.path.exists(path): jobs.append(one(sem, say, voice, rate, path))
         with open(os.path.join(HERE, d, 'voice.js'), 'w', encoding='utf-8') as f:
-            f.write('window.VOICE_LINES=Object.assign(window.VOICE_LINES||{},' + json.dumps(mp, ensure_ascii=False) + ');\n')
+            vn = 'VOICE_LINES_P' if d.endswith('p') else 'VOICE_LINES'
+            f.write(f'window.{vn}=Object.assign(window.{vn}||{{}},' + json.dumps(mp, ensure_ascii=False) + ');\n')
         print(d, len(lines), 'lines', flush=True)
     res = await asyncio.gather(*jobs)
     print('rendered', sum(res), 'new clips;', len(res) - sum(res), 'failed', flush=True)

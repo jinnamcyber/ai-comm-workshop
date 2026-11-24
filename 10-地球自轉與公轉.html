@@ -122,6 +122,39 @@ footer{flex:0 0 auto;text-align:right;color:var(--ink-2);font-size:14px;padding:
   .sliders{grid-template-columns:1fr}
   .stage{min-height:420px;flex:none}
 }
+
+/* ---- responsive (MacBook Air etc.) ---- */
+.cpBtn{min-height:44px!important;padding:0 14px!important;font-size:16px!important;bottom:8px!important;right:12px!important;box-shadow:0 3px 0 #1F2A44!important}
+.cpBtn svg{width:20px!important;height:20px!important}
+.app{padding-bottom:58px}
+footer{text-align:left}
+@media (min-width:1001px){
+  .app{height:100vh;height:100dvh;min-height:0}
+  .grid{min-height:0}
+  .stage{min-height:0}
+  .right{overflow-y:auto;overflow-x:hidden}
+  .info{min-height:90px}
+}
+@media (max-height:820px),(max-width:1300px){
+  body{font-size:20px}
+  .app{padding:8px 12px 56px;gap:8px}
+  .btn{min-height:52px;border-radius:16px}
+  h1{font-size:1.2em}
+  input[type=range]{height:48px}
+  input[type=range]::-webkit-slider-thumb{width:38px;height:38px;margin-top:-11px}
+  .controls{gap:6px}
+  .row-btns .btn{flex:1 1 90px}
+  .zoomwrap{height:clamp(120px,20vh,220px)}
+  .grid{grid-template-columns:minmax(0,1fr) clamp(290px,31vw,420px)}
+  .card{padding:8px 12px}
+  .hbar{height:20px}
+  .kv div{padding:.15em .6em}
+}
+@media (max-width:1000px){
+  .app{height:auto;min-height:100vh}
+  .stage{min-height:340px}
+  .right{overflow:visible}
+}
 </style>
 </head>
 <body>
@@ -918,5 +951,7 @@ try{if(/(^|[#&])q=1/.test(location.hash)){openQ();if(/flip=1/.test(location.hash
 window.requestAnimationFrame(frame);
 })();
 </script>
+<script src="prompts.js"></script>
+<script src="tool-extras.js"></script>
 </body>
 </html>
