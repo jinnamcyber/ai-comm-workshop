@@ -401,15 +401,18 @@ p{margin:0}
   <div class="kicker">45 分鐘 · 揀一級開始</div>
   <h2>實作：揀你嘅挑戰</h2>
   <div class="tiers">
-    <div class="glass tier" style="--c:var(--green)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg> 初階 · 填充模板</span><h3>填空就得</h3>
-      <div class="tpl">我係<i>＿年級＿＿科</i>老師，學生<i>（程度）</i>。課題係<i>＿＿＿</i>，目標係令學生<i>＿＿＿</i>。
-請整一個 HTML 互動<i>選擇題／配對</i>活動，喺電子白板用，共 <i>8</i> 題。答啱有讚，答錯有提示。
-用繁體中文，字要大，唔使登入，可以離線打開。</div>
-      <button class="btn ghost" data-copy="0"><svg class="i"><use href="#ic-clipboard"/></svg> 複製模板</button></div>
-    <div class="glass tier" style="--c:var(--blue)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg> 中階 · 自己課題</span><h3>用五要素自己寫</h3>
-      <p>揀一個下星期真係要教嘅課題，用五要素寫 prompt。</p>
-      <p><b style="color:var(--ink)">任務：</b>至少做 <span class="hl">兩輪具體回饋</span>，記低第一版同改完版。</p>
-      <p>可以參考展示頁每個教具嘅「有效講法」。</p></div>
+    <div class="glass tier" style="--c:var(--green)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg> 初階 · 複製例子</span><h3>五揀一，直接複製</h3>
+      <p>喺 Notion 頁揀同你科目最近嘅一個，原樣貼入 Gemini Canvas：</p>
+      <p>常識：植物的組成<br>數學：乘法口訣晨操<br>音樂：音樂聽辨<br>英文：Mixed Tenses 工作紙<br>葡文：情境對話</p>
+      <p><b style="color:var(--ink)">任務：</b>試玩，再貼上例子附嘅<span class="hl">第二輪回饋</span>。</p></div>
+    <div class="glass tier" style="--c:var(--blue)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg> 中階 · 結構＋自己課題</span><h3>用五要素自己寫</h3>
+      <div class="tpl">【身份同對象】我係＿＿學校＿年級＿＿科老師，學生（年齡、程度）。
+【目的】學生要學識＿＿＿。
+【形式】用 Canvas 做單一 HTML 檔，內容：＿＿＿。
+【限制】繁體中文；字號 24px 以上；按鈕 64px 高以上；答錯用黃色提示；唔好用 alert()。
+【之後點樣回饋】我會逐項講邊度要改，請只改我指出嘅部分。</div>
+      <button class="btn ghost" data-copy="0"><svg class="i"><use href="#ic-clipboard"/></svg> 複製結構</button>
+      <p><b style="color:var(--ink)">任務：</b>揀下星期真係要教嘅課題，至少做 <span class="hl">兩輪具體回饋</span>。</p></div>
     <div class="glass tier" style="--c:var(--violet)"><span class="lv"><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg><svg class="i"><use href="#ic-star"/></svg> 進階 · 加功能</span><h3>逐樣加上去</h3>
       <p>先整骨架，再一輪加一樣：</p>
       <p><svg class="i"><use href="#ic-speaker"/></svg> 朗讀（廣東話／英文／葡文）<br><svg class="i"><use href="#ic-trophy"/></svg> 計分同星星<br><svg class="i"><use href="#ic-sliders"/></svg> 可調數值嘅示範<br><svg class="i"><use href="#ic-printer"/></svg> 列印版工作紙</p>
@@ -445,7 +448,7 @@ p{margin:0}
 
 <!-- 18 END -->
 <section class="slide title" data-title="多謝">
-  <div class="floaty"><img class="hero-art" src="art/school_front2.jpg" alt="我哋學校嘅卡通立面"></div>
+  <div class="floaty"><img class="hero-art" src="art/school_taipa.jpg" alt="氹仔中葡學校嘅卡通街景"></div>
   <h1 style="font-size:8em"><span class="grad">多謝！</span></h1>
   <p class="lead">有問題，隨時問 <svg class="i"><use href="#ic-heart"/></svg></p>
   <div class="row" style="gap:1em"><a class="btn" href="index.html" target="_blank" style="text-decoration:none"><svg class="i"><use href="#ic-folder"/></svg> 培訓小禮物</a></div>
@@ -665,7 +668,7 @@ $('reveal').addEventListener('click', () => $('reveal').classList.remove('on'));
 document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async e => {
   e.stopPropagation(); const txt = b.parentElement.querySelector('.tpl').textContent;
   try { await navigator.clipboard.writeText(txt); b.innerHTML = IC.check + ' 已複製'; } catch (_) { b.textContent = '請手動複製'; }
-  setTimeout(() => b.innerHTML = IC.clipboard + ' 複製模板', 1800);
+  setTimeout(() => b.innerHTML = IC.clipboard + ' 複製結構', 1800);
 }));
 
 /* ---------- timer ---------- */
