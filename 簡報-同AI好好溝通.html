@@ -140,6 +140,13 @@ p{margin:0}
 @keyframes pop{from{background:color-mix(in srgb,var(--c) 40%,transparent)}to{background:transparent}}
 .preview{position:relative;flex:1;border-radius:1.4em;overflow:hidden;border:1px solid var(--line);background:#FFF8EC;min-height:0}
 .preview iframe{position:absolute;left:0;top:0;width:1600px;height:900px;border:0;transform-origin:0 0;pointer-events:none;transition:filter .8s}
+.preview.live iframe{pointer-events:auto}
+.preview .fog{pointer-events:none}
+.preview .live-tip{position:absolute;left:.6em;bottom:.6em;z-index:4;display:none;align-items:center;gap:.4em;padding:.4em 1em;border-radius:999px;background:rgba(46,139,79,.92);color:#fff;font-weight:800;font-size:1em;pointer-events:none;animation:pop2 1.6s ease-in-out infinite alternate}
+.preview.live .live-tip{display:flex}
+.preview .zoom{position:absolute;right:.6em;top:.6em;z-index:4;display:none;align-items:center;gap:.35em;padding:.4em 1em;border-radius:999px;border:1px solid rgba(255,255,255,.5);background:rgba(11,16,40,.82);color:#fff;font:700 1em inherit;cursor:pointer}
+.preview.live .zoom{display:flex}
+@keyframes pop2{from{transform:translateY(0)}to{transform:translateY(-.25em)}}
 .fog .i{width:1.1em;height:1.1em;margin-right:.3em}.fog{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.3em;font-size:2.2em;font-weight:900;color:#0B1028;transition:opacity .8s;background:radial-gradient(circle,rgba(255,248,236,.2),rgba(255,248,236,.75))}
 
 /* ---------- vs ---------- */
@@ -312,8 +319,8 @@ p{margin:0}
     <div class="out">
       <div class="glass promptbox" id="promptbox"><span class="empty">整一個植物遊戲。</span></div>
       <div class="preview" id="preview">
-        <iframe data-src="01-植物的組成.html" title="植物的組成" tabindex="-1"></iframe>
-        <div class="fog" id="fog"><svg class="i"><use href="#ic-think"/></svg> AI 估緊……</div>
+        <iframe data-src="01-植物的組成.html" title="植物的組成" allow="microphone; autoplay"></iframe>
+        <button class="zoom" id="pvzoom" type="button"><svg class="i"><use href="#ic-expand"/></svg> 放大試玩</button><div class="live-tip"><svg class="i"><use href="#ic-star"/></svg> 清晰晒啦！真係撳得，試玩吓</div><div class="fog" id="fog"><svg class="i"><use href="#ic-think"/></svg> AI 估緊……</div>
       </div>
     </div>
   </div>
@@ -627,12 +634,15 @@ const renderBuilder = () => {
   const f = $('preview').querySelector('iframe');
   f.style.filter = `blur(${(5 - n) * 3.2}px) grayscale(${(5 - n) / 5}) saturate(${.6 + n * .08})`;
   const fog = $('fog'); fog.style.opacity = n >= 4 ? 0 : 1;
+  $('preview').classList.toggle('live', n >= 5);
   fog.innerHTML = [[IC.think,'AI 估緊……'],[IC.think,'小三？然後呢？'],[IC.search,'開始有啲頭緒…'],[IC.smile,'差唔多啦…'],['',''],['','']][n].join(' ');
 };
 document.querySelectorAll('.tg').forEach(b => b.addEventListener('click', e => {
   e.stopPropagation(); const k = +b.dataset.k;
   onK.has(k) ? onK.delete(k) : onK.add(k); b.classList.toggle('on', onK.has(k)); renderBuilder();
 }));
+$('pvzoom').addEventListener('click', e => { e.stopPropagation(); const i = TOOLS.findIndex(t => t[0].startsWith('01')); const t = wall.querySelectorAll('.tile')[i]; if (t) t.click(); });
+$('preview').querySelector('iframe').addEventListener('mouseleave', () => { try { window.focus(); } catch (_) {} });
 const loadPreview = on => { const f = $('preview').querySelector('iframe'); if (on && !f.getAttribute('src')) f.src = encodeURI(f.dataset.src); };
 
 /* ---------- vs key highlight ---------- */
