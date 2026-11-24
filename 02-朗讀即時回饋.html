@@ -326,9 +326,17 @@ var S2T = (function(){
 var DIGITS = {'0':'〇','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六','7':'七','8':'八','9':'九'};
 var CHAR_RE = /[㐀-䶿一-鿿豈-﫿0-9A-Za-z]/;
 function isChar(c){ return CHAR_RE.test(c); }
+/* 同音／近音字（粵語辨識成日出同音字，例如「蘋」→「平」、「小」→「少」）：每組第一個字係標準字 */
+var ALT = (function(){
+  var groups = '蘋平頻評瓶 果菓裹 小少笑肖消蕭 貓茅毛矛錨 朋棚彭 友有又右 學雪 校效 太泰 陽楊洋揚 快塊 我餓 喜稀 歡寬 紅洪鴻 躺淌 窗床 今金 天添 玩頑 遊游 媽螞 爸巴 星腥 期其棋旗 六陸 早棗 上尚 公工功 園圓元原 氣汽 花化 兒而 開該 美每 放訪 風瘋 箏爭 家加 都度 很狠 心新'.split(' ');
+  var m = {}, g, k;
+  for(g=0;g<groups.length;g++){ for(k=1;k<groups[g].length;k++){ m[groups[g].charAt(k)] = groups[g].charAt(0); } }
+  return m;
+})();
 function normChar(c){
   if(DIGITS[c]) return DIGITS[c];
-  return S2T[c] || c.toLowerCase();
+  var t = S2T[c] || c.toLowerCase();
+  return ALT[t] || t;
 }
 function normList(s){
   var out = [], i, c;
@@ -596,7 +604,9 @@ function applyMarks(marks, heardText){
 function evaluateHeard(text){
   var T = [], idxMap = [], i;
   for(i=0;i<S.tokens.length;i++){ if(S.tokens[i].isChar){ T.push(S.tokens[i].n); idxMap.push(i); } }
-  var res = lcsMarks(T, normList(text)), marks = [];
+  var H = normList(text), res = lcsMarks(T, H), marks = [];
+  /* 瀏覽器收音成日切走第一個字：如果其餘全部讀啱、只係少咗第一個字，當第一個字讀啱 */
+  if(T.length > 1 && H.length === T.length - 1 && res.hits === T.length - 1 && !res.marks[0]){ res.marks[0] = true; }
   for(i=0;i<S.tokens.length;i++) marks.push(false);
   for(i=0;i<idxMap.length;i++) marks[idxMap[i]] = !!res.marks[i];
   applyMarks(marks, text);
