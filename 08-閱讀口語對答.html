@@ -133,6 +133,7 @@ footer{min-height:54px;padding:6px 24px 8px;text-align:left}
   footer{padding-bottom:70px}
 }
 </style>
+<script src="audio/no-tts.js"></script>
 </head>
 <body>
 <header>
@@ -601,7 +602,8 @@ function startMic(){
   micText=''; micErr=false;
   try{ rec=new SR(); }catch(e){ disableVoice('開唔到語音辨識。'); return; }
   rec.lang=recLang; var dog=setTimeout(function(){ if(!listening){ try{ rec.abort(); }catch(e){} notice('📌 撳咗之後瀏覽器冇開始收音。請檢查網址列嘅咪高峰許可，重新整理頁面再試，或者用打字作答。'); } },5000); rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
-  rec.onstart=function(){ clearTimeout(dog); listening=true; setMicUI(); notice('🎤 聽緊你講…講完會自動送出。'); };
+  rec.onstart=function(){ clearTimeout(dog); listening=true; setMicUI(); notice('🎤 準備緊…等「而家講」出現先開口。'); };
+  rec.onaudiostart=function(){ notice('🎤 而家講吖！講完會自動送出。'); };
   rec.onresult=function(e){
     var t=''; try{ for(var i=0;i<e.results.length;i++) t+=e.results[i][0].transcript; }catch(x){}
     micText=t; var a=$('ans'); if(a) a.value=t;

@@ -197,6 +197,7 @@ footer{text-align:right;font-size:14px;color:var(--ink-2);padding-right:6px}
   .tab{min-height:52px}
 }
 </style>
+<script src="audio/no-tts.js"></script>
 </head>
 <body>
 <div class="app">
@@ -316,7 +317,7 @@ var LEVELS = [
 
 /* ===== 簡繁對照（常見字） ===== */
 var S2T = (function(){
-  var pairs = '们們这這个個说說话話对對时時开開学學习習师師爱愛欢歡乐樂车車风風门門见見来來么麼后後国國园園书書马馬鸟鳥鱼魚红紅绿綠蓝藍黄黃样樣还還吗嗎儿兒听聽读讀买買卖賣长長东東区區动動会會过過远遠热熱画畫阳陽虽雖为為应應点點间間问問关關兴興发發经經机機电電气氣实實种種体體现現头頭让讓请請谢謝总總脑腦灯燈云雲鸡雞猫貓饭飯饱飽饿餓汤湯鲜鮮礼禮边邊帮幫带帶当當几幾钱錢难難认認识識写寫鸭鴨叶葉树樹妈媽爷爺爸爸姐姐里裡裏裡麽麼著着';
+  var pairs = '们們这這个個说說话話对對时時开開学學习習师師爱愛欢歡乐樂车車风風门門见見来來么麼后後国國园園书書马馬鸟鳥鱼魚红紅绿綠蓝藍黄黃样樣还還吗嗎儿兒听聽读讀买買卖賣长長东東区區动動会會过過远遠热熱画畫阳陽虽雖为為应應点點间間问問关關兴興发發经經机機电電气氣实實种種体體现現头頭让讓请請谢謝总總脑腦灯燈云雲鸡雞猫貓饭飯饱飽饿餓汤湯鲜鮮礼禮边邊帮幫带帶当當几幾钱錢难難认認识識写寫鸭鴨叶葉树樹妈媽爷爺爸爸姐姐里裡裏裡麽麼著着苹蘋晒曬游遊戏戲筝箏飞飛';
   var m = {}, i;
   for(i=0;i+1<pairs.length;i+=2){ m[pairs.charAt(i)] = pairs.charAt(i+1); }
   m['着']='著'; m['著']='著'; /* 統一 */
@@ -660,7 +661,7 @@ function startRecCore(isRetryLang){
   r.onstart = function(){
     clearTimeout(startDog);
     S.recording = true; setMascot('listening');
-    setBubble('我聽緊，大聲啲讀吖！', '');
+    setBubble('準備緊…等我出「而家讀」先開口吖', '');
     var h = $('heard'); if(h) h.textContent = '';
     renderControls();
   };
@@ -678,6 +679,9 @@ function startRecCore(isRetryLang){
     var shown = '', j;
     for(j=0;j<segs.length;j++){ if(segs[j]) shown += segs[j][0]; }
     var h = $('heard'); if(h) h.innerHTML = '聽到：<b>' + esc(shown + interim) + '</b>';
+  };
+  r.onaudiostart = function(){
+    setBubble('🎤 而家讀吖！大聲啲', '');
   };
   r.onerror = function(ev){ lastErr = (ev && ev.error) || 'error'; };
   r.onend = function(){
